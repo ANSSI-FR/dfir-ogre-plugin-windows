@@ -9,16 +9,28 @@
     <default_date_pattern value='%Y-%m-%d %H:%M:%S.%3f' />
 
     <fields>
-      <field input="process_name" parser="String" description="Process name" />
-      <field input="pid" parser="String" description="PID" />
+      <field
+        input="process_name"
+        parser="String"
+        ocsf-name="process.name"
+        description="Process name"
+      />
+      <field
+        input="pid"
+        parser="String"
+        ocsf-name="process.pid"
+        description="PID"
+      />
       <field
         input="command_line"
         parser="String"
+        ocsf-name="process.cmd_line"
         description="Full command line used to start the process"
       />
       <field
         input="base_addr"
         parser="String"
+        ocsf-name="process.loaded_modules.base_address"
         description="Base address in memory where the DLL is loaded (hexadecimal)"
       />
       <field
@@ -29,6 +41,7 @@
       <field
         input="path"
         parser="String"
+        ocsf-name="process.loaded_modules.file.path"
         description=" Full path to the DLL file on disk"
       />
 

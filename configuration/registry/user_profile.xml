@@ -37,6 +37,7 @@ Extracts data about Windows user profiles from the `Software` hive.
         input="user_name"
         parser="String"
         qualifier="USER_NAME"
+        ocsf-name="user.name"
         description="account name derived from the profile directory"
       />
 
@@ -44,6 +45,7 @@ Extracts data about Windows user profiles from the `Software` hive.
         input="user_sid"
         parser="String"
         qualifier="USER_SID"
+        ocsf-name="user.uid"
         description="security identifier (SID) of the user profile"
       />
 
@@ -51,6 +53,7 @@ Extracts data about Windows user profiles from the `Software` hive.
         input="path"
         parser="String"
         qualifier="FILE_PATH"
+        ocsf-name="file.path"
         description="filesystem path to the user's profile directory"
       />
 

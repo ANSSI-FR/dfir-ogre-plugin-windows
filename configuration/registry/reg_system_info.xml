@@ -30,21 +30,25 @@ Extracts various system information from the SYSTEM and SOFTWARE hives
         <field
         input="computer_name"
         parser="String"
+        ocsf-name="device.hostname"
         description="Name of the computer"
       />
         <field
         input="product_name"
         parser="String"
+        ocsf-name="device.os.name"
         description="Windows product name (e.g., Windows 10 Pro)"
       />
         <field
         input="os_version"
         parser="String"
+        ocsf-name="device.os.version"
         description="Windows version number (major.minor"
       />
         <field
         input="build_number"
         parser="String"
+        ocsf-name="device.os.build"
         description="Windows build number"
       />
         <field
@@ -62,6 +66,7 @@ Extracts various system information from the SYSTEM and SOFTWARE hives
         <field
         input="domain"
         parser="String"
+        ocsf-name="device.domain"
         description="Domain the computer is joined to (if any)"
       />
         <field
@@ -142,11 +147,13 @@ Extracts various system information from the SYSTEM and SOFTWARE hives
                 <field
             input="guid"
             parser="String"
+            ocsf-name="network_interface.uid"
             description="Unique identifier for the network interface"
           />
                 <field
             input="name"
             parser="String"
+            ocsf-name="network_interface.name"
             description="Network interface name as shown in Windows"
           />
                 <field
@@ -157,11 +164,13 @@ Extracts various system information from the SYSTEM and SOFTWARE hives
                 <field
             input="mac"
             parser="String"
+            ocsf-name="network_interface.mac"
             description="Physical MAC address of the interface"
           />
                 <field
             input="ipv4"
             parser="String"
+            ocsf-name="network_interface.ip"
             description="IPv4 addresses assigned to the interface"
           />
                 <field
@@ -172,6 +181,7 @@ Extracts various system information from the SYSTEM and SOFTWARE hives
                 <field
             input="dhcp_ipv4"
             parser="String"
+            ocsf-name="network_interface.ip"
             description="Current IPv4 address obtained via DHCP"
           />
                 <field
@@ -182,11 +192,13 @@ Extracts various system information from the SYSTEM and SOFTWARE hives
                 <field
             input="ipv6"
             parser="String"
+            ocsf-name="network_interface.ip"
             description="IPv6 addresses assigned to the interface"
           />
                 <field
             input="dhcp_ipv6"
             parser="String"
+            ocsf-name="network_interface.ip"
             description="Current IPv6 address obtained via DHCP"
           />
                 <field

@@ -34,6 +34,7 @@ The plugin queries the Containers and Container_X tables to retrieve URL visits 
       <field
                 input="file_size"
                 parser="Int"
+                ocsf-name="file.size"
                 description="Size of the cached file in bytes"
             />
 
@@ -67,23 +68,31 @@ The plugin queries the Containers and Container_X tables to retrieve URL visits 
                 description="Time offset exemption delta in seconds"
             />
 
-      <field input="url" parser="String" description="Visited URL" />
+      <field
+                input="url"
+                parser="String"
+                ocsf-name="url.url_string"
+                description="Visited URL"
+            />
 
       <field
                 input="filename"
                 parser="String"
+                ocsf-name="file.name"
                 description="Cached file name (if applicable)"
             />
 
       <field
                 input="file_extension"
                 parser="String"
+                ocsf-name="file.ext"
                 description="File extension of the cached resource"
             />
 
       <field
                 input="redirect_url"
                 parser="String"
+                ocsf-name="url.url_string"
                 description="Redirect target URL (if any)"
             />
 
@@ -116,6 +125,7 @@ The plugin queries the Containers and Container_X tables to retrieve URL visits 
                 input="creation_time"
                 parser="DateTime"
                 qualifier="DATE_CREATION"
+                ocsf-name="file.created_time"
                 display_name="Creation Time"
                 description="Entry creation timestamp in UTC"
             />
@@ -131,6 +141,7 @@ The plugin queries the Containers and Container_X tables to retrieve URL visits 
                 input="modified_time"
                 parser="DateTime"
                 qualifier="DATE_MODIFICATION"
+                ocsf-name="file.modified_time"
                 display_name="Modified Time"
                 description="Last modification timestamp in UTC"
             />
@@ -139,6 +150,7 @@ The plugin queries the Containers and Container_X tables to retrieve URL visits 
                 input="accessed_time"
                 parser="DateTime"
                 qualifier="DATE_ACCESS"
+                ocsf-name="file.accessed_time"
                 display_name="Accessed Time"
                 description="Last access timestamp in UTC"
             />

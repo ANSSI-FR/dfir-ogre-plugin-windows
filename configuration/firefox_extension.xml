@@ -74,24 +74,28 @@ permissions.
       <field
                 input="path"
                 parser="String"
+                ocsf-name="file.path"
                 description="filesystem path where the add‑on is installed"
             />
 
       <field
                 input="update_url"
                 parser="String"
+                ocsf-name="url.url_string"
                 description="URL used by the add‑on to check for updates"
             />
 
       <field
                 input="source_uri"
                 parser="String"
+                ocsf-name="url.url_string"
                 description="original source URI from which the add‑on was obtained"
             />
 
       <field
                 input="root_uri"
                 parser="String"
+                ocsf-name="url.url_string"
                 description="root URI of the add‑on package"
             />
 

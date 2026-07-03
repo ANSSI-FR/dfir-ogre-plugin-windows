@@ -41,6 +41,7 @@
         input="EventTime"
         output="event_time"
         parser="DateTime"
+        ocsf-name="metadata.original_time"
         description="Timestamp when the event occurred"
       />
 
@@ -139,6 +140,7 @@
         input="OriginalFilename"
         output="original_filename"
         parser="String"
+        ocsf-name="process.file.name"
         description="Original file name of the crashed executable"
       />
 
@@ -160,6 +162,7 @@
         input="TargetAppVer"
         output="target_app_ver"
         parser="String"
+        ocsf-name="process.file.version"
         description="Version of the target application"
       />
 
@@ -167,6 +170,7 @@
         input="AppPath"
         output="app_path"
         parser="String"
+        ocsf-name="process.file.path"
         description="Full file‑system path to the application executable"
       />
 
@@ -174,6 +178,7 @@
         input="AppName"
         output="app_name"
         parser="String"
+        ocsf-name="process.name"
         description="Human‑readable name of the application"
       />
 
@@ -251,6 +256,7 @@
         <field
           input="loaded_module"
           parser="String"
+          ocsf-name="process.loaded_modules.file.name"
           description="Name of a module that was loaded in the process at crash time"
         />
       </array>
@@ -267,6 +273,7 @@
           <field
             input="Path"
             parser="String"
+            ocsf-name="file.path"
             description="File system path of the reported file"
           />
 
@@ -285,6 +292,7 @@
           <field
             input="Original"
             parser="String"
+            ocsf-name="file.name"
             description="Original filename before it was packaged"
           />
         </object>

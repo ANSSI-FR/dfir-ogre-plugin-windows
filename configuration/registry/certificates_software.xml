@@ -31,18 +31,21 @@ Parses the Windows `Software` registry hive to collect system‑wide X509 certif
       <field
         input="subject"
         parser="String"
+        ocsf-name="certificate.subject"
         description="certificate subject distinguished name (RFC 4514 format)"
       />
 
       <field
         input="issuer"
         parser="String"
+        ocsf-name="certificate.issuer"
         description="certificate issuer distinguished name (RFC 4514 format)"
       />
 
       <field
         input="not_valid_before"
         parser="DateTime"
+        ocsf-name="certificate.created_time"
         display_name="Not valid before"
         description="certificate start‑of‑validity timestamp (not before)"
       />
@@ -50,6 +53,7 @@ Parses the Windows `Software` registry hive to collect system‑wide X509 certif
       <field
         input="not_valid_after"
         parser="DateTime"
+        ocsf-name="certificate.expiration_time"
         display_name="Not valid after"
         description="certificate end‑of‑validity timestamp (not after)"
       />
@@ -69,18 +73,21 @@ Parses the Windows `Software` registry hive to collect system‑wide X509 certif
       <field
         input="fingerprint_sha256"
         parser="String"
+        ocsf-name="certificate.fingerprints.value"
         description="SHA‑256 fingerprint of the certificate (hex string)"
       />
 
       <field
         input="version"
         parser="String"
+        ocsf-name="certificate.version"
         description="X.509 certificate version"
       />
 
       <field
         input="serial_number"
         parser="String"
+        ocsf-name="certificate.serial_number"
         description="certificate serial number (decimal string)"
       />
 

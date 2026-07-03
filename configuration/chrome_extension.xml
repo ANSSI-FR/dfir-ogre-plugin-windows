@@ -28,6 +28,7 @@ structured view of the extension’s declared capabilities.
         description="human‑readable description of the extension" />
 
       <field input="update_url" parser="String"
+        ocsf-name="url.url_string"
         description="URL from which the extension receives updates" />
 
       <field input="extension_pages" parser="String"

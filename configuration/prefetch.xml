@@ -32,6 +32,7 @@ Parses Windows Prefetch files to extract execution metadata. It shows when and h
         input="executable"
         parser="String"
         qualifier="FILE_NAME"
+        ocsf-name="process.file.name"
         description="executable file name"
       />
 
@@ -75,6 +76,7 @@ Parses Windows Prefetch files to extract execution metadata. It shows when and h
             input="path"
             parser="String"
             qualifier="FILE_PATH"
+            ocsf-name="file.path"
             description="full path of a referenced file"
           />
 

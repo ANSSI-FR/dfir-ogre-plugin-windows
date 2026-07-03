@@ -110,6 +110,7 @@ Extracts all service definitions from a Windows `System` hive, in the related co
         input="image_path"
         parser="String"
         qualifier="COMMAND_LINE"
+        ocsf-name="process.cmd_line"
         description="command line or executable path that the service runs"
       />
 
@@ -155,6 +156,7 @@ Extracts all service definitions from a Windows `System` hive, in the related co
         input="run_as"
         parser="String"
         qualifier="USER_NAME"
+        ocsf-name="process.user.name"
         description="account name under which the service runs"
       />
 
@@ -236,6 +238,7 @@ Extracts all service definitions from a Windows `System` hive, in the related co
         input="service_dll"
         parser="String"
         qualifier="FILE_PATH"
+        ocsf-name="file.path"
         description="path to the ServiceDll implementing the service"
       />
 
@@ -243,6 +246,7 @@ Extracts all service definitions from a Windows `System` hive, in the related co
         input="service_manifest"
         parser="String"
         qualifier="FILE_PATH"
+        ocsf-name="file.path"
         description="path to the ServiceManifest file"
       />
 
@@ -264,6 +268,7 @@ Extracts all service definitions from a Windows `System` hive, in the related co
         input="parameters_service_dll"
         parser="String"
         qualifier="FILE_PATH"
+        ocsf-name="file.path"
         description="ServiceDll value inside the Parameters sub‑key"
       />
 
@@ -271,6 +276,7 @@ Extracts all service definitions from a Windows `System` hive, in the related co
         input="parameters_service_manifest"
         parser="String"
         qualifier="FILE_PATH"
+        ocsf-name="file.path"
         description="ServiceManifest value inside the Parameters sub‑key"
       />
 
@@ -292,6 +298,7 @@ Extracts all service definitions from a Windows `System` hive, in the related co
         input="performance_library"
         parser="String"
         qualifier="FILE_PATH"
+        ocsf-name="file.path"
         description="library file used for performance counters"
       />
 
@@ -323,6 +330,7 @@ Extracts all service definitions from a Windows `System` hive, in the related co
         input="failure_command"
         parser="String"
         qualifier="COMMAND_LINE"
+        ocsf-name="process.cmd_line"
         description="command executed when the service fails"
       />
 

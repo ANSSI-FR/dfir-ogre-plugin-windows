@@ -11,8 +11,18 @@ Parse a TCPView “Tcpvcon.txt” export.
     <default_date_pattern value='%Y-%m-%d %H:%M:%S.%3f' />
 
     <fields>
-      <field input="process_name" parser="String" description="Process name" />
-      <field input="pid" parser="String" description="PID" />
+      <field
+        input="process_name"
+        parser="String"
+        ocsf-name="process.name"
+        description="Process name"
+      />
+      <field
+        input="pid"
+        parser="String"
+        ocsf-name="process.pid"
+        description="PID"
+      />
       <field
         input="protocol"
         parser="String"

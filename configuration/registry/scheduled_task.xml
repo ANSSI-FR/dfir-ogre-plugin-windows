@@ -46,6 +46,7 @@ Extracts metadata for Windows scheduled tasks stored in the `Software` hive.
         input="uri"
         parser="String"
         qualifier="SCHTASK_URI"
+        ocsf-name="job.name"
         description="URI associated with the scheduled task"
       />
 
@@ -58,6 +59,7 @@ Extracts metadata for Windows scheduled tasks stored in the `Software` hive.
       <field
         input="task_description"
         parser="String"
+        ocsf-name="job.desc"
         description="human‑readable description of the task"
       />
 
@@ -70,6 +72,7 @@ Extracts metadata for Windows scheduled tasks stored in the `Software` hive.
       <field
         input="author"
         parser="String"
+        ocsf-name="job.user.name"
         description="author or creator of the scheduled task"
       />
 
@@ -126,6 +129,7 @@ Extracts metadata for Windows scheduled tasks stored in the `Software` hive.
           <field
             input="exec_command"
             parser="String"
+            ocsf-name="job.cmd_line"
             description="executable command to run for Exec actions"
           />
 
@@ -277,6 +281,7 @@ Extracts metadata for Windows scheduled tasks stored in the `Software` hive.
         input="creation_date"
         parser="String"
         qualifier="DATE_CREATION"
+        ocsf-name="job.created_time"
         display_name="Creation date"
         description="timestamp when the scheduled task was initially created"
       />
@@ -285,6 +290,7 @@ Extracts metadata for Windows scheduled tasks stored in the `Software` hive.
         input="last_run_launch_date"
         parser="DateTime"
         qualifier="DATE_LAST_RUN"
+        ocsf-name="job.last_run_time"
         display_name="Last run launch"
         description="timestamp of the most recent task launch"
       />

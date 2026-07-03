@@ -36,6 +36,7 @@ Extracts network settings from the Windows `System` hive.
         input="ip_address"
         parser="String"
         qualifier="IP_ADDRESS"
+        ocsf-name="network_interface.ip"
         description="IP address assigned to the network interface"
       />
 
