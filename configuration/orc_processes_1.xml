@@ -34,6 +34,7 @@ Extracts Windows processes data from an ORC‑generated CSV file. It captures ba
         input="ProcessName"
         parser="String"
         output="name"
+        ocsf-name="process.name"
         description="name of the process executable"
       />
 
@@ -48,6 +49,7 @@ Extracts Windows processes data from an ORC‑generated CSV file. It captures ba
         input="Path"
         parser="String"
         output="executable_path"
+        ocsf-name="process.file.path"
         description="full file‑system path to the process executable"
       />
 
@@ -56,6 +58,7 @@ Extracts Windows processes data from an ORC‑generated CSV file. It captures ba
         parser="String"
         qualifier="COMMAND_LINE"
         output="command_line"
+        ocsf-name="process.cmd_line"
         description="command‑line used to launch the process"
       />
 
@@ -70,6 +73,7 @@ Extracts Windows processes data from an ORC‑generated CSV file. It captures ba
         input="CreationDate"
         parser="Python"
         output="creation"
+        ocsf-name="process.created_time"
         description="timestamp when the process was created"
       />
 
@@ -77,6 +81,7 @@ Extracts Windows processes data from an ORC‑generated CSV file. It captures ba
         input="TerminationDate"
         parser="Python"
         output="termination"
+        ocsf-name="process.terminated_time"
         description="timestamp when the process terminated (if any)"
       />
 
@@ -99,6 +104,7 @@ Extracts Windows processes data from an ORC‑generated CSV file. It captures ba
         parser="Int"
         qualifier="PROCESS_ID"
         output="parent_id"
+        ocsf-name="process.parent_process.pid"
         description="identifier of the parent process"
       />
 
@@ -113,6 +119,7 @@ Extracts Windows processes data from an ORC‑generated CSV file. It captures ba
         input="ProcessId"
         parser="Int"
         output="process_id"
+        ocsf-name="process.pid"
         description="identifier (PID) of the process"
       />
 
