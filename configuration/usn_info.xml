@@ -85,6 +85,7 @@ Parses the CSV export of the Windows USN Journal. It extracts metadata for eve
         output="file"
         qualifier="FILE_NAME"
         parser="String"
+        ocsf-name="file.name"
         description="name of the file or directory (no path)"
       />
 
@@ -93,6 +94,7 @@ Parses the CSV export of the Windows USN Journal. It extracts metadata for eve
         output="file_path"
         qualifier="FILE_PATH"
         parser="String"
+        ocsf-name="file.path"
         description="full path of the file or directory"
       />
 

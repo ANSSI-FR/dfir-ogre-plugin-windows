@@ -36,6 +36,7 @@ Extract NTFS's Master File Table (MFT) from an ORC‑generated CSV file.
         parser="Join"
         separator="\"
         avoid_separator_duplication="true"
+        ocsf-name="file.path"
         description="full path (path+name) of the file"
       >
         <field
@@ -63,6 +64,7 @@ Extract NTFS's Master File Table (MFT) from an ORC‑generated CSV file.
         input="File"
         output="file_name"
         parser="String"
+        ocsf-name="file.name"
         description="name of the file without path"
       />
 
@@ -70,6 +72,7 @@ Extract NTFS's Master File Table (MFT) from an ORC‑generated CSV file.
         input="Extension"
         output="extension"
         parser="String"
+        ocsf-name="file.ext"
         description="file extension (e.g., .txt, .exe)"
       />
 
@@ -78,6 +81,7 @@ Extract NTFS's Master File Table (MFT) from an ORC‑generated CSV file.
         output="file_size"
         parser="Int"
         qualifier="FILE_SIZE"
+        ocsf-name="file.size"
         description="size of the file in bytes"
       />
 
@@ -289,6 +293,7 @@ Extract NTFS's Master File Table (MFT) from an ORC‑generated CSV file.
         output="si_creation_date"
         parser="DateTime"
         qualifier="DATE_CREATION"
+        ocsf-name="file.created_time"
         description="creation timestamp of the file"
       />
 
@@ -297,6 +302,7 @@ Extract NTFS's Master File Table (MFT) from an ORC‑generated CSV file.
         output="si_lastmod_date"
         parser="DateTime"
         qualifier="DATE_MODIFICATION"
+        ocsf-name="file.modified_time"
         description="last modification timestamp of the file"
       />
 
@@ -305,6 +311,7 @@ Extract NTFS's Master File Table (MFT) from an ORC‑generated CSV file.
         output="si_lastaccess_date"
         parser="DateTime"
         qualifier="DATE_ACCESS"
+        ocsf-name="file.accessed_time"
         description="last access timestamp of the file"
       />
 
