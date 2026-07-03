@@ -81,6 +81,7 @@
         parser="DateTime"
         display_name="Event generation time"
         qualifier="DATE_CREATION"
+        ocsf-name="metadata.original_time"
         description="timestamp of when the event was generated"
       />
       <!-- System Section -->
@@ -92,6 +93,7 @@
             parser="String"
             output="user_id"
             qualifier="USER_ID"
+            ocsf-name="actor.user.uid"
             description="SID of the account that generated the event"
           />
         </object>
@@ -102,6 +104,7 @@
             parser="DateTime"
             output="system_time"
             qualifier="DATE_CREATION"
+            ocsf-name="metadata.original_time"
             description="system time recorded for the event"
           />
         </object>
@@ -111,6 +114,7 @@
             input="Name"
             parser="String"
             output="provider_name"
+            ocsf-name="metadata.log_provider"
             description="name of the event provider"
           />
           <field
@@ -126,6 +130,7 @@
             input="ProcessID"
             parser="String"
             output="process_id"
+            ocsf-name="process.pid"
             description="process identifier that generated the event"
           />
           <field
@@ -140,6 +145,7 @@
           input="EventRecordID"
           parser="String"
           output="event_record_id"
+          ocsf-name="metadata.original_event_uid"
           description="unique record identifier for the event"
         />
 
@@ -147,6 +153,7 @@
           input="Computer"
           parser="String"
           output="computer"
+          ocsf-name="device.name"
           description="name of the computer that logged the event"
         />
 
@@ -154,6 +161,7 @@
           input="EventID"
           parser="String"
           output="event_id"
+          ocsf-name="metadata.event_code"
           description="numeric identifier of the event type"
         />
       </object>

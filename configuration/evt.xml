@@ -25,11 +25,13 @@
         <field
         input="provider_name"
         parser="String"
+        ocsf-name="metadata.log_provider"
         description="Name of the source that generated the event."
       />
         <field
         input="event_id"
         parser="Int"
+        ocsf-name="metadata.event_code"
         description="Identifier of the event (lower 16 bits of the record identifier)."
       />
 
@@ -42,6 +44,7 @@
         <field
         input="record_number"
         parser="Int"
+        ocsf-name="metadata.original_event_uid"
         description="Sequential number of the event record in the EVT file."
       />
 
@@ -84,6 +87,7 @@
         <field
         input="computer_name"
         parser="String"
+        ocsf-name="device.name"
         description="Computer name stored in the event record."
       />
 
@@ -91,6 +95,7 @@
         input="user_sid"
         parser="String"
         qualifier="USER_ID"
+        ocsf-name="actor.user.uid"
         description="User security identifier (SID) associated with the event."
       />
         <array>
@@ -105,12 +110,14 @@
         input="creation_time"
         parser="DateTime"
         qualifier="DATE_CREATION"
+        ocsf-name="metadata.original_time"
         description="Timestamp when the event record was created."
       />
 
         <field
         input="written_time"
         parser="DateTime"
+        ocsf-name="metadata.logged_time"
         description="Timestamp when the event record was written to the log."
       />
 
