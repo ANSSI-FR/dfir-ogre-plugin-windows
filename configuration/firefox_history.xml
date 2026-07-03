@@ -52,6 +52,7 @@ time.
       <field
         input="url"
         parser="String"
+        ocsf-name="url.url_string"
         description="URL of the visited page"
       />
 

@@ -50,6 +50,7 @@ visited, and the referer URL if available.
       <field
         input="url"
         parser="String"
+        ocsf-name="url.url_string"
         description="web address that was visited"
       />
 

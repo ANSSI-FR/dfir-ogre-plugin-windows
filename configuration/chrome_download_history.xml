@@ -50,12 +50,14 @@ Parses the download history database of a Chrome profile (typically `*/Default/H
       <field
         input="target_path"
         parser="String"
+        ocsf-name="file.path"
         description="local filesystem path where Chrome saved the downloaded file"
       />
 
       <field
         input="url"
         parser="String"
+        ocsf-name="url.url_string"
         description="original URL of the downloaded resource"
       />
 
@@ -68,6 +70,7 @@ Parses the download history database of a Chrome profile (typically `*/Default/H
       <field
         input="total_bytes"
         parser="Int"
+        ocsf-name="file.size"
         description="expected total size of the downloaded file in bytes"
       />
 

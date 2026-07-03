@@ -59,18 +59,21 @@ timestamps for the start and end of the download.
       <field
         input="target_path"
         parser="String"
+        ocsf-name="file.path"
         description="local file system path where the downloaded file was saved"
       />
 
       <field
         input="url"
         parser="String"
+        ocsf-name="url.url_string"
         description="source URL from which the file was downloaded"
       />
 
       <field
         input="total_bytes"
         parser="Int"
+        ocsf-name="file.size"
         description="total size of the downloaded file in bytes"
       />
 
