@@ -3,7 +3,7 @@ import os
 import tempfile
 from datetime import datetime
 from datetime import timezone as tz
-from typing import List, Optional
+from typing import List, Optional, cast
 
 from dateutil import parser as date_parser
 from dfir_ogre_common import (
@@ -59,16 +59,16 @@ class AutorunsDateParser(AbstractParser):
         "%d/%m/%Y %H:%M",
     )
 
-    def parse(self, input: str, ouput_name: str) -> Optional[Record]:
+    def parse(self, input: str, output_name: str) -> Record:
+        record = Record()
         if not input:
-            return None
+            return record
 
         date = self.parse_date(input)
         if date is None:
-            return None
+            return record
 
-        record = Record()
-        record.add(ouput_name, Value.Date(date))
+        record.add(output_name, Value.Date(date))
         return record
 
     def output_fields_names(self) -> List[FieldName]:
@@ -83,7 +83,7 @@ class AutorunsDateParser(AbstractParser):
                 continue
 
         try:
-            return self.to_utc(date_parser.parse(input, dayfirst=True))
+            return self.to_utc(cast(datetime, date_parser.parse(input, dayfirst=True)))
         except (OverflowError, ValueError):
             return None
 

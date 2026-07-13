@@ -97,6 +97,12 @@ class AutorunsTest(TestCase):
             datetime(2024, 4, 1, 9, 26, tzinfo=timezone.utc),
         )
 
+    def test_date_parser_returns_empty_record_for_unparseable_dates(self):
+        parser = AutorunsDateParser()
+
+        self.assertTrue(parser.parse("", "date").is_empty())
+        self.assertTrue(parser.parse("not a date", "date").is_empty())
+
     def parse_autoruns(self, filename):
         plugin_file = os.path.join(CONF_FOLDER, "autoruns.xml")
         input_file = os.path.join(DATA_FOLDER, "csv", filename)

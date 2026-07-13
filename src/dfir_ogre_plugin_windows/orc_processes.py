@@ -1,6 +1,6 @@
 from datetime import datetime
 from datetime import timezone as tz
-from typing import List, Optional
+from typing import List
 
 from dfir_ogre_common import (
     AbstractParser,
@@ -55,7 +55,7 @@ class DateParser1(AbstractParser):
     For example: 20240530162016.698092+120 -> UTC+02
     """
 
-    def parse(self, input: str, ouput_name: str) -> Optional[Record]:
+    def parse(self, input: str, output_name: str) -> Record:
         timezone = input.split("+")[-1]
         if "+" in input:
             timezone = input.split("+")[-1]
@@ -89,9 +89,9 @@ class DateParser1(AbstractParser):
             )
 
         date = datetime.strptime(input, "%Y%m%d%H%M%S.%f%z").astimezone(tz.utc)
-        tuple = Record()
-        tuple.add(ouput_name, Value.Date(date))
-        return tuple
+        record = Record()
+        record.add(output_name, Value.Date(date))
+        return record
 
     def output_fields_names(self) -> List[FieldName]:
         return []

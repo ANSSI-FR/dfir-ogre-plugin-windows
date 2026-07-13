@@ -5,7 +5,7 @@ from dfir_ogre_common import AbstractParser, FieldName, Record, Value
 
 
 def value(
-    val: str | int | float | bool | datetime | bytes | bytearray | list | None,
+    val: str | int | float | bool | datetime | bytes | bytearray | list[object] | None,
 ) -> Value:
     """
     Convert data into a Value object
@@ -96,6 +96,7 @@ class FileAttributesParser(AbstractParser):
     data: Dict[str, bool]
 
     def __init__(self):
+        super().__init__()
         data = {}
         for field_name in self.FILE_ATTRIBUTES.values():
             data[field_name.input_name()] = False
@@ -104,14 +105,14 @@ class FileAttributesParser(AbstractParser):
     def parse(
         self,
         input: str,
-        ouput_name: str,
-    ) -> Optional[Record]:
+        output_name: str,
+    ) -> Record:
+        record = Record()
         if not input:
-            return
+            return record
 
-        tuple = Record()
         if input.startswith("0x") or input.startswith("-0x"):
-            tuple.add(self.DEFAULT_FIELD.output_name(), Value.String(input))
+            record.add(self.DEFAULT_FIELD.output_name(), Value.String(input))
         else:
             row_data = self.data.copy()
             for flag in input:
@@ -121,8 +122,8 @@ class FileAttributesParser(AbstractParser):
                         row_data[field.input_name()] = True
 
             for key, value in row_data.items():
-                tuple.add(key, Value.Bool(value))
-        return tuple
+                record.add(key, Value.Bool(value))
+        return record
 
     def output_fields_names(self) -> List[FieldName]:
         fields = [val for val in self.FILE_ATTRIBUTES.values()]
@@ -136,28 +137,29 @@ class FRNParser(AbstractParser):
     sequence: FieldName
     record: FieldName
 
+    def __init__(self):
+        super().__init__()
+        self.sequence = FieldName("sequence_number")
+        self.record = FieldName("record_number")
+
     @classmethod
     def build(cls, suffix: str) -> "FRNParser":
-        parser = FRNParser()
-        parser.sequence = FieldName(
-            f"{suffix}sequence_number"
-        )
-        parser.record = FieldName(
-            f"{suffix}record_number"
-        )
+        parser = cls()
+        parser.sequence = FieldName(f"{suffix}sequence_number")
+        parser.record = FieldName(f"{suffix}record_number")
         return parser
 
-    def parse(self, input: str, ouput_name: str) -> Optional[Record]:
+    def parse(self, input: str, output_name: str) -> Record:
+        record = Record()
         if not input:
-            return
-        tuple = Record()
+            return record
 
         seq = int(input[2:6], base=16)
         rec = int(input[6:], base=16)
 
-        tuple.add(self.sequence.output_name(), Value.Int(seq))
-        tuple.add(self.record.output_name(), Value.Int(rec))
-        return tuple
+        record.add(self.sequence.output_name(), Value.Int(seq))
+        record.add(self.record.output_name(), Value.Int(rec))
+        return record
 
     def output_fields_names(self) -> List[FieldName]:
         return [self.sequence, self.record]

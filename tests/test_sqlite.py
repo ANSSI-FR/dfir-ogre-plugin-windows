@@ -30,7 +30,6 @@ class SqliteTest(TestCase):
           base_output_name,
           TEMP_FOLDER,
           with_timeline=False,
-          with_qualifiers=False,
           include_empty=False,
         )
 
@@ -82,7 +81,6 @@ class SqliteTest(TestCase):
           base_output_name,
           TEMP_FOLDER,
           with_timeline=False,
-          with_qualifiers=False,
           include_empty=False,
         )
 
@@ -134,7 +132,6 @@ class SqliteTest(TestCase):
           base_output_name,
           TEMP_FOLDER,
           with_timeline=False,
-          with_qualifiers=False,
           include_empty=False,
         )
 
@@ -186,7 +183,6 @@ class SqliteTest(TestCase):
           base_output_name,
           TEMP_FOLDER,
           with_timeline=False,
-          with_qualifiers=False,
           include_empty=False,
         )
 
@@ -238,7 +234,6 @@ class SqliteTest(TestCase):
           base_output_name,
           TEMP_FOLDER,
           with_timeline=False,
-          with_qualifiers=False,
           include_empty=False,
         )
 
@@ -292,7 +287,6 @@ class SqliteTest(TestCase):
           base_output_name,
           TEMP_FOLDER,
           with_timeline=False,
-          with_qualifiers=False,
           include_empty=False,
         )
 

@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List
 
 from dfir_ogre_common import (
     AbstractParser,
@@ -57,23 +57,19 @@ class SignedHashParser(AbstractParser):
     sha1 = FieldName("file_pe_sha1")
     sha256 = FieldName("file_pe_sha256")
 
-    def parse(self, input: str, ouput_name: str) -> Optional[Record]:
+    def parse(self, input: str, output_name: str) -> Record:
+        record = Record()
         if not input:
-            return
+            return record
         match len(input):
             case 32:
-                tuple = Record()
-                tuple.add(self.md5.output_name(), Value.String(input))
-                return tuple
+                record.add(self.md5.output_name(), Value.String(input))
 
             case 40:
-                tuple = Record()
-                tuple.add(self.sha1.output_name(), Value.String(input))
-                return tuple
+                record.add(self.sha1.output_name(), Value.String(input))
             case 64:
-                tuple = Record()
-                tuple.add(self.sha256.output_name(), Value.String(input))
-                return tuple
+                record.add(self.sha256.output_name(), Value.String(input))
+        return record
 
     def output_fields_names(self) -> List[FieldName]:
         return [self.md5, self.sha1, self.sha256]

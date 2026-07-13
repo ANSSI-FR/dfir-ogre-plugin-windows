@@ -34,7 +34,6 @@ class TestWinEvt(unittest.TestCase):
           base_output_name,
           TEMP_FOLDER,
           with_timeline=True,
-          with_qualifiers=False,
           include_empty=False,           # no extra options
         )
         run_cfg = RunConfiguration([output_cfg])

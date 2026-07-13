@@ -29,7 +29,6 @@ class TestAutoruns(TestCase):
           base_output_name,
           TEMP_FOLDER,
           with_timeline=True,
-          with_qualifiers=False,
           include_empty=True,              # no extra options
         )
         run_config = RunConfiguration([output_config])
@@ -118,7 +117,6 @@ class TestAutoruns(TestCase):
           base_output_name,
           TEMP_FOLDER,
           with_timeline=True,
-          with_qualifiers=False,
           include_empty=True,               # no extra options
         )
         run_config = RunConfiguration([output_config])
@@ -182,7 +180,6 @@ class TestAutoruns(TestCase):
           base_output_name,
           TEMP_FOLDER,
           with_timeline=True,
-          with_qualifiers=False,
           include_empty=True,
         )
         run_config = RunConfiguration([output_config])
