@@ -1,8 +1,6 @@
 import logging
-from datetime import datetime, timezone
 import os
 from typing import Dict, List, Tuple
-from ctypes import c_char_p
 from construct import CString
 from dfir_ogre_common import (
     Metadata,

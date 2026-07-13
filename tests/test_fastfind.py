@@ -4,7 +4,6 @@ from unittest import TestCase
 
 from dfir_ogre_common import Metadata, OutputConfiguration, RunConfiguration
 
-from dfir_ogre_plugin_windows import FirefoxExtension
 
 from src.dfir_ogre_plugin_windows import XML,FastFind
 

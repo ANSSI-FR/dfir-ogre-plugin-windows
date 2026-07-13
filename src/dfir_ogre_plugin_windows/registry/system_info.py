@@ -1,14 +1,11 @@
-import codecs
 from dataclasses import dataclass
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 import os
 import re
 from typing import Any, List, Set
 from zoneinfo import ZoneInfo
-import dateutils
 from dfir_ogre_common import (
-    Metadata,
     OgreBatchedPlugin,
     BatchEntry,
     Output,
@@ -16,14 +13,11 @@ from dfir_ogre_common import (
     PluginDescription,
     Record,
     Registry,
-    RegKey,
-    RunConfiguration,
     RunReport,
     Value,
 )
 
 from dfir_ogre_plugin_windows.common import filetime_to_utc, value,win_tz_to_iana
-from dfir_ogre_plugin_windows.know_artefacts import WIN_KNOWN_FOLDERS
 from dfir_ogre_plugin_windows.wer import Dict
 
 logger = logging.getLogger(__name__)

@@ -10,7 +10,6 @@ from dfir_ogre_common import (
     Record,
     RunConfiguration,
     RunReport,
-    Value,
 )
 from dfir_ogre_plugin_windows.common import value
 

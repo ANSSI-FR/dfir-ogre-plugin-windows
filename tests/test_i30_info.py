@@ -1,6 +1,5 @@
 import json
 import os
-import csv
 from unittest import TestCase
 
 from dfir_ogre_common import Metadata, OutputConfiguration, RunConfiguration

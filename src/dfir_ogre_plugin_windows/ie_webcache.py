@@ -1,5 +1,4 @@
 import logging
-from typing import Any, Dict
 import pyesedb
 from dfir_ogre_common import (
     Metadata,

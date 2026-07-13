@@ -1,8 +1,6 @@
 import logging
-from datetime import timezone
 from typing import Any, Dict, List
 
-import dateutil.parser
 from dfir_ogre_common import (
     BatchEntry,
     FieldParserTree,
