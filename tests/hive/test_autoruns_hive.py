@@ -65,6 +65,10 @@ class TestAutoruns(TestCase):
                         js["additional_description"],
                         "values: ['name':'SecurityProviders', 'data':'credssp.dll']",
                     )
+                    self.assertEqual(
+                        js["data"]["values"],
+                        [{"name": "SecurityProviders", "data": "credssp.dll"}],
+                    )
 
                 if i == 41:
                     self.assertEqual(
@@ -154,6 +158,10 @@ class TestAutoruns(TestCase):
                         js["additional_description"],
                         "values: ['name':'Shell', 'data':'explorer.exe']",
                     )
+                    self.assertEqual(
+                        js["data"]["values"],
+                        [{"name": "Shell", "data": "explorer.exe"}],
+                    )
                     break
 
 
@@ -203,23 +211,28 @@ class TestAutoruns(TestCase):
         self.assertEqual(output_file, filename)
 
         with open(output_file) as fp:
-            i = 0
-            for  line in fp:
-                i += 1
-                js = json.loads(line)
-                if i == 0:   # adjust if you add/remove entries in the fixture
-                    self.assertEqual(
-                        js["related_user"],
-                        "S-1-5-18",               # SID of the test user in the fixture
-                    )
-                    self.assertEqual(
-                        js["description"],
-                        "type: Startup Run - key_path: HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
-                    )
-                    self.assertEqual(
-                        js["additional_description"],
-                        "values: ['name':'OneDrive', 'data':'\"C:\\Users\\Admin\\AppData\\Local\\Microsoft\\OneDrive\\OneDrive.exe\" /background']",
-                    )
-                    break
-        # Ensure we actually hit the line we expected
-        self.assertEqual(i, expected_lines)
+            records = [json.loads(line) for line in fp]
+
+        self.assertEqual(len(records), expected_lines)
+        js = records[0]
+        self.assertEqual(
+            js["related_user"],
+            "S-1-5-18",
+        )
+        self.assertEqual(
+            js["description"],
+            "type: Startup Run - key_path: HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+        )
+        self.assertEqual(
+            js["additional_description"],
+            "values: ['name':'OneDrive', 'data':'\"C:\\Users\\Admin\\AppData\\Local\\Microsoft\\OneDrive\\OneDrive.exe\" /background']",
+        )
+        self.assertEqual(
+            js["data"]["values"],
+            [
+                {
+                    "name": "OneDrive",
+                    "data": '"C:\\Users\\Admin\\AppData\\Local\\Microsoft\\OneDrive\\OneDrive.exe" /background',
+                }
+            ],
+        )

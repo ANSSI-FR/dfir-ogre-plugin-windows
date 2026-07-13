@@ -90,7 +90,7 @@ class IeWebCache(OgrePlugin):
                 if esedb_file is not None:
                     try:
                         esedb_file.close()
-                    except Exception as e:
+                    except Exception:
                         ...
 
             report.add_output_report(output.get_report())
@@ -349,7 +349,7 @@ def decode_windows_property_set(binary_data):
                 if value.strip():
                     print(f"  Property {prop_tag}: {value}")
                     properties[f"tag_{prop_tag}"] = value
-            except Exception as e:
+            except Exception:
                 # Try raw hex for binary data
                 if len(value_bytes) < 50:
                     print(f"  Property {prop_tag} (binary): {value_bytes.hex()}")

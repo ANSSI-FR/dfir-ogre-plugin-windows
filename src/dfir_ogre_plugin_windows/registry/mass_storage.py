@@ -386,13 +386,13 @@ def try_decode_data(data):
     try:
         str_val = data.decode("utf-16le")
         return str_val
-    except Exception as e:
+    except Exception:
         ...
 
     try:
         str_val = data.decode("utf-8")
         return str_val
-    except Exception as e:
+    except Exception:
         ...
 
     return str(data)

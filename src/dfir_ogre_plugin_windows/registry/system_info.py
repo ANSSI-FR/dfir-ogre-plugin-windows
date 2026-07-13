@@ -56,7 +56,7 @@ class RegSystemInfo(OgreBatchedPlugin):
         record = Record()
 
         controlset = get_data(reg.system, "\\HKLM\\SYSTEM\\Select","Current" )
-        current_control_set = "ControlSet000";
+        current_control_set = "ControlSet000"
         if controlset:
             current_control_set = 'ControlSet'+str(controlset).zfill(3)
             record.add("control_set", value(current_control_set))

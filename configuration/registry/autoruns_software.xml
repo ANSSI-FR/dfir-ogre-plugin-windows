@@ -41,10 +41,12 @@ Extracts persistence‑related registry data from the SOFTWARE hive.
             />
 
         <!-- The set of values extracted from the key -->
-        <object
-                input="values"
-                description="Value set extracted from the registry key."
-            />
+        <array>
+            <object
+                    input="values"
+                    description="Value set extracted from the registry key."
+                />
+        </array>
 
         <!-- Registry key metadata -->
         <field
