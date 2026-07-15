@@ -62,63 +62,63 @@ class RegRecentApp(OgrePlugin):
 
     def parse_key(self, key: RegKey, output: Output, report: RunReport):
         try:
-            tuple = Record()
-
-            guid_app = uuid.UUID(key.name[1:-1])
-            tuple.add("guid_app", value(str(guid_app)))
-
-            app_id = key.value_data("AppId")
-            tuple.add("app_id", value(app_id))
-
-            launch_count = key.value_data("LaunchCount")
-            tuple.add("launch_count", value(launch_count))
-
-            app_last_accessed_time_int = key.value_data("LastAccessedTime")
-            if app_last_accessed_time_int:
-                app_last_accessed_time = filetime_to_utc(app_last_accessed_time_int)
-                tuple.add("app_last_accessed_time", value(app_last_accessed_time))
-
             try:
                 recent_items = key.sub_key("RecentItems")
-                if recent_items:
-                    for item in recent_items.sub_keys():
-                        guid_file = uuid.UUID(item.name[1:-1])
-                        tuple.add("guid_file", value(str(guid_file)))
-
-                        display_name = item.value_data("DisplayName")
-                        tuple.add("display_name", value(display_name))
-
-                        path = item.value_data("Path")
-                        arguments = item.value_data("Arguments")
-                        path = f"{path} {arguments}"
-                        tuple.add("path", value(path))
-
-                        file_last_accessed_time_int = item.value_data(
-                            "LastAccessedTime"
-                        )
-                        if file_last_accessed_time_int:
-                            file_last_accessed_time = filetime_to_utc(
-                                file_last_accessed_time_int
-                            )
-                            tuple.add(
-                                "file_last_accessed_time",
-                                value(file_last_accessed_time),
-                            )
-
-                        tuple.add("key_path", value(item.path))
-                        tuple.add("key_modif_time", value(item.mtime))
-                        tuple.add(
-                            "key_security",
-                            Value.Object(item.security_descriptor.to_record()),
-                        )
+                items = list(recent_items.sub_keys()) if recent_items else []
             except Exception:
-                tuple.add("key_path", value(key.path))
-                tuple.add("key_modif_time", value(key.mtime))
-                tuple.add(
-                    "key_security",
-                    Value.Object(key.security_descriptor.to_record()),
-                )
+                items = []
 
-            output.write(tuple)
+            if items:
+                for item in items:
+                    output.write(recent_app_record(key, item))
+            else:
+                output.write(recent_app_record(key))
         except Exception as e:
             report.add_error(f"{e}")
+
+
+def recent_app_record(key: RegKey, item: RegKey | None = None) -> Record:
+    record = Record()
+
+    guid_app = uuid.UUID(key.name[1:-1])
+    record.add("guid_app", value(str(guid_app)))
+
+    app_id = key.value_data("AppId")
+    record.add("app_id", value(app_id))
+
+    launch_count = key.value_data("LaunchCount")
+    record.add("launch_count", value(launch_count))
+
+    app_last_accessed_time_int = key.value_data("LastAccessedTime")
+    if app_last_accessed_time_int:
+        app_last_accessed_time = filetime_to_utc(app_last_accessed_time_int)
+        record.add("app_last_accessed_time", value(app_last_accessed_time))
+
+    registry_key = key
+    if item:
+        guid_file = uuid.UUID(item.name[1:-1])
+        record.add("guid_file", value(str(guid_file)))
+
+        display_name = item.value_data("DisplayName")
+        record.add("display_name", value(display_name))
+
+        path = item.value_data("Path")
+        arguments = item.value_data("Arguments")
+        path = f"{path} {arguments}"
+        record.add("path", value(path))
+
+        file_last_accessed_time_int = item.value_data("LastAccessedTime")
+        if file_last_accessed_time_int:
+            file_last_accessed_time = filetime_to_utc(file_last_accessed_time_int)
+            record.add("file_last_accessed_time", value(file_last_accessed_time))
+
+        registry_key = item
+
+    record.add("key_path", value(registry_key.path))
+    record.add("key_modif_time", value(registry_key.mtime))
+    record.add(
+        "key_security",
+        Value.Object(registry_key.security_descriptor.to_record()),
+    )
+
+    return record
