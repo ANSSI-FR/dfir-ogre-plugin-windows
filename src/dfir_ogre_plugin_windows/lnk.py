@@ -1,4 +1,5 @@
 import logging
+from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
@@ -56,6 +57,9 @@ class Lnk(OgrePlugin):
         }
         plugin_config = PluginConfiguration.load(plugin_file, extension=rust_mapping)
         parser_tree = plugin_config.get_parsers()
+        if parser_tree is None:
+            report.add_error("LNK plugin configuration has no field parsers")
+            return report
 
         try:
             # Load and parse the lnk
@@ -98,7 +102,7 @@ class Lnk(OgrePlugin):
                         logger.error(error_message)
                 else:
                     # recursively parse the lnk and write result to the output
-                    tuple = parse_object(lnk, parser_tree)  # type: ignore
+                    tuple = parse_object(lnk, parser_tree)
 
                     if metadata.creation_date:
                         tuple.add(
@@ -132,6 +136,9 @@ class LnkBatched(OgreBatchedPlugin):
         }
         plugin_config = PluginConfiguration.load(plugin_file, extension=rust_mapping)
         parser_tree = plugin_config.get_parsers()
+        if parser_tree is None:
+            report.add_error("LNK plugin configuration has no field parsers")
+            return report
 
         batches = group_lnk_inputs(input_files)
         lnk_count = sum(len(batch.lnk_entries) for batch in batches.values())
@@ -225,7 +232,7 @@ def group_lnk_inputs(
 
 
 def normalize_lnk_fat_timestamps(
-    jumplist: Dict[str, Any], timezone_info: Optional[ZoneInfo]
+    jumplist: Mapping[str, Any], timezone_info: Optional[ZoneInfo]
 ) -> int:
     """Normalize DOS/FAT target-item wall times emitted by LnkParse3."""
     timestamp_count = 0
@@ -276,7 +283,7 @@ def lnk_fat_datetime_to_utc(
 
 
 def parse_object(
-    object_dict: Dict[str, Any],
+    object_dict: Mapping[str, Any],
     parser_tree: FieldParserTree,
 ) -> Record:
     """Recursively parse a dictionary structure into a Record using a parser tree.
@@ -288,7 +295,7 @@ def parse_object(
     record = Record()
 
     # Early return if object is empty or not a dict
-    if not object_dict or not isinstance(object_dict, dict):
+    if not object_dict or not isinstance(object_dict, Mapping):
         return record
 
     for key, item in object_dict.items():
