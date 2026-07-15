@@ -3,49 +3,160 @@
   <mapping data_type="chrome_extension">
     <description>
 <![CDATA[
-Extracts metadata from a Chrome‑based browser extension’s manifest. It reads fields such as
-name, version, description, update URL, permissions and optional permissions, providing a
-structured view of the extension’s declared capabilities.
+Extracts identity, provenance, security policy and execution metadata from Manifest V2 and
+Manifest V3 Chrome-based browser extensions.
 
-- Identifies the extension’s displayed name and version.
-- Lists required, host and optional permissions, revealing potential system interactions.
-- Captures localisation, description and update URL for contextual information.
+- Identifies the extension, installed version directory and source manifest.
+- Captures declared API, host and optional permissions.
+- Records content-script targets, background code and externally accessible resources.
+- Preserves both Manifest V2 string and Manifest V3 object content-security policies.
 ]]>
     </description>
     <category>Browser Artefacts</category>
     <default_parser value="Ignore" />
-    <default_date_pattern value='iso' />
-    <!-- Fields -->
-    <fields>
-      <field input="name" parser="String" description="display name of the Chrome extension" />
+    <default_date_pattern value="iso" />
 
-      <field input="version" parser="String" description="version of the extension" />
+    <fields>
+      <field input="browser" parser="String"
+        description="browser family that owns the extension manifest" />
+
+      <field input="extension_id" parser="String"
+        description="Chrome extension ID inferred from the standard Extensions directory path" />
+
+      <field input="extension_type" parser="String"
+        description="manifest type: extension, app or theme" />
+
+      <field input="manifest_path" parser="String"
+        description="filesystem path of the parsed manifest" />
+
+      <field input="manifest_sha256" parser="String"
+        description="SHA-256 hash of the parsed manifest file" />
+
+      <field input="manifest_version" parser="Int"
+        description="Chrome manifest format version" />
+
+      <field input="version_directory" parser="String"
+        description="installed extension version directory inferred from the manifest path" />
+
+      <field input="name" parser="String"
+        description="localized display name of the Chrome extension when available" />
+
+      <field input="short_name" parser="String"
+        description="short display name declared by the extension" />
+
+      <field input="version" parser="String"
+        description="extension version declared by the manifest" />
+
+      <field input="version_name" parser="String"
+        description="human-readable extension version label" />
+
+      <field input="author" parser="String"
+        description="extension author declared by the manifest" />
 
       <field input="default_locale" parser="String"
         description="default locale identifier for the extension's resources" />
 
       <field input="description" parser="String"
-        description="human‑readable description of the extension" />
+        description="localized human-readable extension description when available" />
+
+      <field input="homepage_url" parser="String"
+        description="homepage URL declared by the extension" />
 
       <field input="update_url" parser="String"
         description="URL from which the extension receives updates" />
 
+      <field input="minimum_chrome_version" parser="String"
+        description="oldest compatible Chrome version declared by the extension" />
+
+      <field input="incognito" parser="String"
+        description="declared incognito-mode behavior" />
+
+      <field input="offline_enabled" parser="Bool"
+        description="whether the extension declares offline operation" />
+
       <field input="extension_pages" parser="String"
-        description="CSP‑allowed pages that may be opened by the extension" />
+        description="CSP for extension pages, including the complete Manifest V2 policy" />
+
+      <field input="sandbox_pages" parser="String"
+        description="Manifest V3 CSP for sandboxed extension pages" />
+
+      <field input="background_service_worker" parser="String"
+        description="Manifest V3 background service-worker script" />
+
+      <field input="background_page" parser="String"
+        description="Manifest V2 background page" />
+
+      <field input="background_persistent" parser="Bool"
+        description="whether a Manifest V2 background context is persistent" />
+
+      <array>
+        <field input="background_scripts" parser="String"
+          description="Manifest V2 background scripts" />
+      </array>
 
       <array>
         <field input="permissions" parser="String"
-          description="required permissions declared by the extension" />
+          description="required permissions exactly as declared by the extension" />
       </array>
 
       <array>
         <field input="host_permissions" parser="String"
-          description="host (URL) permissions declared by the extension" />
+          description="normalized host access, including Manifest V2 permission URL patterns" />
       </array>
 
       <array>
         <field input="optional_permissions" parser="String"
-          description="optional permissions that can be granted by the user" />
+          description="optional permissions exactly as declared by the extension" />
+      </array>
+
+      <array>
+        <field input="optional_host_permissions" parser="String"
+          description="normalized optional host access across Manifest V2 and V3" />
+      </array>
+
+      <array>
+        <field input="content_script_matches" parser="String"
+          description="URL patterns on which extension content scripts execute" />
+      </array>
+
+      <array>
+        <field input="content_script_exclude_matches" parser="String"
+          description="URL patterns excluded from content-script execution" />
+      </array>
+
+      <array>
+        <field input="content_script_javascript" parser="String"
+          description="JavaScript files injected by content scripts" />
+      </array>
+
+      <array>
+        <field input="content_script_stylesheets" parser="String"
+          description="stylesheets injected by content scripts" />
+      </array>
+
+      <array>
+        <field input="externally_connectable_matches" parser="String"
+          description="web origins allowed to connect to the extension" />
+      </array>
+
+      <array>
+        <field input="externally_connectable_ids" parser="String"
+          description="other extension IDs allowed to connect to the extension" />
+      </array>
+
+      <array>
+        <field input="web_accessible_resources" parser="String"
+          description="extension resources exposed outside the extension" />
+      </array>
+
+      <array>
+        <field input="web_accessible_matches" parser="String"
+          description="Manifest V3 web origins allowed to access exposed resources" />
+      </array>
+
+      <array>
+        <field input="web_accessible_extension_ids" parser="String"
+          description="Manifest V3 extension IDs allowed to access exposed resources" />
       </array>
     </fields>
   </mapping>

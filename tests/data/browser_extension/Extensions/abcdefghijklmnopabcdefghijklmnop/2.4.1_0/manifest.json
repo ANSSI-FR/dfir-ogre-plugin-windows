@@ -1,0 +1,65 @@
+{
+  "manifest_version": 2,
+  "name": "__MSG_extensionName__",
+  "short_name": "Legacy Audit",
+  "version": "2.4.1",
+  "version_name": "2.4.1 legacy",
+  "description": "__MSG_extensionDescription__",
+  "author": "Forensic Labs",
+  "default_locale": "en",
+  "homepage_url": "https://legacy.example/extensions/audit",
+  "update_url": "https://updates.example/legacy.xml",
+  "minimum_chrome_version": "49",
+  "incognito": "split",
+  "offline_enabled": true,
+  "content_security_policy": "default-src 'self' https://extension.resource.example",
+  "permissions": [
+    "tabs",
+    "storage",
+    "https://*.example.com/*",
+    "<all_urls>"
+  ],
+  "optional_permissions": [
+    "history",
+    "https://optional.example/*"
+  ],
+  "background": {
+    "scripts": [
+      "background.js",
+      "telemetry.js"
+    ],
+    "page": "background.html",
+    "persistent": true
+  },
+  "browser_action": {
+    "default_title": "Legacy Audit"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.example.com/*"
+      ],
+      "exclude_matches": [
+        "https://safe.example.com/*"
+      ],
+      "js": [
+        "inject.js"
+      ],
+      "css": [
+        "inject.css"
+      ]
+    }
+  ],
+  "externally_connectable": {
+    "matches": [
+      "https://trusted.example/*"
+    ],
+    "ids": [
+      "ponmlkjihgfedcbaponmlkjihgfedcba"
+    ]
+  },
+  "web_accessible_resources": [
+    "images/*.png",
+    "scripts/bridge.js"
+  ]
+}
