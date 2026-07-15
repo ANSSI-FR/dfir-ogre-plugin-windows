@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<plugin parser="RegShellBag" file_encoding="UTF_8">
+<plugin parser="RegShellBag" batch="true" file_encoding="UTF_8">
   <mapping data_type="shellbags">
     <description
     ><![CDATA[
 Extracts the contents of Shell Bag structures stored in the `UsrClass` hive. These structures record directories and items that a user has browsed with Windows Explorer.
 
-It reconstructs the hierarchical path of each bag entry, exposing the folder path, item type, name and associated registry metadata such as modification timestamps and security descriptors.
+It reconstructs the hierarchical path of each bag entry, exposing the folder path, item type, name and associated registry metadata such as modification timestamps and security descriptors. Each UsrClass hive is paired with the SYSTEM hive from the same VSS snapshot so DOS/FAT local timestamps can be normalized to UTC.
 
 - Retrieves browsed folder paths from the registry.
 - Identifies the item type (root folder, file entry, network location, etc.).
@@ -79,7 +79,7 @@ It reconstructs the hierarchical path of each bag entry, exposing the folder pat
         parser="DateTime"
         display_name="Modification time"
         qualifier="DATE_MODIFICATION"
-        description="last modification timestamp of the underlying file"
+        description="UTC modification timestamp converted from the shell item's DOS/FAT local time using the matching SYSTEM hive"
       />
 
       <field
@@ -87,7 +87,7 @@ It reconstructs the hierarchical path of each bag entry, exposing the folder pat
         parser="DateTime"
         display_name="Access time"
         qualifier="DATE_ACCESS"
-        description="last access timestamp of the underlying file"
+        description="UTC access timestamp converted from the shell item's DOS/FAT local time using the matching SYSTEM hive"
       />
 
       <field
@@ -95,7 +95,7 @@ It reconstructs the hierarchical path of each bag entry, exposing the folder pat
         parser="DateTime"
         display_name="Creation time"
         qualifier="DATE_CREATION"
-        description="creation timestamp of the underlying file"
+        description="UTC creation timestamp converted from the shell item's DOS/FAT local time using the matching SYSTEM hive"
       />
 
       <!-- Registry Key data-->

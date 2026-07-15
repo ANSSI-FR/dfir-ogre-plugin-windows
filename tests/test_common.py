@@ -1,9 +1,11 @@
 from datetime import datetime, timezone
 from unittest import TestCase
+from zoneinfo import ZoneInfo
 
 from dfir_ogre_plugin_windows.common import (
     FRNParser,
     FileAttributesParser,
+    fat_datetime_to_local,
     fat_datetime_to_utc,
     normalize_amcache_sha1,
 )
@@ -35,6 +37,10 @@ class CommonTest(TestCase):
         fat_datetime = (date_word << 16) | time_word
 
         self.assertEqual(
-            fat_datetime_to_utc(fat_datetime),
-            datetime(2024, 6, 29, 17, 42, 58, tzinfo=timezone.utc),
+            fat_datetime_to_local(fat_datetime),
+            datetime(2024, 6, 29, 17, 42, 58),
+        )
+        self.assertEqual(
+            fat_datetime_to_utc(fat_datetime, ZoneInfo("Europe/Paris")),
+            datetime(2024, 6, 29, 15, 42, 58, tzinfo=timezone.utc),
         )

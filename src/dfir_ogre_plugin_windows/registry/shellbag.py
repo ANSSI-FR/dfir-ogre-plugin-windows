@@ -1,28 +1,39 @@
 import logging
+import os
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import Dict, List, Optional
+from zoneinfo import ZoneInfo
 
 import pyfwsi
 from dfir_ogre_common import (
-    Metadata,
-    OgrePlugin,
+    BatchEntry,
+    OgreBatchedPlugin,
     Output,
     PluginConfiguration,
     PluginDescription,
     Record,
     Registry,
     RegKey,
-    RunConfiguration,
     RunReport,
     Value,
 )
 
-from dfir_ogre_plugin_windows.common import fat_datetime_to_utc, value
+from dfir_ogre_plugin_windows.common import (
+    fat_datetime_to_utc,
+    value,
+    win_tz_to_iana,
+)
 
 logger = logging.getLogger(__name__)
 
 
-class RegShellBag(OgrePlugin):
+@dataclass
+class ShellBagBatch:
+    usrclass_entries: List[BatchEntry]
+    system_entries: List[BatchEntry]
+
+
+class RegShellBag(OgreBatchedPlugin):
     def description(self) -> PluginDescription:
         return PluginDescription(
             "RegShellBag",
@@ -31,19 +42,36 @@ class RegShellBag(OgrePlugin):
 
     def parse(
         self,
-        input_file: str,
+        input_files: List[BatchEntry],
         plugin_file: str,
-        run_config: RunConfiguration,
-        metadata: Metadata,
     ) -> RunReport:
         report = RunReport()
         plugin_config = PluginConfiguration.load(plugin_file)
 
+        for snapshot, batch in group_shellbag_inputs(input_files).items():
+            if not batch.usrclass_entries:
+                continue
+
+            timezone_info = resolve_shellbag_timezone(
+                batch.system_entries, snapshot, report
+            )
+            for entry in batch.usrclass_entries:
+                self.parse_usrclass(entry, plugin_config, timezone_info, report)
+
+        return report
+
+    def parse_usrclass(
+        self,
+        entry: BatchEntry,
+        plugin_config: PluginConfiguration,
+        timezone_info: Optional[ZoneInfo],
+        report: RunReport,
+    ) -> None:
         try:
-            reg = Registry.load(input_file, "\\HKCU")
+            reg = Registry.load(entry.file, "\\HKCU")
         except Exception as e:
             report.add_error(f"{e}")
-            return report
+            return
 
         paths = [
             # xp
@@ -55,11 +83,11 @@ class RegShellBag(OgrePlugin):
             "\\HKCU\\Local Settings\\Software\\Microsoft\\Windows\\Shell\\BagMRU",
         ]
 
-        with Output(run_config, plugin_config, metadata) as output:
+        with Output(entry.run_config, plugin_config, entry.metadata) as output:
             for path in paths:
                 for key in reg.glob_keys(path):
                     try:
-                        item = self.build_shell_tree(key, report)
+                        item = self.build_shell_tree(key, report, timezone_info)
                         if item:
                             item.write_tuple("", None, output)
                     except Exception as e:
@@ -67,15 +95,16 @@ class RegShellBag(OgrePlugin):
 
             report.add_output_report(output.get_report())
 
-        return report
-
     def build_shell_tree(
-        self, bag_key: Optional[RegKey], report: RunReport
+        self,
+        bag_key: Optional[RegKey],
+        report: RunReport,
+        timezone_info: Optional[ZoneInfo] = None,
     ) -> Optional["ShellItem"]:
         if not bag_key:
             return None
 
-        parent_shell = ShellItem(bag_key)
+        parent_shell = ShellItem(bag_key, timezone_info)
         for bag in bag_key.values():
             name = bag.name()
 
@@ -91,7 +120,9 @@ class RegShellBag(OgrePlugin):
             for shell_item in iter(shell_item_list.items):
                 items.append(shell_item)
             try:
-                child = self.build_shell_tree(bag_key.sub_key(name), report)
+                child = self.build_shell_tree(
+                    bag_key.sub_key(name), report, timezone_info
+                )
                 if child:
                     itemchild = ItemChild(child, items)
                     parent_shell.children.append(itemchild)
@@ -101,6 +132,97 @@ class RegShellBag(OgrePlugin):
                 report.add_error(message)
 
         return parent_shell
+
+
+def group_shellbag_inputs(
+    input_files: List[BatchEntry],
+) -> Dict[Optional[str], ShellBagBatch]:
+    grouped: Dict[Optional[str], ShellBagBatch] = {}
+    for entry in input_files:
+        snapshot = snapshot_key(entry)
+        batch = grouped.setdefault(snapshot, ShellBagBatch([], []))
+        filename = source_basename(entry)
+        if filename.startswith("usrclass"):
+            batch.usrclass_entries.append(entry)
+        elif (
+            filename == "system"
+            or filename.startswith("system.")
+            or filename.startswith("system_")
+        ):
+            batch.system_entries.append(entry)
+
+    return grouped
+
+
+def snapshot_key(entry: BatchEntry) -> Optional[str]:
+    snapshot = entry.metadata.vss
+    if snapshot is None:
+        return None
+    return str(snapshot).casefold()
+
+
+def source_basename(entry: BatchEntry) -> str:
+    source = entry.metadata.original_filename or entry.file
+    return os.path.basename(source.replace("\\", "/")).casefold()
+
+
+def resolve_shellbag_timezone(
+    system_entries: List[BatchEntry],
+    snapshot: Optional[str],
+    report: RunReport,
+) -> Optional[ZoneInfo]:
+    if not system_entries:
+        report.add_error(f"No SYSTEM hive found for VSS snapshot {snapshot!r}")
+        return None
+
+    for entry in system_entries:
+        try:
+            registry = Registry.load(entry.file, "\\HKLM\\SYSTEM")
+        except Exception as e:
+            report.add_error(f"Unable to load SYSTEM hive {entry.file!r}: {e}")
+            continue
+
+        timezone_info = get_system_timezone(registry)
+        if timezone_info is not None:
+            return timezone_info
+
+        report.add_error(
+            f"Unable to resolve Windows timezone from SYSTEM hive {entry.file!r}"
+        )
+
+    return None
+
+
+def get_system_timezone(registry: Registry) -> Optional[ZoneInfo]:
+    current = registry_value_data(registry, "\\HKLM\\SYSTEM\\Select", "Current")
+    try:
+        control_set = f"ControlSet{int(current):03d}"
+    except (TypeError, ValueError):
+        control_set = "ControlSet001"
+
+    timezone_path = f"\\HKLM\\SYSTEM\\{control_set}\\Control\\TimeZoneInformation"
+    windows_name = registry_value_data(registry, timezone_path, "TimeZoneKeyName")
+    if not windows_name:
+        windows_name = registry_value_data(registry, timezone_path, "StandardName")
+    if not isinstance(windows_name, str):
+        return None
+
+    windows_name = windows_name.rstrip("\x00")
+    iana_name = win_tz_to_iana.get(windows_name)
+    if iana_name is None:
+        return None
+
+    return ZoneInfo(iana_name)
+
+
+def registry_value_data(registry: Registry, path: str, name: str):
+    keys = registry.glob_keys(path)
+    if not keys:
+        return None
+    registry_value = keys[-1].value(name)
+    if registry_value is None:
+        return None
+    return registry_value.data()
 
 
 @dataclass
@@ -185,25 +307,24 @@ class ItemChild:
 class ShellItem:
     key: RegKey
     children: List[ItemChild]
+    timezone_info: Optional[ZoneInfo]
 
-    def __init__(self, key: RegKey):
+    def __init__(self, key: RegKey, timezone_info: Optional[ZoneInfo]):
         self.key = key
         self.children = []
+        self.timezone_info = timezone_info
 
     def write_tuple(self, parent_path: str, last_shell_item, output: Output):
-        if len(self.children) == 0:
-            if last_shell_item:
-                self.write_shell_item(last_shell_item, parent_path, output)
-            else:
-                output.write(self.default_tuple(parent_path))
-        else:
-            for child in self.children:
-                segment = child.segment()
-                last_item = child.last_item()
-                if not last_item:
-                    last_item = last_shell_item
+        if last_shell_item is not None:
+            self.write_shell_item(last_shell_item, parent_path, output)
 
-                child.shell_item.write_tuple(parent_path + segment, last_item, output)
+        for child in self.children:
+            segment = child.segment()
+            last_item = child.last_item()
+            if last_item is None:
+                last_item = last_shell_item
+
+            child.shell_item.write_tuple(parent_path + segment, last_item, output)
 
     def default_tuple(self, path: str) -> Record:
         record = Record()
@@ -270,9 +391,7 @@ class ShellItem:
         elif isinstance(shell_item, pyfwsi.file_entry):
             tuple = None
 
-            modification_time = fat_datetime_to_utc(
-                shell_item.get_modification_time_as_integer()
-            )
+            modification_time = shell_item.get_modification_time_as_integer()
             num_extension = 0
             for extension_block in shell_item.extension_blocks:
                 if isinstance(extension_block, pyfwsi.file_entry_extension):
@@ -281,19 +400,23 @@ class ShellItem:
                     extention_tuple = self.default_tuple(path)
 
                     extention_tuple.add("type", value("file_entry"))
-                    extention_tuple.add("modification_time", value(modification_time))
+                    self.add_fat_datetime(
+                        extention_tuple, "modification_time", modification_time
+                    )
 
                     if extension_block.get_access_time_as_integer:
-                        access_time = fat_datetime_to_utc(
-                            extension_block.get_access_time_as_integer()
+                        self.add_fat_datetime(
+                            extention_tuple,
+                            "access_time",
+                            extension_block.get_access_time_as_integer(),
                         )
-                        extention_tuple.add("access_time", value(access_time))
 
                     if extension_block.get_creation_time_as_integer:
-                        creation_time = fat_datetime_to_utc(
-                            extension_block.get_creation_time_as_integer()
+                        self.add_fat_datetime(
+                            extention_tuple,
+                            "creation_time",
+                            extension_block.get_creation_time_as_integer(),
                         )
-                        extention_tuple.add("creation_time", value(creation_time))
 
                     if extension_block.localized_name:
                         localized_name = extension_block.localized_name
@@ -317,7 +440,7 @@ class ShellItem:
                 tuple = self.default_tuple(path)
                 tuple.add("type", value("file_entry"))
                 tuple.add("name", value(shell_item.name))
-                tuple.add("modification_time", value(modification_time))
+                self.add_fat_datetime(tuple, "modification_time", modification_time)
 
         else:
             tuple.add("type", value("unknown"))
@@ -326,6 +449,14 @@ class ShellItem:
 
         if tuple:
             output.write(tuple)
+
+    def add_fat_datetime(
+        self, record: Record, field_name: str, fat_datetime: int
+    ) -> None:
+        utc_datetime = None
+        if self.timezone_info is not None:
+            utc_datetime = fat_datetime_to_utc(fat_datetime, self.timezone_info)
+        record.add(field_name, value(utc_datetime))
 
 
 class WindowsShellFoldersHelper(object):

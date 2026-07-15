@@ -1,5 +1,5 @@
 import re
-from datetime import datetime, timezone
+from datetime import datetime, timezone, tzinfo
 from typing import Dict, List, Optional
 
 from dfir_ogre_common import AbstractParser, FieldName, Record, Value
@@ -58,7 +58,8 @@ def filetime_to_utc(filetime: int) -> datetime:
     return datetime.fromtimestamp(s, tz=timezone.utc).replace(microsecond=(ns100 // 10))
 
 
-def fat_datetime_to_utc(fat_datetime: int) -> Optional[datetime]:
+def fat_datetime_to_local(fat_datetime: int) -> Optional[datetime]:
+    """Decode a DOS/FAT timestamp as a timezone-naive local wall-clock time."""
     try:
         date = (fat_datetime >> 16) & 0xFFFF
         time = fat_datetime & 0xFFFF
@@ -72,11 +73,20 @@ def fat_datetime_to_utc(fat_datetime: int) -> Optional[datetime]:
         minutes = (time >> 5) & 0x3F
         hours = (time >> 11) & 0x1F
 
-        return datetime(
-            year, month, day_of_month, hours, minutes, seconds, tzinfo=timezone.utc
-        )
+        return datetime(year, month, day_of_month, hours, minutes, seconds)
     except Exception:
         return None
+
+
+def fat_datetime_to_utc(
+    fat_datetime: int, local_timezone: tzinfo
+) -> Optional[datetime]:
+    """Convert a DOS/FAT local wall-clock timestamp to UTC."""
+    local_datetime = fat_datetime_to_local(fat_datetime)
+    if local_datetime is None:
+        return None
+
+    return local_datetime.replace(tzinfo=local_timezone).astimezone(timezone.utc)
 
 
 
