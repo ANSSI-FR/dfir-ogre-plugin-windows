@@ -25,6 +25,18 @@ logger = logging.getLogger(__name__)
 GUID_DEVINTERFACE_DISK = "{53f56307-b6bf-11d0-94f2-00a0c91efb8b}"
 GUID_DEVINTERFACE_VOLUME = "{53f5630d-b6bf-11d0-94f2-00a0c91efb8b}"
 GUID_PROPERTIES_TIME = "{83da6326-97a6-4088-9453-a1923f573b29}"
+# DEVPROPKEY_Device activity property IDs 0x64 through 0x67. Both registry
+# layouts use the same IDs with different zero-padding.
+_USBSTOR_DATE_PROPERTIES = {
+    "0064": "usbstor_install",
+    "0065": "usbstor_first_install",
+    "0066": "usbstor_last_arrival",
+    "0067": "usbstor_last_removal",
+    "00000064": "usbstor_install",
+    "00000065": "usbstor_first_install",
+    "00000066": "usbstor_last_arrival",
+    "00000067": "usbstor_last_removal",
+}
 _SAMPLE_TYPE_SYS_HIVE = 0
 _SAMPLE_TYPE_SETUPAPI = 1
 
@@ -124,22 +136,23 @@ class RegMassStorageSystem(OgrePlugin):
                 for sub_key in instance.sub_glob(
                     f"Properties\\{GUID_PROPERTIES_TIME}\\*"
                 ):
-                    # Windows Vista/7 store the timestamp in a value 'Data' under the key '0000006[45]\\00000000'
-                    if sub_key.name == "00000064" or sub_key.name == "00000065":
-                        date_key = sub_key.sub_key("00000000")
-                        if date_key:
-                            date = date_key.value_data("data")
-                            if date:
-                                filetime = int.from_bytes(date, byteorder="little")
-                                device.usbstor_first_install = filetime_to_utc(filetime)
+                    field_name = _USBSTOR_DATE_PROPERTIES.get(sub_key.name)
+                    if not field_name:
+                        continue
 
-                    # Whereas Windows 8+ store the timestamp in the default value of the key '0000006[4567]'
-                    elif sub_key.name in {"0064", "0065", "0066", "0067"}:
+                    # Windows Vista/7 store timestamps in a 'Data' value under
+                    # the property key's '00000000' subkey.
+                    if len(sub_key.name) == 8:
+                        date_key = sub_key.sub_key("00000000")
+                        date = date_key.value_data("data") if date_key else None
+                    # Windows 8+ store timestamps in the property key's
+                    # default value.
+                    else:
                         date = sub_key.value_data("(default)")
 
-                        if date:
-                            filetime = int.from_bytes(date, byteorder="little")
-                            device.usbstor_first_install = filetime_to_utc(filetime)
+                    if date:
+                        filetime = int.from_bytes(date, byteorder="little")
+                        setattr(device, field_name, filetime_to_utc(filetime))
 
                 device_dict.add(device)
             except Exception as e:
@@ -447,9 +460,9 @@ class UsbDevice:
     usb_last_modified: Optional[datetime]
     emdmgmt_last_modified: Optional[datetime]
     usbstor_first_install: Optional[datetime]
-    usbstor_install: Optional[str]
-    usbstor_last_arrival: Optional[str]
-    usbstor_last_removal: Optional[str]
+    usbstor_install: Optional[datetime]
+    usbstor_last_arrival: Optional[datetime]
+    usbstor_last_removal: Optional[datetime]
     registry_path: List[str]
     friendly_names: List[str]
     users: List[str]

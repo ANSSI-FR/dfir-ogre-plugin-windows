@@ -10,6 +10,12 @@ wheels/
 /tests/data/hive/SOFTWARE.dat
 /tests/data/hive/SOFTWARE_W10
 
+#sqlite transaction logs
+*.db-shm
+*.db-wal
+*.sqlite-shm
+*.sqlite-wal
+
 # Virtual environments
 .venv
 .tmp

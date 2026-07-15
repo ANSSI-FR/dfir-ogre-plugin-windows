@@ -49,14 +49,49 @@ class TestMassStorage(TestCase):
         self.assertEqual(filename, output_file)
 
         with open(output_file) as fp:
-            i = 0
-            for line in fp:
-                js = json.loads(line)
-                if i == 0:
-                    self.assertEqual(
-                        js["description"],
-                        "type: Disk - vendor: JetFlash - product: Transcend_16GB - instance_id: 23NPMBDVM3GMSLXI&0",
-                    )
+            records = [json.loads(line) for line in fp]
 
-                i += 1
-            self.assertEqual(i, expected_lines)
+        self.assertEqual(len(records), expected_lines)
+        self.assertEqual(
+            records[0]["description"],
+            "type: Disk - vendor: JetFlash - product: Transcend_16GB - instance_id: 23NPMBDVM3GMSLXI&0",
+        )
+
+        device_records = [
+            record
+            for record in records
+            if record["data"]["instance_id"] == "23NPMBDVM3GMSLXI&0"
+        ]
+        self.assertEqual(len(device_records), 4)
+
+        expected_lifecycle = {
+            "usbstor_install": "2017-04-21T18:57:39.111785+00:00",
+            "usbstor_first_install": "2017-04-21T18:57:39.111785+00:00",
+            "usbstor_last_arrival": "2017-06-22T18:31:48.873043+00:00",
+            "usbstor_last_removal": "2017-06-22T22:20:21.101502+00:00",
+        }
+        self.assertEqual(
+            {
+                field: device_records[0]["data"][field]
+                for field in expected_lifecycle
+            },
+            expected_lifecycle,
+        )
+
+        expected_timeline_fields = {
+            "Usb install": "usbstor_install",
+            "Usb first install": "usbstor_first_install",
+            "Usb last arrival": "usbstor_last_arrival",
+            "Usb last removal": "usbstor_last_removal",
+        }
+        for meaning, field in expected_timeline_fields.items():
+            timeline_records = [
+                record
+                for record in device_records
+                if meaning in record["timestamp_meaning"].split(" - ")
+            ]
+            self.assertEqual(len(timeline_records), 1)
+            self.assertEqual(
+                timeline_records[0]["timestamp"],
+                expected_lifecycle[field],
+            )
