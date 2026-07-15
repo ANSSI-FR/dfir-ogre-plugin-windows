@@ -116,7 +116,15 @@ class AmCacheFile(TestCase):
                     )
                     self.assertEqual(
                         js["additional_description"],
-                        "size: 16443832 - program_id: 000612b2c6f35b22970daae0d8d2eeddf56f00000000 - sha1: 0000d14df5ea9601ca2981074516bda8f5226a5c735b - key_path: AmCache\\Root\\File\\ba949c59-1a7f-11e9-bc6d-806e6f6e6963\\019c",
+                        "size: 16443832 - program_id: 000612b2c6f35b22970daae0d8d2eeddf56f00000000 - sha1: d14df5ea9601ca2981074516bda8f5226a5c735b - key_path: AmCache\\Root\\File\\ba949c59-1a7f-11e9-bc6d-806e6f6e6963\\019c",
+                    )
+                    self.assertEqual(
+                        js["data"]["file_id"],
+                        "0000d14df5ea9601ca2981074516bda8f5226a5c735b",
+                    )
+                    self.assertEqual(
+                        js["data"]["sha1"],
+                        "d14df5ea9601ca2981074516bda8f5226a5c735b",
                     )
 
                 i += 1
@@ -173,7 +181,15 @@ class AmCacheFile(TestCase):
 
                     self.assertEqual(
                         js["additional_description"],
-                        "size: 525824 - program_id: 0006e6ae12df2ab4e561a3d2f9480c3a508d0000ffff - sha1: 00006dfffe9d80ccafa6e88cce582cf1716fd6d08094 - key_path: AmCache\\Root\\InventoryApplicationFile\\blkcalc.exe|4d759318",
+                        "size: 525824 - program_id: 0006e6ae12df2ab4e561a3d2f9480c3a508d0000ffff - sha1: 6dfffe9d80ccafa6e88cce582cf1716fd6d08094 - key_path: AmCache\\Root\\InventoryApplicationFile\\blkcalc.exe|4d759318",
+                    )
+                    self.assertEqual(
+                        js["data"]["file_id"],
+                        "00006dfffe9d80ccafa6e88cce582cf1716fd6d08094",
+                    )
+                    self.assertEqual(
+                        js["data"]["sha1"],
+                        "6dfffe9d80ccafa6e88cce582cf1716fd6d08094",
                     )
 
                 i += 1

@@ -1,7 +1,23 @@
+import re
 from datetime import datetime, timezone
 from typing import Dict, List, Optional
 
 from dfir_ogre_common import AbstractParser, FieldName, Record, Value
+
+
+AMCACHE_SHA1_PATTERN = re.compile(r"(?:0000)?([0-9a-fA-F]{40})")
+
+
+def normalize_amcache_sha1(identifier: object) -> str | None:
+    """Extract a normalized SHA-1 digest from an Amcache identifier."""
+    if not isinstance(identifier, str):
+        return None
+
+    match = AMCACHE_SHA1_PATTERN.fullmatch(identifier)
+    if match is None:
+        return None
+
+    return match.group(1).lower()
 
 
 def value(

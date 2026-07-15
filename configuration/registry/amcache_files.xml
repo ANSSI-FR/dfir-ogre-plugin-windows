@@ -6,7 +6,7 @@
 Retrieves cached executable file metadata from the Windows `AmCache` hive.
 
 - Expose what the OS stores for quick access to recently used files.
-- Extracts file name, path, size, SHA‑1 hash, program identifiers, version info, timestamps, and security descriptors for forensic examination.
+- Extracts file name, path, size, raw Amcache file ID, normalized SHA‑1 hash, program identifiers, version info, timestamps, and security descriptors for forensic examination.
 ]]>
     </description>
     <category>Services and Applications</category>
@@ -61,10 +61,16 @@ Retrieves cached executable file metadata from the Windows `AmCache` hive.
             />
 
       <field
+                input="file_id"
+                parser="String"
+                description="raw Amcache FileId or legacy value 101"
+            />
+
+      <field
                 input="sha1"
                 parser="String"
                 qualifier="FILE_SHA1"
-                description="SHA-1 hash of the file"
+                description="normalized 40-hex SHA-1 hash of the file"
             />
 
       <field

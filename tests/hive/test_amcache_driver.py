@@ -63,7 +63,15 @@ class AmCacheDriver(TestCase):
                     )
                     self.assertEqual(
                         js["additional_description"],
-                        "service: gencounter - sha1: 000001703a19605e9a190a1d3960e0865dc23046aa16 - key_path: AmCache\\Root\\InventoryDriverBinary\\000001703a19605e9a190a1d3960e0865dc23046aa16",
+                        "service: gencounter - sha1: 01703a19605e9a190a1d3960e0865dc23046aa16 - key_path: AmCache\\Root\\InventoryDriverBinary\\000001703a19605e9a190a1d3960e0865dc23046aa16",
+                    )
+                    self.assertEqual(
+                        js["data"]["driver_id"],
+                        "000001703a19605e9a190a1d3960e0865dc23046aa16",
+                    )
+                    self.assertEqual(
+                        js["data"]["sha1"],
+                        "01703a19605e9a190a1d3960e0865dc23046aa16",
                     )
 
                 i += 1
@@ -121,7 +129,15 @@ class AmCacheDriver(TestCase):
 
                     self.assertEqual(
                         js["additional_description"],
-                        "path: \\??\\c:\\programdata\\microsoft\\windows defender\\definition updates\\default\\mpksl541f4c03.sys - service: mpksl541f4c03 - sha1: 000033ba0027ab12e6d05d1580bdea961f533f06131f - key_path: AmCache\\Root\\InventoryDriverBinary\\/??/c:/programdata/microsoft/windows defender/definition updates/default/mpksl541f4c03.sys",
+                        "path: \\??\\c:\\programdata\\microsoft\\windows defender\\definition updates\\default\\mpksl541f4c03.sys - service: mpksl541f4c03 - sha1: 33ba0027ab12e6d05d1580bdea961f533f06131f - key_path: AmCache\\Root\\InventoryDriverBinary\\/??/c:/programdata/microsoft/windows defender/definition updates/default/mpksl541f4c03.sys",
+                    )
+                    self.assertEqual(
+                        js["data"]["driver_id"],
+                        "000033ba0027ab12e6d05d1580bdea961f533f06131f",
+                    )
+                    self.assertEqual(
+                        js["data"]["sha1"],
+                        "33ba0027ab12e6d05d1580bdea961f533f06131f",
                     )
 
                 i += 1

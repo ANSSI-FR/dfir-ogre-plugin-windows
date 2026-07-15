@@ -5,10 +5,26 @@ from dfir_ogre_plugin_windows.common import (
     FRNParser,
     FileAttributesParser,
     fat_datetime_to_utc,
+    normalize_amcache_sha1,
 )
 
 
 class CommonTest(TestCase):
+    def test_normalize_amcache_sha1(self):
+        self.assertEqual(
+            normalize_amcache_sha1(
+                "0000D14DF5EA9601CA2981074516BDA8F5226A5C735B"
+            ),
+            "d14df5ea9601ca2981074516bda8f5226a5c735b",
+        )
+        self.assertEqual(
+            normalize_amcache_sha1("D14DF5EA9601CA2981074516BDA8F5226A5C735B"),
+            "d14df5ea9601ca2981074516bda8f5226a5c735b",
+        )
+
+        self.assertIsNone(normalize_amcache_sha1("0000not-a-sha1"))
+        self.assertIsNone(normalize_amcache_sha1(None))
+
     def test_abstract_parsers_return_empty_records_for_empty_input(self):
         self.assertTrue(FileAttributesParser().parse("", "attributes").is_empty())
         self.assertTrue(FRNParser.build("parent_").parse("", "frn").is_empty())

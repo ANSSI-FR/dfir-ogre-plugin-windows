@@ -15,7 +15,7 @@ from dfir_ogre_common import (
     Value,
 )
 
-from dfir_ogre_plugin_windows.common import value
+from dfir_ogre_plugin_windows.common import normalize_amcache_sha1, value
 
 logger = logging.getLogger(__name__)
 
@@ -58,14 +58,16 @@ class RegAmCacheDriver(OgrePlugin):
             tuple = Record()
 
             if key.name.startswith("0000"):
-                tuple.add("sha1", value(key.name))
+                driver_id = key.name
 
             else:
-                sha1 = key.value_data("DriverId")
-                tuple.add("sha1", value(sha1))
+                driver_id = key.value_data("DriverId")
 
                 path = key.name.replace("/", "\\")
                 tuple.add("path", value(path))
+
+            tuple.add("driver_id", value(driver_id))
+            tuple.add("sha1", value(normalize_amcache_sha1(driver_id)))
 
             name = key.value_data("DriverName")
             tuple.add("name", value(name))

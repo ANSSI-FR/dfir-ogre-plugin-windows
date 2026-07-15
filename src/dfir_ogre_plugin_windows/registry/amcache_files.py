@@ -16,7 +16,11 @@ from dfir_ogre_common import (
     Value,
 )
 
-from dfir_ogre_plugin_windows.common import filetime_to_utc, value
+from dfir_ogre_plugin_windows.common import (
+    filetime_to_utc,
+    normalize_amcache_sha1,
+    value,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -76,8 +80,9 @@ class RegAmCacheFile(OgrePlugin):
                 program_id = key.value_data("ProgramId")
                 tuple.add("program_id", value(program_id))
 
-                sha1 = key.value_data("FileId")
-                tuple.add("sha1", value(sha1))
+                file_id = key.value_data("FileId")
+                tuple.add("file_id", value(file_id))
+                tuple.add("sha1", value(normalize_amcache_sha1(file_id)))
 
                 size = key.value_data("Size")
                 tuple.add("size", value(parse_int(size)))
@@ -125,8 +130,9 @@ class RegAmCacheFile(OgrePlugin):
                 program_id = key.value_data("100")
                 tuple.add("program_id", value(program_id))
 
-                sha1 = key.value_data("101")
-                tuple.add("sha1", value(sha1))
+                file_id = key.value_data("101")
+                tuple.add("file_id", value(file_id))
+                tuple.add("sha1", value(normalize_amcache_sha1(file_id)))
 
                 file_version = key.value_data("2")
                 tuple.add("file_version", value(file_version))

@@ -6,7 +6,7 @@
 Extracts driver metadata stored in the `AmCache` hive.
 
 - Retrieves driver attributes (name, version, product, company, etc.).
-- Captures file‑system information (path, size, SHA‑1, compilation date).
+- Captures file‑system information (path, size, raw Amcache driver ID, normalized SHA‑1, compilation date).
 ]]>
     </description>
     <category>Services and Applications</category>
@@ -127,10 +127,16 @@ Extracts driver metadata stored in the `AmCache` hive.
             />
 
       <field
+                input="driver_id"
+                parser="String"
+                description="raw Amcache driver identifier"
+            />
+
+      <field
                 input="sha1"
                 parser="String"
                 qualifier="FILE_SHA1"
-                description="Sha-1 signature"
+                description="normalized 40-hex SHA-1 hash of the driver"
             />
 
       <!-- Registry Key data-->
