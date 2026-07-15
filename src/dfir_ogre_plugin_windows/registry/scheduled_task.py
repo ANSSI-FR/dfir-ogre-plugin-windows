@@ -1,6 +1,7 @@
 import logging
 from datetime import timezone
 from typing import List
+from uuid import UUID
 
 from dateutil import parser as date_parser
 from dfir_ogre_common import (
@@ -208,6 +209,10 @@ class RegScheduledTask(OgrePlugin):
 
 
 def parse_task_action(data: bytes) -> Value:
+    return Value.Object(decode_task_action(data))
+
+
+def decode_task_action(data: bytes) -> Record:
     task_action = Record()
 
     cursor = 0x2
@@ -255,24 +260,15 @@ def parse_task_action(data: bytes) -> Value:
         task_action.add("action_type", value("ComHandler"))
         # handle com_classid
         byte_task = data[cursor : cursor + 0x10]
-        barray = bytearray(byte_task)
-        barray.reverse()
-        com_classid = (
-            barray[12:].hex()
-            + "-"
-            + barray[10:12].hex()
-            + "-"
-            + barray[8:10].hex()
-            + "-"
-            + barray[6:8].hex()
-            + "-"
-            + barray[:6].hex()
-        )
+        com_classid = str(UUID(bytes_le=byte_task))
         task_action.add("com_classid", value(com_classid))
 
-        bstr_size = int.from_bytes(data[0x16:0x1A], byteorder="little", signed=False)
+        cursor += 0x10
+        bstr_size = int.from_bytes(
+            data[cursor : cursor + 4], byteorder="little", signed=False
+        )
         if bstr_size > 0:
-            com_data = data[0x1A : 0x1A + bstr_size].decode("utf-16-le")
+            com_data = data[cursor + 4 : cursor + 4 + bstr_size].decode("utf-16-le")
             task_action.add("com_data", value(com_data))
 
     # else if action type = email
@@ -349,9 +345,9 @@ def parse_task_action(data: bytes) -> Value:
         num_attachments = int.from_bytes(
             data[cursor : cursor + 4], byteorder="little", signed=False
         )
-        cursor += 4 + bstr_size
+        cursor += 4
         email_attachments = []
-        for i in range(0, num_attachments):
+        for _ in range(num_attachments):
             bstr_size = int.from_bytes(
                 data[cursor : cursor + 4], byteorder="little", signed=False
             )
@@ -360,7 +356,7 @@ def parse_task_action(data: bytes) -> Value:
                     "utf-16-le"
                 )
                 email_attachments.append(value(attachment))
-                cursor += 4 + bstr_size
+            cursor += 4 + bstr_size
 
         if email_attachments:
             task_action.add("email_attachments", Value.Array(email_attachments))
@@ -385,7 +381,7 @@ def parse_task_action(data: bytes) -> Value:
                 "utf-16-le"
             )
             task_action.add("message_title", value(message_title))
-    return Value.Object(task_action)
+    return task_action
 
 
 def process_dyninfo(reg_value: RegValue, record: Record):
