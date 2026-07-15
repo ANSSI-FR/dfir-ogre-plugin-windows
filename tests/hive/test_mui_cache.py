@@ -43,7 +43,7 @@ class MuiCache(TestCase):
         report = parser.parse(input_file, plugin_file, run_config, metadata)
         self.assertEqual(None, report.last_error)
 
-        expected_lines = 10
+        expected_lines = 12
         lines = report.output_reports[0].file_reports[0].num_lines
         self.assertEqual(lines, expected_lines)
 
@@ -51,11 +51,8 @@ class MuiCache(TestCase):
         self.assertEqual(filename, output_file)
 
         with open(output_file) as fp:
-            i = 0
+            executables = [json.loads(line)["executable"] for line in fp]
 
-            for line in fp:
-                js = json.loads(line)
-                if i == 9:
-                    js["executable"] = "C:\\Windows\\System32\\winver.exe"
-                i += 1
-            self.assertEqual(i, expected_lines)
+        self.assertEqual(len(executables), expected_lines)
+        self.assertIn("C:\\Windows\\System32\\winver.exe", executables)
+        self.assertNotIn("C", executables)

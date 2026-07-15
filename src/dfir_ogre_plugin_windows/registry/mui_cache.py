@@ -78,8 +78,7 @@ class RegMuiCache(OgrePlugin):
                         else:
                             apps[executable] = {"Company": val.data(), "AppName": None}
                     elif name.endswith(".FriendlyAppName"):
-                        fields = name.split(".FriendlyAppName")[0]
-                        executable = fields[0]
+                        executable = name.removesuffix(".FriendlyAppName")
                         if executable in apps:
                             apps[executable]["AppName"] = val.data()
                         else:
