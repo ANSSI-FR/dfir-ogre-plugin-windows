@@ -93,10 +93,56 @@ The plugin queries the Containers and Container_X tables to retrieve URL visits 
                 description="HTTP request headers (hex encoded)"
             />
 
+      <array>
+        <object input="response_properties">
+          <field
+                    input="store_index"
+                    parser="Int"
+                    description="Zero-based serialized property store index"
+                />
+          <field
+                    input="storage_index"
+                    parser="Int"
+                    description="Zero-based property storage index within the store"
+                />
+          <field
+                    input="format_id"
+                    parser="String"
+                    description="Property set format identifier (FMTID)"
+                />
+          <field
+                    input="id"
+                    parser="Int"
+                    description="Property identifier within the property set"
+                />
+          <field
+                    input="name"
+                    parser="String"
+                    description="Known symbolic property name, when available"
+                />
+          <field
+                    input="value_type"
+                    parser="String"
+                    description="Windows variant property type"
+                />
+          <field
+                    input="value"
+                    parser="String"
+                    description="Decoded property value represented as a string"
+                />
+        </object>
+      </array>
+
       <field
-                input="response_headers"
+                input="response_properties_raw"
                 parser="String"
-                description="HTTP response headers (hex encoded)"
+                description="Original serialized response properties (hex encoded)"
+            />
+
+      <field
+                input="response_properties_parse_error"
+                parser="String"
+                description="Non-fatal errors encountered while decoding response properties"
             />
 
       <field
@@ -106,47 +152,47 @@ The plugin queries the Containers and Container_X tables to retrieve URL visits 
             />
 
       <field
-                input="sync_time"
+                input="sync_date"
                 parser="DateTime"
-                display_name="Sync Time"
+                display_name="Sync Date"
                 description="Last synchronization time in UTC"
             />
 
       <field
-                input="creation_time"
+                input="creation_date"
                 parser="DateTime"
                 qualifier="DATE_CREATION"
-                display_name="Creation Time"
+                display_name="Creation Date"
                 description="Entry creation timestamp in UTC"
             />
 
       <field
-                input="expiry_time"
+                input="expiry_date"
                 parser="DateTime"
-                display_name="Expiry Time"
+                display_name="Expiry Date"
                 description="Expiration timestamp in UTC"
             />
 
       <field
-                input="modified_time"
+                input="modified_date"
                 parser="DateTime"
                 qualifier="DATE_MODIFICATION"
-                display_name="Modified Time"
+                display_name="Modified Date"
                 description="Last modification timestamp in UTC"
             />
 
       <field
-                input="accessed_time"
+                input="accessed_date"
                 parser="DateTime"
                 qualifier="DATE_ACCESS"
-                display_name="Accessed Time"
+                display_name="Accessed Date"
                 description="Last access timestamp in UTC"
             />
 
       <field
-                input="post_check_time"
+                input="post_check_date"
                 parser="DateTime"
-                display_name="Post Check Time"
+                display_name="Post Check Date"
                 description="Time of last post-check validation in UTC"
             />
     </fields>
