@@ -104,16 +104,24 @@ class SqliteTest(TestCase):
         self.assertEqual(filename, output_file)
 
         with open(output_file) as fp:
-            i = 0
-            for line in fp:
-                jsoned = json.loads(line)
-                if i == 0:
-                    self.assertEqual(
-                        jsoned["url"],
-                        "http://doc.ubuntu-fr.org/visual_studio_code",
-                    )
-                i += 1
-            self.assertEqual(i, expected_lines)
+            records = [json.loads(line) for line in fp]
+
+        self.assertEqual(len(records), expected_lines)
+        self.assertEqual(
+            records[0]["url"],
+            "http://doc.ubuntu-fr.org/visual_studio_code",
+        )
+
+        referrer_records = [
+            record
+            for record in records
+            if record["url"] == "https://doc.ubuntu-fr.org/visual_studio_code"
+        ]
+        self.assertEqual(len(referrer_records), 1)
+        self.assertEqual(
+            referrer_records[0]["referer"],
+            "http://doc.ubuntu-fr.org/visual_studio_code",
+        )
 
     # python -m unittest tests.test_sqlite.SqliteTest.test_sqlite_chrome_history -v
     def test_sqlite_chrome_history(self):
@@ -155,16 +163,24 @@ class SqliteTest(TestCase):
         self.assertEqual(filename, output_file)
 
         with open(output_file) as fp:
-            i = 0
-            for line in fp:
-                jsoned = json.loads(line)
-                if i == 0:
-                    self.assertEqual(
-                        jsoned["url"],
-                        "http://code.google.com/p/chrome-screen-capture/",
-                    )
-                i += 1
-            self.assertEqual(i, expected_lines)
+            records = [json.loads(line) for line in fp]
+
+        self.assertEqual(len(records), expected_lines)
+        self.assertEqual(
+            records[0]["url"],
+            "http://code.google.com/p/chrome-screen-capture/",
+        )
+
+        referrer_records = [
+            record
+            for record in records
+            if record["url"] == "http://en.softsia.com/download-sk6t.htm"
+        ]
+        self.assertEqual(len(referrer_records), 1)
+        self.assertEqual(
+            referrer_records[0]["referer"],
+            "http://en.softsia.com/Fun-Cats-Screensaver-download-sk6t.htm",
+        )
 
     # python -m unittest tests.test_sqlite.SqliteTest.test_sqlite_chrome_history_57 -v
     def test_sqlite_chrome_history_57(self):

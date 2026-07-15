@@ -28,8 +28,10 @@ time.
         referer.url as referer,
         moz_places.hidden
       FROM moz_places
-        LEFT JOIN moz_historyvisits on moz_places.id = moz_historyvisits.place_id
-        LEFT JOIN moz_places referer on referer.id = moz_places.origin_id
+        LEFT JOIN moz_historyvisits ON moz_places.id = moz_historyvisits.place_id
+        LEFT JOIN moz_historyvisits AS referring_visit
+          ON moz_historyvisits.from_visit = referring_visit.id
+        LEFT JOIN moz_places AS referer ON referring_visit.place_id = referer.id
       WHERE visit_date_ms is not null
       ]]>
     </query>

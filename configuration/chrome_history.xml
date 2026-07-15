@@ -26,8 +26,9 @@ visited, and the referer URL if available.
       referer.url AS referer,
       urls.hidden
     FROM urls
-    LEFT JOIN visits on urls.id = visits.url
-    LEFT JOIN urls as referer on visits.from_visit = referer.id
+    LEFT JOIN visits ON urls.id = visits.url
+    LEFT JOIN visits AS referring_visit ON visits.from_visit = referring_visit.id
+    LEFT JOIN urls AS referer ON referring_visit.url = referer.id
     ORDER BY urls.url, visits.visit_time
       ]]>
     </query>
