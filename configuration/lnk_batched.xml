@@ -10,6 +10,8 @@ From a digital‑forensic perspective a shortcut can reveal:
 - timestamps of the **target file** (creation, modification, access) and of the shortcut itself.
 - **command‑line arguments, working directory, icon information, hot‑key, window style** – all useful for reconstructing the user’s workflow.
 - **Link‑flags, file‑attributes, and extra data blocks** (e.g., Distributed Link Tracker, Shim layer, console properties) that can indicate the presence of shims, virtualisation, or relocation attempts.
+
+Each LNK or Jump List is paired with the SYSTEM hive from the same VSS snapshot. DOS/FAT timestamps embedded in target ID lists are local wall-clock values and are converted to UTC using that hive; FILETIME values in the LNK header remain unchanged.
 ]]>
  </description>
     <category>Windows Artefacts</category>
@@ -795,7 +797,7 @@ From a digital‑forensic perspective a shortcut can reveal:
               input="modification_time"
               parser="DateTime"
               qualifier="DATE_MODIFICATION"
-              description="For items type 'FileEntry', last modification date of the target file?"
+              description="For FileEntry items, UTC last-modification timestamp converted from the embedded DOS/FAT local time using the matching SYSTEM hive"
             />
 
             <field
