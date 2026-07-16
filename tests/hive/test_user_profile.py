@@ -79,6 +79,12 @@ class UserProfile(TestCase):
         self.assertIs(records["nobody"]["is_hidden"], False)
         self.assertIsNone(records["systemprofile"]["is_hidden"])
 
+    def test_user_profile_matches_user_list_names_case_insensitively(self):
+        records = self._parse_with_user_list([("AdMiN", 0), ("NoBoDy", 1)])
+
+        self.assertIs(records["admin"]["is_hidden"], True)
+        self.assertIs(records["nobody"]["is_hidden"], False)
+
     # python -m unittest tests.hive.test_user_profile.UserProfile.test_user_profile -v
     def test_user_profile(self):
         plugin_file = os.path.join(CONF_FOLDER, "user_profile.xml")

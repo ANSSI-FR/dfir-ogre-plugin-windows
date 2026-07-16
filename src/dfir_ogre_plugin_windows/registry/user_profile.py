@@ -29,7 +29,9 @@ def _get_hidden_users(reg: Registry) -> Dict[str, bool]:
         "\\SpecialAccounts\\UserList"
     ):
         for user_visibility in reg_key.values():
-            hidden_users[user_visibility.name()] = user_visibility.data() == 0
+            hidden_users[user_visibility.name().casefold()] = (
+                user_visibility.data() == 0
+            )
     return hidden_users
 
 
@@ -88,8 +90,9 @@ class RegUserProfile(OgrePlugin):
             if image_path:
                 profile = (image_path.split("\\"))[-1].lower()
 
-                if profile in hidden_users:
-                    tuple.add("is_hidden", value(hidden_users[profile]))
+                profile_lookup = profile.casefold()
+                if profile_lookup in hidden_users:
+                    tuple.add("is_hidden", value(hidden_users[profile_lookup]))
 
                 tuple.add("user_name", value(profile))
 
