@@ -108,12 +108,12 @@ def build_object(tables: dict, key: str, value: str, pattern: str):
     if not builder:
         builder = ObjectBuilder()
         tables[pattern] = builder
-    type = key.split(".")[1]
-    if type == "Name":
+
+    key_type = key.rsplit(".", 1)[1]
+    if key_type in ("Name", "Key"):
         builder.current_key = value
-    else:
-        if builder.current_key:
-            builder.object.add(builder.current_key, Value.String(value))
+    elif key_type == "Value" and builder.current_key:
+        builder.object.add(builder.current_key, Value.String(value))
 
 
 class ObjectBuilder:

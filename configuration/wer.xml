@@ -374,10 +374,9 @@
         />
       </object>
 
-      <object input="OsInfo" output="os_info">
-      </object>
+      <object input="OsInfo" output="os_info" dynamic="true" />
 
-      <object input="State" output="state" />
+      <object input="State" output="state" dynamic="true" />
 
     </fields>
 

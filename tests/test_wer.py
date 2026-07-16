@@ -116,6 +116,12 @@ class WerTest(TestCase):
                         jsoned["dynamic_sig"]["os_version"],
                         "10.0.17763.2.0.0.272.7",
                     )
+                    self.assertEqual(len(jsoned["os_info"]), 33)
+                    self.assertEqual(jsoned["os_info"]["vermaj"], "10")
+                    self.assertEqual(
+                        jsoned["os_info"]["edition"],
+                        "ServerStandard",
+                    )
                     self.assertEqual(
                         jsoned["loaded_module"][0],
                         "C:\\Windows\\System32\\profapi.dll",
@@ -212,6 +218,16 @@ class WerTest(TestCase):
                     self.assertEqual(
                         jsoned["dynamic_sig"]["additional_hang_signature_1"],
                         "e333f15cda3f1bebe555d03ba97991d0",
+                    )
+                    self.assertEqual(len(jsoned["os_info"]), 37)
+                    self.assertEqual(jsoned["os_info"]["vermaj"], "10")
+                    self.assertEqual(
+                        jsoned["os_info"]["edition"],
+                        "Enterprise",
+                    )
+                    self.assertEqual(
+                        jsoned["state"]["transport._done_stage1"],
+                        "1",
                     )
                     self.assertEqual(
                         jsoned["loaded_module"][0],
