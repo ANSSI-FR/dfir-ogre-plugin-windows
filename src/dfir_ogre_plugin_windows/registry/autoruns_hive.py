@@ -117,6 +117,8 @@ SOFTWARE_KEYS: Dict[str, List[Tuple[str, Tuple]]] = {
     'Winlogon Notify': [
         ('\\HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\Notify',
          ('DllName',)),
+        ('\\HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\Notify\\*',
+         ('DllName',)),
     ],
     'Startup Run': [
         ('\\HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run', ('*',)),
@@ -186,7 +188,9 @@ USER_KEYS: Dict[str, List[Tuple[str, Tuple]]] = {
     ],
     'Winlogon Notify': [
         ('\\HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\Notify',
-         ('DllName',))
+         ('DllName',)),
+        ('\\HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\Notify\\*',
+         ('DllName',)),
     ],
     'Startup Run': [
         ('\\HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run', ('*',)),
