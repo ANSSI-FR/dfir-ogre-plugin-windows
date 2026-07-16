@@ -1,8 +1,16 @@
 import json
 import os
+from datetime import datetime, timezone
 from unittest import TestCase
+from unittest.mock import Mock
 
-from dfir_ogre_common import Metadata, OutputConfiguration, RunConfiguration
+from dfir_ogre_common import (
+    Metadata,
+    OutputConfiguration,
+    Record,
+    RunConfiguration,
+    RunReport,
+)
 
 from dfir_ogre_plugin_windows import RegNetworkConfig
 
@@ -13,6 +21,53 @@ os.makedirs(TEMP_FOLDER, exist_ok=True)
 
 
 class NetworkConfig(TestCase):
+    def test_missing_enable_dhcp_defaults_to_static(self):
+        values = {
+            "IPAddress": ["192.0.2.10"],
+            "SubnetMask": ["255.255.255.0"],
+            "Domain": "example.test",
+            "NameServer": "192.0.2.53",
+        }
+        key = Mock()
+        key.values.return_value = list(values.values())
+        key.value_data.side_effect = lambda name, default=None: values.get(
+            name, default
+        )
+        key.value.return_value = None
+        key.path = (
+            r"\HKLM\System\ControlSet001\Services\Tcpip\Parameters"
+            r"\Interfaces\static-without-flag"
+        )
+        key.mtime = datetime(2026, 1, 1, tzinfo=timezone.utc)
+        key.security_descriptor.to_record.return_value = Record()
+
+        output = Mock()
+        report = RunReport()
+        RegNetworkConfig().parse_key(key, output, report)
+
+        self.assertIsNone(report.last_error)
+        self.assertEqual(output.write.call_count, 1)
+        record = json.loads(output.write.call_args.args[0].to_string())
+        self.assertFalse(record["dhcp"])
+        self.assertEqual(record["ip_address"], "192.0.2.10")
+        self.assertEqual(record["network_mask"], "255.255.255.0")
+        self.assertEqual(record["dns_suffix"], "example.test")
+        self.assertEqual(record["name_servers"], "192.0.2.53")
+
+    def test_empty_interface_key_is_ignored_without_error(self):
+        key = Mock()
+        key.values.return_value = []
+        key.value_data.side_effect = AssertionError(
+            "empty interface key data should not be read"
+        )
+
+        output = Mock()
+        report = RunReport()
+        RegNetworkConfig().parse_key(key, output, report)
+
+        self.assertIsNone(report.last_error)
+        output.write.assert_not_called()
+
     # python -m unittest tests.hive.test_network_config.NetworkConfig.test_network_config -v
     def test_network_config(self):
         plugin_file = os.path.join(CONF_FOLDER, "network_configuration.xml")
@@ -41,7 +96,7 @@ class NetworkConfig(TestCase):
         report = parser.parse(input_file, plugin_file, run_config, metadata)
         self.assertEqual(None, report.last_error)
 
-        expected_lines = 6
+        expected_lines = 4
         lines = report.output_reports[0].file_reports[0].num_lines
         self.assertEqual(lines, expected_lines)
 
