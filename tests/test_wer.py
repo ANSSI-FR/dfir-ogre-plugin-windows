@@ -70,6 +70,47 @@ class WerTest(TestCase):
         )
         self.assertEqual(record["report_description"], embedded)
 
+    def test_wer_preserves_first_key_without_bom(self):
+        plugin_file = os.path.join(CONF_FOLDER, "wer.xml")
+        input_file = os.path.join(TEMP_FOLDER, "report_without_bom.wer")
+        base_output_name = "wer_without_bom"
+
+        with open(input_file, "wb") as fp:
+            fp.write(
+                ("Version=1\n" "EventType=BomlessReport\n").encode("utf-16-le")
+            )
+
+        output_file = os.path.join(
+            TEMP_FOLDER,
+            base_output_name + ".wer.jsonl",
+        )
+        if os.path.exists(output_file):
+            os.remove(output_file)
+
+        run_config = RunConfiguration(
+            [
+                OutputConfiguration(
+                    base_output_name,
+                    TEMP_FOLDER,
+                    with_timeline=False,
+                    include_empty=False,
+                )
+            ]
+        )
+
+        report = Wer().parse(
+            input_file,
+            plugin_file,
+            run_config,
+            Metadata("test"),
+        )
+
+        self.assertIsNone(report.last_error)
+        with open(output_file, encoding="utf-8") as fp:
+            record = json.loads(fp.readline())
+        self.assertEqual(record.get("version"), 1)
+        self.assertEqual(record["event_type"], "BomlessReport")
+
     # python -m unittest tests.test_wer.WerTest.test_wer -v
     def test_wer(self):
         plugin_file = os.path.join(CONF_FOLDER, "wer.xml")

@@ -48,8 +48,6 @@ class Wer(OgrePlugin):
 
         # parse file
         with open(input_file, "r", encoding="utf-16-le") as input:
-            input.read(1)  # ignore the BOM prefix
-
             with Output(run_config, plugin_config, metadata) as output:
                 record = Record()
                 tables: Dict[str, ObjectBuilder] = {}
@@ -57,7 +55,9 @@ class Wer(OgrePlugin):
                 files: List[Value] = []
                 current_file: Optional[Record] = None
 
-                for line in input:
+                for line_number, line in enumerate(input):
+                    if line_number == 0:
+                        line = line.removeprefix("\ufeff")
                     fields = line.split("=", 1)
                     if len(fields) != 2:
                         continue
