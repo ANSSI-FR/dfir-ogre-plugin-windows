@@ -171,6 +171,71 @@ class TestLnkFatTimestamps(TestCase):
             "2024-06-29T17:42:58.000000+00:00",
         )
 
+    def test_batched_lnk_without_system_reports_and_uses_utc_fallback(self):
+        plugin_file = os.path.join(CONF_FOLDER, "lnk_batched.xml")
+        lnk_file = os.path.join(DATA_FOLDER, "lnk", "desktop.lnk.data")
+        base_output_name = "lnk_without_system"
+        output_file = os.path.join(TEMP_FOLDER, base_output_name + ".lnk.jsonl")
+        if os.path.exists(output_file):
+            os.remove(output_file)
+
+        run_config = RunConfiguration(
+            [
+                OutputConfiguration(
+                    base_output_name,
+                    TEMP_FOLDER,
+                    with_timeline=False,
+                    include_empty=False,
+                )
+            ]
+        )
+        metadata = Metadata("test")
+        metadata.vss = "missing-system"
+        metadata.original_filename = r"C:\Users\test\desktop.lnk"
+        parsed_lnk = {
+            "status": "success",
+            "lnk": [
+                {
+                    "status": "success",
+                    "header": {
+                        "modification_time": "2024-06-29T17:42:58+00:00"
+                    },
+                    "target": {
+                        "items": [
+                            {
+                                "primary_name": "target.txt",
+                                "modification_time": "2024-06-29T17:42:58+00:00",
+                            }
+                        ]
+                    },
+                }
+            ],
+        }
+
+        with self.assertLogs(
+            "dfir_ogre_plugin_windows.system_timezone",
+            level="WARNING",
+        ) as logs, patch(
+            "dfir_ogre_plugin_windows.lnk.parse_jumplist",
+            return_value=parsed_lnk,
+        ):
+            report = LnkBatched().parse(
+                [BatchEntry(lnk_file, run_config, metadata)],
+                plugin_file,
+            )
+
+        self.assertEqual(report.num_errors, 1)
+        self.assertEqual(
+            report.last_error,
+            "No SYSTEM hive found for VSS snapshot 'missing-system'",
+        )
+        self.assertEqual(len(logs.output), 1)
+        self.assertEqual(report.output_reports[0].file_reports[0].num_lines, 1)
+        self.assertEqual(
+            parsed_lnk["lnk"][0]["target"]["items"][0]["modification_time"],
+            "2024-06-29T17:42:58+00:00",
+        )
+
 
 class TestLnk(TestCase):
     # python -m unittest tests.test_lnk.TestLnk.test_lnk -v

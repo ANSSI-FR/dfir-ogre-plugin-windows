@@ -54,6 +54,62 @@ class TestShellBag(TestCase):
             [entry.file for entry in grouped["vss-2"].system_entries], ["system-2"]
         )
 
+    def test_shell_bag_without_system_reports_and_uses_utc_fallback(self):
+        plugin_file = os.path.join(CONF_FOLDER, "shell_bag.xml")
+        usrclass_file = os.path.join(DATA_FOLDER, "hive", "UsrClass_shell.dat")
+        base_output_name = "shell_bag_without_system"
+        output_file = os.path.join(
+            TEMP_FOLDER,
+            base_output_name + ".shellbags.jsonl",
+        )
+        if os.path.exists(output_file):
+            os.remove(output_file)
+
+        run_config = RunConfiguration(
+            [
+                OutputConfiguration(
+                    base_output_name,
+                    TEMP_FOLDER,
+                    with_timeline=False,
+                    include_empty=False,
+                )
+            ]
+        )
+        metadata = Metadata("test")
+        metadata.vss = "missing-system"
+        metadata.original_filename = (
+            r"C:\Users\Administrator\AppData\Local\Microsoft\Windows\UsrClass.dat"
+        )
+
+        with self.assertLogs(
+            "dfir_ogre_plugin_windows.system_timezone",
+            level="WARNING",
+        ) as logs:
+            report = RegShellBag().parse(
+                [BatchEntry(usrclass_file, run_config, metadata)],
+                plugin_file,
+            )
+
+        self.assertEqual(report.num_errors, 1)
+        self.assertEqual(
+            report.last_error,
+            "No SYSTEM hive found for VSS snapshot 'missing-system'",
+        )
+        self.assertEqual(len(logs.output), 1)
+        self.assertEqual(report.output_reports[0].file_reports[0].num_lines, 14)
+
+        with open(output_file) as fp:
+            records = [json.loads(line) for line in fp]
+        records_by_key = {record["key_path"]: record for record in records}
+        leaf = records_by_key[
+            "HKCU\\Local Settings\\Software\\Microsoft\\Windows\\Shell\\BagMRU\\3\\0\\0\\1\\0"
+        ]
+        self.assertIn("modification_time", leaf)
+        self.assertEqual(
+            leaf["modification_time"],
+            "2038-11-06T10:17:10.000000+00:00",
+        )
+
     # python -m unittest tests.hive.test_shell_bag.TestShellBag.test_shell_bag -v
     def test_shell_bag(self):
         plugin_file = os.path.join(CONF_FOLDER, "shell_bag.xml")

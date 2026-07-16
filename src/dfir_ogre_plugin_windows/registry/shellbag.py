@@ -1,7 +1,7 @@
 import logging
 from dataclasses import dataclass
+from datetime import tzinfo
 from typing import Dict, List, Optional
-from zoneinfo import ZoneInfo
 
 import pyfwsi
 from dfir_ogre_common import (
@@ -25,7 +25,7 @@ from dfir_ogre_plugin_windows.system_timezone import (
     entry_snapshot as snapshot_key,
     entry_source_basename as source_basename,
     is_system_hive,
-    resolve_system_timezone,
+    resolve_system_timezone_or_utc,
 )
 
 logger = logging.getLogger(__name__)
@@ -68,7 +68,7 @@ class RegShellBag(OgreBatchedPlugin):
         self,
         entry: BatchEntry,
         plugin_config: PluginConfiguration,
-        timezone_info: Optional[ZoneInfo],
+        timezone_info: tzinfo,
         report: RunReport,
     ) -> None:
         try:
@@ -103,7 +103,7 @@ class RegShellBag(OgreBatchedPlugin):
         self,
         bag_key: Optional[RegKey],
         report: RunReport,
-        timezone_info: Optional[ZoneInfo] = None,
+        timezone_info: Optional[tzinfo] = None,
     ) -> Optional["ShellItem"]:
         if not bag_key:
             return None
@@ -158,8 +158,8 @@ def resolve_shellbag_timezone(
     system_entries: List[BatchEntry],
     snapshot: Optional[str],
     report: RunReport,
-) -> Optional[ZoneInfo]:
-    return resolve_system_timezone(system_entries, snapshot, report)
+) -> tzinfo:
+    return resolve_system_timezone_or_utc(system_entries, snapshot, report)
 
 
 @dataclass
@@ -244,9 +244,9 @@ class ItemChild:
 class ShellItem:
     key: RegKey
     children: List[ItemChild]
-    timezone_info: Optional[ZoneInfo]
+    timezone_info: Optional[tzinfo]
 
-    def __init__(self, key: RegKey, timezone_info: Optional[ZoneInfo]):
+    def __init__(self, key: RegKey, timezone_info: Optional[tzinfo]):
         self.key = key
         self.children = []
         self.timezone_info = timezone_info

@@ -1,9 +1,8 @@
 import logging
 from collections.abc import Mapping
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timezone, tzinfo
 from typing import Any, Dict, List, Optional
-from zoneinfo import ZoneInfo
 
 from dfir_ogre_common import (
     BatchEntry,
@@ -25,7 +24,7 @@ from jumplist_parser import parse_jumplist
 from dfir_ogre_plugin_windows.system_timezone import (
     entry_snapshot,
     is_system_hive,
-    resolve_system_timezone,
+    resolve_system_timezone_or_utc,
 )
 
 logger = logging.getLogger(__name__)
@@ -149,7 +148,7 @@ class LnkBatched(OgreBatchedPlugin):
             if not batch.lnk_entries:
                 continue
 
-            timezone_info = resolve_system_timezone(
+            timezone_info = resolve_system_timezone_or_utc(
                 batch.system_entries, snapshot, report
             )
             for batch_entry in batch.lnk_entries:
@@ -172,7 +171,7 @@ class LnkBatched(OgreBatchedPlugin):
         batch_entry: BatchEntry,
         plugin_config: PluginConfiguration,
         parser_tree: FieldParserTree,
-        timezone_info: Optional[ZoneInfo],
+        timezone_info: tzinfo,
         report: RunReport,
     ) -> None:
         metadata = batch_entry.metadata
@@ -232,7 +231,7 @@ def group_lnk_inputs(
 
 
 def normalize_lnk_fat_timestamps(
-    jumplist: Mapping[str, Any], timezone_info: Optional[ZoneInfo]
+    jumplist: Mapping[str, Any], timezone_info: Optional[tzinfo]
 ) -> int:
     """Normalize DOS/FAT target-item wall times emitted by LnkParse3."""
     timestamp_count = 0
@@ -258,7 +257,7 @@ def normalize_lnk_fat_timestamps(
 
 
 def lnk_fat_datetime_to_utc(
-    timestamp: object, timezone_info: Optional[ZoneInfo]
+    timestamp: object, timezone_info: Optional[tzinfo]
 ) -> Optional[str]:
     if timezone_info is None:
         return None
