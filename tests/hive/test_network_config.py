@@ -68,6 +68,20 @@ class NetworkConfig(TestCase):
         self.assertIsNone(report.last_error)
         output.write.assert_not_called()
 
+    def test_value_enumeration_error_is_reported(self):
+        key = Mock()
+        key.values.side_effect = RuntimeError("cannot enumerate values")
+
+        output = Mock()
+        report = RunReport()
+        try:
+            RegNetworkConfig().parse_key(key, output, report)
+        except RuntimeError as error:
+            self.fail(f"parse_key propagated a registry error: {error}")
+
+        self.assertEqual(report.last_error, "cannot enumerate values")
+        output.write.assert_not_called()
+
     # python -m unittest tests.hive.test_network_config.NetworkConfig.test_network_config -v
     def test_network_config(self):
         plugin_file = os.path.join(CONF_FOLDER, "network_configuration.xml")

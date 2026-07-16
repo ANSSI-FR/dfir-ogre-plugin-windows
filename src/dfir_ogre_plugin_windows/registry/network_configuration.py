@@ -56,10 +56,10 @@ class RegNetworkConfig(OgrePlugin):
         return report
 
     def parse_key(self, key: RegKey, output: Output, report: RunReport):
-        if not key.values():
-            return
-
         try:
+            if not key.values():
+                return
+
             dhcp = key.value_data("EnableDHCP", 0)
 
             if dhcp == 0:
