@@ -17,7 +17,7 @@ from dfir_ogre_common import (
     Value,
 )
 
-from dfir_ogre_plugin_windows.common import filetime_to_utc, value
+from dfir_ogre_plugin_windows.common import filetime_to_utc, normalize_guid, value
 
 logger = logging.getLogger(__name__)
 
@@ -588,7 +588,7 @@ class UsbDevice:
         tup.add("instance_id", value(self.instance_id))
         tup.add("controlset", value(self.controlset))
         tup.add("parent_id", value(self.parent_id))
-        tup.add("volume_guid", value(self.volume_guid))
+        tup.add("volume_guid", value(normalize_guid(self.volume_guid)))
         tup.add("driver", value(self.driver))
         tup.add("type", value(self.type))
         tup.add("vendor", value(self.vendor))

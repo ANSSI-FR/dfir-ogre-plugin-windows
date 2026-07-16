@@ -108,6 +108,12 @@ class CSVTest(TestCase):
                         jsoned["volumeid"],
                         "0x6A96C20E96C1DAA9",
                     )
+                if i == 1:
+                    self.assertEqual(
+                        jsoned["shadow_copy"],
+                        "{92437215-85cd-4038-8549-63d4a8c26806}",
+                    )
+                    self.assertEqual(jsoned["volumeid"], "0x0000000000000000")
 
                 i += 1
             self.assertEqual(i, expected_lines)

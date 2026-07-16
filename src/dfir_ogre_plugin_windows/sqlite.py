@@ -8,6 +8,8 @@ from dfir_ogre_common import (
     parse_sqlite,
 )
 
+from dfir_ogre_plugin_windows.common import GuidParser
+
 LOG_BEFORE_FAIL = 100
 
 
@@ -25,7 +27,10 @@ class SQLite(OgrePlugin):
         run_config: RunConfiguration,
         metadata: Metadata,
     ) -> RunReport:
-        plugin_config = PluginConfiguration.load(plugin_file)
+        plugin_config = PluginConfiguration.load(
+            plugin_file,
+            python={"AppActivityId": GuidParser.build("app_activity_id")},
+        )
         return parse_sqlite(
             input_file, run_config, plugin_config, metadata, LOG_BEFORE_FAIL
         )

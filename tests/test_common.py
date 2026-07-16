@@ -1,3 +1,4 @@
+import json
 from datetime import datetime, timezone
 from unittest import TestCase
 from zoneinfo import ZoneInfo
@@ -5,13 +6,62 @@ from zoneinfo import ZoneInfo
 from dfir_ogre_plugin_windows.common import (
     FRNParser,
     FileAttributesParser,
+    GuidParser,
     fat_datetime_to_local,
     fat_datetime_to_utc,
     normalize_amcache_sha1,
+    normalize_guid,
+    normalize_guid_values,
 )
 
 
 class CommonTest(TestCase):
+    def test_normalize_guid_lowercases_complete_canonical_values(self):
+        self.assertEqual(
+            normalize_guid("{F20DA720-C02F-11CE-927B-0800095AE340}"),
+            "{f20da720-c02f-11ce-927b-0800095ae340}",
+        )
+        self.assertEqual(
+            normalize_guid("F20DA720-C02F-11CE-927B-0800095AE340"),
+            "f20da720-c02f-11ce-927b-0800095ae340",
+        )
+        self.assertEqual(
+            normalize_guid("f20da720-c02f-11ce-927b-0800095ae340"),
+            "f20da720-c02f-11ce-927b-0800095ae340",
+        )
+
+    def test_normalize_guid_preserves_non_guid_evidence(self):
+        embedded = r"C:\Volume{F20DA720-C02F-11CE-927B-0800095AE340}"
+
+        self.assertEqual(normalize_guid(embedded), embedded)
+        self.assertEqual(
+            normalize_guid("{F20DA720-C02F-11CE-927B-0800095AE340"),
+            "{F20DA720-C02F-11CE-927B-0800095AE340",
+        )
+        self.assertEqual(normalize_guid("not-a-guid"), "not-a-guid")
+        self.assertIsNone(normalize_guid(None))
+
+    def test_normalize_guid_values_preserves_container_types(self):
+        guid = "{F20DA720-C02F-11CE-927B-0800095AE340}"
+        expected = "{f20da720-c02f-11ce-927b-0800095ae340}"
+
+        self.assertEqual(normalize_guid_values([guid, "Name"]), [expected, "Name"])
+        self.assertEqual(
+            normalize_guid_values((guid, "Name")),
+            (expected, "Name"),
+        )
+
+    def test_guid_parser_emits_normalized_value(self):
+        record = GuidParser().parse(
+            "{F20DA720-C02F-11CE-927B-0800095AE340}",
+            "guid",
+        )
+
+        self.assertEqual(
+            json.loads(record.to_string()),
+            {"guid": "{f20da720-c02f-11ce-927b-0800095ae340}"},
+        )
+
     def test_normalize_amcache_sha1(self):
         self.assertEqual(
             normalize_amcache_sha1(

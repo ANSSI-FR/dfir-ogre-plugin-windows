@@ -45,7 +45,7 @@ Extracts rows from the *Activity* SQLite table that records Windows 10 Timelin
       <field
         input="AppActivityId"
         output="app_activity_id"
-        parser="String"
+        parser="Python"
         description="unique identifier for the specific activity event"
       />
 

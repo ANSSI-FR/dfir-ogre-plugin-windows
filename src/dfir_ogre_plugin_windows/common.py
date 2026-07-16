@@ -1,11 +1,16 @@
 import re
 from datetime import datetime, timezone, tzinfo
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, TypeVar, cast
 
 from dfir_ogre_common import AbstractParser, FieldName, Record, Value
 
 
 AMCACHE_SHA1_PATTERN = re.compile(r"(?:0000)?([0-9a-fA-F]{40})")
+GUID_PATTERN = re.compile(
+    r"(?:\{[0-9A-Fa-f]{8}(?:-[0-9A-Fa-f]{4}){3}-[0-9A-Fa-f]{12}\}"
+    r"|[0-9A-Fa-f]{8}(?:-[0-9A-Fa-f]{4}){3}-[0-9A-Fa-f]{12})"
+)
+T = TypeVar("T")
 
 
 def normalize_amcache_sha1(identifier: object) -> str | None:
@@ -18,6 +23,49 @@ def normalize_amcache_sha1(identifier: object) -> str | None:
         return None
 
     return match.group(1).lower()
+
+
+def normalize_guid(identifier: T) -> T:
+    """Lowercase a complete canonical GUID while preserving its representation."""
+    if isinstance(identifier, str) and GUID_PATTERN.fullmatch(identifier):
+        return cast(T, identifier.lower())
+    return identifier
+
+
+def normalize_guid_values(values: T) -> T:
+    """Normalize GUID strings recursively without changing list/tuple containers."""
+    if isinstance(values, list):
+        return cast(T, [normalize_guid_values(value) for value in values])
+    if isinstance(values, tuple):
+        return cast(T, tuple(normalize_guid_values(value) for value in values))
+    return normalize_guid(values)
+
+
+class GuidParser(AbstractParser):
+    """Normalize complete GUID values used by configuration-driven parsers."""
+
+    def __init__(self):
+        super().__init__()
+        self.output_field: FieldName | None = None
+
+    @classmethod
+    def build(cls, output_name: str) -> "GuidParser":
+        parser = cls()
+        parser.output_field = FieldName(output_name)
+        return parser
+
+    def parse(self, input: str, output_name: str) -> Record:
+        record = Record()
+        if not input:
+            return record
+
+        record.add(output_name, Value.String(normalize_guid(input)))
+        return record
+
+    def output_fields_names(self) -> List[FieldName]:
+        if self.output_field:
+            return [self.output_field]
+        return []
 
 
 def value(

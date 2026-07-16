@@ -17,6 +17,8 @@ from dfir_ogre_common import (
     win_signed_hash_parser,
 )
 
+from dfir_ogre_plugin_windows.common import GuidParser
+
 
 LOG_BEFORE_FAIL = 1000
 
@@ -40,7 +42,11 @@ class NTFSInfo(OgrePlugin):
             "FRN": win_frn_hex_parser(""),
             "SignedHash": win_signed_hash_parser(),
         }
-        plugin_config = PluginConfiguration.load(plugin_file, extension=rust_mapping)
+        plugin_config = PluginConfiguration.load(
+            plugin_file,
+            python={"SnapshotID": GuidParser.build("snapshot_id")},
+            extension=rust_mapping,
+        )
         return parse_csv(
             input_file,
             run_config,

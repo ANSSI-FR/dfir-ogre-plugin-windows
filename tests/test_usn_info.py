@@ -55,6 +55,10 @@ class UsnInfoTest(TestCase):
                 jsoned = json.loads(line)
                 if i == 8:
                     self.assertEqual(jsoned["data"]["file_attributes_directory"], True)
+                    self.assertEqual(
+                        jsoned["data"]["snapshot_id"],
+                        "{00000000-0000-0000-0000-000000000000}",
+                    )
 
                 i += 1
             self.assertEqual(i, 100)

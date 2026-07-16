@@ -136,6 +136,10 @@ class AmcacheIEAddonTest(TestCase):
                 jsoned["name"],
                 "Shockwave Flash Object",
             )
+            self.assertEqual(
+                jsoned["id"],
+                "{d27cdb6e-ae6d-11cf-96b8-444553540000}",
+            )
 
 
     # python -m unittest tests.amcache_files.test_amcache_ie_addon.AmcacheIEAddonTest.test_ie_addon_report -v

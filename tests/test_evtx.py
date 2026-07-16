@@ -51,6 +51,20 @@ class EvtxTest(TestCase):
             i = 0
             for line in fp:
                 jsoned = json.loads(line)
+                if i == 0:
+                    data = jsoned["data"]
+                    self.assertEqual(
+                        data["system"]["provider"]["guid"],
+                        "9c205a39-1250-487d-abd7-e831c6290539",
+                    )
+                    self.assertEqual(
+                        data["event_data"]["class_guid"],
+                        "4d36e966-e325-11ce-bfc1-08002be10318",
+                    )
+                    self.assertEqual(
+                        data["event_data"]["device_instance_id"],
+                        r"ROOT\ACPI_HAL\0000",
+                    )
                 if i == 3:
                     self.assertEqual(
                         jsoned["data"]["system"]["security"]["user_id"],

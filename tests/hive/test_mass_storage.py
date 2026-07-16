@@ -5,6 +5,7 @@ from unittest import TestCase
 from dfir_ogre_common import Metadata, OutputConfiguration, RunConfiguration
 
 from dfir_ogre_plugin_windows import RegMassStorageSystem
+from dfir_ogre_plugin_windows.registry.mass_storage import UsbDevice
 
 from . import CONF_FOLDER, TEMP_FOLDER
 
@@ -12,6 +13,17 @@ DATA_FOLDER = os.path.join("tests", "data")
 
 
 class TestMassStorage(TestCase):
+    def test_volume_guid_is_lowercase_in_typed_record(self):
+        device = UsbDevice("ControlSet001")
+        device.volume_guid = "{3717F690-D736-11E6-8A98-DBD3096DD357}"
+
+        record = json.loads(device.to_record().to_string())
+
+        self.assertEqual(
+            record["volume_guid"],
+            "{3717f690-d736-11e6-8a98-dbd3096dd357}",
+        )
+
     # python -m unittest tests.hive.test_mass_storage.TestMassStorage.test_system_mass_storage -v
     def test_system_mass_storage(self):
         plugin_file = os.path.join(CONF_FOLDER, "mass_storage_system.xml")

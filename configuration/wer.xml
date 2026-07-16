@@ -117,8 +117,15 @@
       <field
         input="ReportIdentifier"
         output="report_identifier"
-        parser="String"
+        parser="Python"
         description="Globally unique identifier for this WER report"
+      />
+
+      <field
+        input="IntegratorReportIdentifier"
+        output="integrator_report_identifier"
+        parser="Python"
+        description="Globally unique identifier assigned by the report integrator"
       />
 
       <field
@@ -145,7 +152,7 @@
       <field
         input="AppSessionGuid"
         output="app_session_guid"
-        parser="String"
+        parser="Python"
         description="GUID of the application session that generated the report"
       />
 

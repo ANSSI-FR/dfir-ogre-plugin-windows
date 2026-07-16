@@ -63,6 +63,10 @@ class NtfsInfoTest(TestCase):
                     )
                     self.assertEqual(jsoned["data"]["sequence_number"], 5)
                     self.assertEqual(jsoned["data"]["record_number"], 5)
+                    self.assertEqual(
+                        jsoned["data"]["snapshot_id"],
+                        "{00000000-0000-0000-0000-000000000000}",
+                    )
 
                 i += 1
             self.assertEqual(i, 5)

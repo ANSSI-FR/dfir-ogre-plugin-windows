@@ -94,7 +94,7 @@ def collect_output_paths(element, prefix=""):
                 fields.update(child_fields)
                 objects.update(child_objects)
                 dynamic_objects.update(child_dynamic)
-            else:
+            if not list(child) or child.attrib.get("dynamic") == "true":
                 dynamic_objects.add(path)
 
     return fields, objects, dynamic_objects

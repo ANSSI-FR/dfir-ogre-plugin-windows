@@ -85,7 +85,7 @@ Extract NTFS's $i30 informations from an ORC‑generated CSV file.
         description="Volume identifier"
       />
 
-      <field input="SnapshotID" output="snapshot_id" parser="String" />
+      <field input="SnapshotID" output="snapshot_id" parser="Python" />
 
       <!-- date fields -->
       <field

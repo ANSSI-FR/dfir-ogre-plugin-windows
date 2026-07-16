@@ -27,7 +27,7 @@ Parses CSV files that list Volume Shadow Copy (VSS) snapshots.
       <field
         input="SnapshotID"
         output="snapshot_id"
-        parser="String"
+        parser="Python"
         description="GUID identifying the VSS snapshot"
       />
       <field

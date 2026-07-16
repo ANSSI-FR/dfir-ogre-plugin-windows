@@ -1,5 +1,6 @@
 import json
 import os
+import xml.etree.ElementTree as ET
 import dateutil.parser
 from datetime import timezone
 from unittest.mock import patch
@@ -26,6 +27,25 @@ from . import BASE_TEMP_FOLDER, CONF_FOLDER
 DATA_FOLDER = os.path.join("tests", "data")
 TEMP_FOLDER = os.path.join(BASE_TEMP_FOLDER, "lnk")
 os.makedirs(TEMP_FOLDER, exist_ok=True)
+
+
+class TestLnkGuidMappings(TestCase):
+    def test_target_and_property_store_guids_use_lowercase_parser(self):
+        plugin_file = os.path.join(CONF_FOLDER, "lnk_batched.xml")
+        root = ET.parse(plugin_file).getroot()
+        property_store = root.find(".//object[@input='property_store']")
+        target = root.find(".//object[@input='target']")
+        self.assertIsNotNone(property_store)
+        self.assertIsNotNone(target)
+
+        format_id = property_store.find("./field[@input='format_id']")  # type: ignore[union-attr]
+        target_guid = target.find(  # type: ignore[union-attr]
+            ".//object[@input='items']/field[@input='guid']"
+        )
+        self.assertIsNotNone(format_id)
+        self.assertIsNotNone(target_guid)
+        self.assertEqual(format_id.attrib["parser"], "StringToLower")  # type: ignore[union-attr]
+        self.assertEqual(target_guid.attrib["parser"], "StringToLower")  # type: ignore[union-attr]
 
 
 class TestLnkFatTimestamps(TestCase):

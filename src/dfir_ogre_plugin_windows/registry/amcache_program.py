@@ -16,7 +16,7 @@ from dfir_ogre_common import (
     Value,
 )
 
-from dfir_ogre_plugin_windows.common import value
+from dfir_ogre_plugin_windows.common import normalize_guid_values, value
 
 logger = logging.getLogger(__name__)
 
@@ -88,10 +88,16 @@ class RegAmCacheProgram(OgrePlugin):
                 tuple.add("source", value(source))
 
                 msi_product_code = key.value_data("11")
-                tuple.add("msi_product_code", value(msi_product_code))
+                tuple.add(
+                    "msi_product_code",
+                    value(normalize_guid_values(msi_product_code)),
+                )
 
                 msi_package_code = key.value_data("12")
-                tuple.add("msi_package_code", value(msi_package_code))
+                tuple.add(
+                    "msi_package_code",
+                    value(normalize_guid_values(msi_package_code)),
+                )
 
                 install_date = key.value_data("a")
                 tuple.add("install_date", value(parse_date(install_date)))
@@ -132,10 +138,16 @@ class RegAmCacheProgram(OgrePlugin):
                 tuple.add("os_at_install", value(os_at_install))
 
                 msi_product_code = key.value_data("MsiProductCode")
-                tuple.add("msi_product_code", value(msi_product_code))
+                tuple.add(
+                    "msi_product_code",
+                    value(normalize_guid_values(msi_product_code)),
+                )
 
                 msi_package_code = key.value_data("MsiPackageCode")
-                tuple.add("msi_package_code", value(msi_package_code))
+                tuple.add(
+                    "msi_package_code",
+                    value(normalize_guid_values(msi_package_code)),
+                )
 
                 install_date = key.value_data("InstallDate")
                 tuple.add("install_date", value(parse_date(install_date)))

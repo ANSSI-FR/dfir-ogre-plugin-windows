@@ -9,6 +9,8 @@ from dfir_ogre_common import (
     win_frn_hex_parser,
 )
 
+from dfir_ogre_plugin_windows.common import GuidParser
+
 
 class GetThis(OgrePlugin):
     def description(self) -> PluginDescription:
@@ -28,6 +30,10 @@ class GetThis(OgrePlugin):
             "FRN": win_frn_hex_parser(""),
             "ParentFRN": win_frn_hex_parser("parent_"),
         }
-        plugin_config = PluginConfiguration.load(plugin_file, extension=rust_mapping)
+        plugin_config = PluginConfiguration.load(
+            plugin_file,
+            python={"SnapshotID": GuidParser.build("snapshot_id")},
+            extension=rust_mapping,
+        )
 
         return parse_csv(input_file, run_config, plugin_config, metadata, 100)

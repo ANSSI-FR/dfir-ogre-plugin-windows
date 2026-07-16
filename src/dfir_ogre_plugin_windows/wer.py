@@ -12,6 +12,8 @@ from dfir_ogre_common import (
     Value,
 )
 
+from dfir_ogre_plugin_windows.common import GuidParser
+
 
 class Wer(OgrePlugin):
     def description(self) -> PluginDescription:
@@ -28,7 +30,16 @@ class Wer(OgrePlugin):
         metadata: Metadata,
     ) -> RunReport:
         report = RunReport()
-        plugin_config = PluginConfiguration.load(plugin_file)
+        plugin_config = PluginConfiguration.load(
+            plugin_file,
+            python={
+                "AppSessionGuid": GuidParser.build("app_session_guid"),
+                "IntegratorReportIdentifier": GuidParser.build(
+                    "integrator_report_identifier"
+                ),
+                "ReportIdentifier": GuidParser.build("report_identifier"),
+            },
+        )
         config = plugin_config.data_type_configs[0]
         field_mapping = config.field_mapping
         if not field_mapping:

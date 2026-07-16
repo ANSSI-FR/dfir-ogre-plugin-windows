@@ -58,6 +58,10 @@ class I30InfoTest(TestCase):
                     )
                     self.assertEqual(jsoned["data_type"], "i30info")
                     self.assertEqual(jsoned["description"], "name: $Boot")
+                    self.assertEqual(
+                        jsoned["data"]["snapshot_id"],
+                        "{00000000-0000-0000-0000-000000000000}",
+                    )
 
                 i += 1
             self.assertEqual(i, 43)

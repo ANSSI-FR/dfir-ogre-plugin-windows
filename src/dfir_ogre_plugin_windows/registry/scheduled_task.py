@@ -19,7 +19,7 @@ from dfir_ogre_common import (
     Value,
 )
 
-from dfir_ogre_plugin_windows.common import filetime_to_utc, value
+from dfir_ogre_plugin_windows.common import filetime_to_utc, normalize_guid, value
 from dfir_ogre_plugin_windows.security_descriptor import SecurityDescriptor
 from dfir_ogre_plugin_windows.system_timezone import (
     entry_snapshot,
@@ -155,7 +155,7 @@ class RegScheduledTask(OgreBatchedPlugin):
 
             tuple = Record()
 
-            tuple.add("guid", value(task.name))
+            tuple.add("guid", value(normalize_guid(task.name)))
 
             author = task.value_data("Author")
             tuple.add("author", value(author))

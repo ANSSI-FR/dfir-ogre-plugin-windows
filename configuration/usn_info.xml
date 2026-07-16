@@ -249,7 +249,7 @@ Parses the CSV export of the Windows USN Journal. It extracts metadata for eve
       <field
         input="SnapshotID"
         output="snapshot_id"
-        parser="String"
+        parser="Python"
         description="identifier of the volume snapshot (if applicable)"
       />
     </fields>

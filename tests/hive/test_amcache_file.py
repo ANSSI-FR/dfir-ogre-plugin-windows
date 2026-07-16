@@ -62,6 +62,10 @@ class AmCacheFile(TestCase):
                         js["description"],
                         "path: c:\\program files\\wireshark\\WinPcap_4_1_3.exe",
                     )
+                    self.assertEqual(
+                        js["data"]["volume_guid"],
+                        "b528e029-0e73-11e9-af9b-806e6f6e6963",
+                    )
 
                 i += 1
             self.assertEqual(i, expected_lines)
@@ -125,6 +129,10 @@ class AmCacheFile(TestCase):
                     self.assertEqual(
                         js["data"]["sha1"],
                         "d14df5ea9601ca2981074516bda8f5226a5c735b",
+                    )
+                    self.assertEqual(
+                        js["data"]["volume_guid"],
+                        "ba949c59-1a7f-11e9-bc6d-806e6f6e6963",
                     )
 
                 i += 1

@@ -14,6 +14,62 @@ os.makedirs(TEMP_FOLDER, exist_ok=True)
 
 
 class WerTest(TestCase):
+    def test_wer_normalizes_guid_fields_without_rewriting_embedded_text(self):
+        plugin_file = os.path.join(CONF_FOLDER, "wer.xml")
+        input_file = os.path.join(TEMP_FOLDER, "report_uppercase_guids.wer")
+        base_output_name = "wer_uppercase_guids"
+        embedded = "Path-{F20DA720-C02F-11CE-927B-0800095AE340}"
+
+        with open(input_file, "wb") as fp:
+            fp.write(
+                b"\xff\xfe"
+                + (
+                    "Version=1\n"
+                    "ReportIdentifier=F20DA720-C02F-11CE-927B-0800095AE340\n"
+                    "IntegratorReportIdentifier=D27CDB6E-AE6D-11CF-96B8-444553540000\n"
+                    "AppSessionGuid=9C205A39-1250-487D-ABD7-E831C6290539\n"
+                    f"ReportDescription={embedded}\n"
+                ).encode("utf-16-le")
+            )
+
+        output_file = os.path.join(TEMP_FOLDER, base_output_name + ".wer.jsonl")
+        if os.path.exists(output_file):
+            os.remove(output_file)
+        run_config = RunConfiguration(
+            [
+                OutputConfiguration(
+                    base_output_name,
+                    TEMP_FOLDER,
+                    with_timeline=False,
+                    include_empty=False,
+                )
+            ]
+        )
+
+        report = Wer().parse(
+            input_file,
+            plugin_file,
+            run_config,
+            Metadata("test"),
+        )
+
+        self.assertIsNone(report.last_error)
+        with open(output_file) as fp:
+            record = json.loads(fp.readline())
+        self.assertEqual(
+            record["report_identifier"],
+            "f20da720-c02f-11ce-927b-0800095ae340",
+        )
+        self.assertEqual(
+            record["integrator_report_identifier"],
+            "d27cdb6e-ae6d-11cf-96b8-444553540000",
+        )
+        self.assertEqual(
+            record["app_session_guid"],
+            "9c205a39-1250-487d-abd7-e831c6290539",
+        )
+        self.assertEqual(record["report_description"], embedded)
+
     # python -m unittest tests.test_wer.WerTest.test_wer -v
     def test_wer(self):
         plugin_file = os.path.join(CONF_FOLDER, "wer.xml")

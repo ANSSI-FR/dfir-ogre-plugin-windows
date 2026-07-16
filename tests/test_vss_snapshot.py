@@ -59,7 +59,7 @@ class VssSnapshotTest(TestCase):
             # Basic field checks.
             self.assertEqual(
                 jsoned["snapshot_id"],
-                "{DDE981E2-0B1D-41D8-8CA5-BA4D87B7D2CA}",
+                "{dde981e2-0b1d-41d8-8ca5-ba4d87b7d2ca}",
                 "SnapshotID should be parsed correctly",
             )
             self.assertEqual(

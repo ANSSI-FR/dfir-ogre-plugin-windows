@@ -3,6 +3,8 @@ from typing import List
 
 from dfir_ogre_common import Record, Value
 
+from dfir_ogre_plugin_windows.common import normalize_guid
+
 ACE_TYPE = {
     "A": "ACCESS_ALLOWED_ACE_TYPE",
     "D": "ACCESS_DENIED_ACE_TYPE",
@@ -250,10 +252,13 @@ class ACE:
             record.add("ace_type", Value.String(self.ace_type))
 
         if self.object_guid:
-            record.add("object_guid", Value.String(self.object_guid))
+            record.add("object_guid", Value.String(normalize_guid(self.object_guid)))
 
         if self.inherit_object_guid:
-            record.add("inherit_object_guid", Value.String(self.inherit_object_guid))
+            record.add(
+                "inherit_object_guid",
+                Value.String(normalize_guid(self.inherit_object_guid)),
+            )
 
         if self.account_sid:
             record.add("account_sid", Value.String(self.account_sid))

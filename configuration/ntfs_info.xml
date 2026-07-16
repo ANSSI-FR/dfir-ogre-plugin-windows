@@ -28,7 +28,7 @@ Extract NTFS's Master File Table (MFT) from an ORC‑generated CSV file.
     </timeline>
 
     <fields>
-      <field input="SnapshotID" output="snapshot_id" parser="String" />
+      <field input="SnapshotID" output="snapshot_id" parser="Python" />
 
       <multi_input
         output="file_path"

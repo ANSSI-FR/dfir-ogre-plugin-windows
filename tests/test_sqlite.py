@@ -61,6 +61,21 @@ class SqliteTest(TestCase):
                         jsoned["tag"],
                         "windows.data.bluelightreduction.settings",
                     )
+                    self.assertEqual(
+                        jsoned["app_activity_id"],
+                        "default$windows.data.bluelightreduction.settings|"
+                        "windows.data.bluelightreduction.settings",
+                    )
+                if i == 3:
+                    self.assertEqual(
+                        jsoned["app_activity_id"],
+                        "ecb32af3-1440-4086-94e3-5311f97f89c4",
+                    )
+                if i == 21:
+                    self.assertIn(
+                        "{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}",
+                        jsoned["app_id"],
+                    )
                 i += 1
             self.assertEqual(i, expected_lines)
 

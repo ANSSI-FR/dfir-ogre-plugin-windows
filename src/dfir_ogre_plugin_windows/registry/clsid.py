@@ -14,7 +14,7 @@ from dfir_ogre_common import (
     Value,
 )
 
-from dfir_ogre_plugin_windows.common import value
+from dfir_ogre_plugin_windows.common import normalize_guid, value
 
 logger = logging.getLogger(__name__)
 
@@ -93,15 +93,15 @@ class RegClsIdSoftware(OgrePlugin):
 def parse_clsid(key: RegKey, output: Output, report: RunReport):
     try:
         tuple = Record()
-        tuple.add("guid", value(key.name.lower()))
+        tuple.add("guid", value(normalize_guid(key.name)))
         description = key.value_data("(default)")
         tuple.add("description", value(description))
 
         treat_as_key = key.sub_key("TreatAs")
         if treat_as_key:
-            treat_as = key.value_data("(default)")
+            treat_as = treat_as_key.value_data("(default)")
             if treat_as:
-                tuple.add("treat_as", value(str(treat_as).lower()))
+                tuple.add("treat_as", value(normalize_guid(str(treat_as))))
 
         # Not sure if a CLSID can only have one of the following key (hence only one executable) or several
         executables = []

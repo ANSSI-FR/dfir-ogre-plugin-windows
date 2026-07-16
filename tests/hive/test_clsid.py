@@ -101,8 +101,12 @@ class CLSID(TestCase):
                     )
                 if i == 53:
                     self.assertEqual(
+                        js["data"]["treat_as"],
+                        "{f20da720-c02f-11ce-927b-0800095ae340}",
+                    )
+                    self.assertEqual(
                         js["additional_description"],
-                        "treat_as: sound (ole2)",
+                        "treat_as: {f20da720-c02f-11ce-927b-0800095ae340}",
                     )
 
                 i += 1

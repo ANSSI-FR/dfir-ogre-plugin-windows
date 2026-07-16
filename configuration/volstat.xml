@@ -52,7 +52,7 @@ Parses a Windows volume‑statistics csv file. Each line describes:.
       <field
         input="ShadowCopyId"
         output="shadow_copy"
-        parser="String"
+        parser="Python"
         description="Identifier of the associated VSS snapshot, if any"
       />
       <field

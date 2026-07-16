@@ -223,7 +223,7 @@
 
       <field
         input="SnapshotID"
-        parser="String"
+        parser="Python"
         output="snapshot_id"
         description="identifier of the snapshot from which the file was extracted"
       />

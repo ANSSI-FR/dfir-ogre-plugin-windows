@@ -399,7 +399,7 @@ Each LNK or Jump List is paired with the SYSTEM hive from the same VSS snapshot.
 
               <field
                 input="format_id"
-                parser="String"
+                parser="StringToLower"
                 description="A GUID that specifies the semantics and expected usage of the properties contained in this Serialized Property Storage structure. It MUST be unique in the set of serialized property storage structures."
               />
 
@@ -763,7 +763,7 @@ Each LNK or Jump List is paired with the SYSTEM hive from the same VSS snapshot.
 
             <field
               input="guid"
-              parser="String"
+              parser="StringToLower"
               description="For items type 'RootFolder', should contains a ShellFolderID."
             />
 

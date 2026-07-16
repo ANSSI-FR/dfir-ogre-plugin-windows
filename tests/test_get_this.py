@@ -56,6 +56,10 @@ class GetThisTest(TestCase):
                     self.assertEqual(
                         jsoned["data"]["parent_sequence_number"], 6
                     )
+                    self.assertEqual(
+                        jsoned["data"]["snapshot_id"],
+                        "{00000000-0000-0000-0000-000000000000}",
+                    )
 
                 i += 1
             self.assertEqual(i, 365)

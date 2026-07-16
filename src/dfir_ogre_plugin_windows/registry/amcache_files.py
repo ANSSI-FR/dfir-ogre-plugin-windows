@@ -19,6 +19,7 @@ from dfir_ogre_common import (
 from dfir_ogre_plugin_windows.common import (
     filetime_to_utc,
     normalize_amcache_sha1,
+    normalize_guid,
     value,
 )
 
@@ -121,6 +122,8 @@ class RegAmCacheFile(OgrePlugin):
                 tuple.add("is_os_component", value(is_os_component))
 
             else:
+                tuple.add("volume_guid", value(normalize_guid(parent_name)))
+
                 product_name = key.value_data("0")
                 tuple.add("product_name", value(product_name))
 

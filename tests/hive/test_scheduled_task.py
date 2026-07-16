@@ -231,6 +231,14 @@ class TestScheduledTask(TestCase):
             records = [json.loads(line) for line in fp]
 
         self.assertEqual(len(records), expected_lines)
+        self.assertEqual(
+            records[0]["data"]["guid"],
+            "{01c7c80f-da6a-4698-ba70-4da27991c5a9}",
+        )
+        self.assertEqual(
+            records[0]["data"]["plain"]["name"],
+            "{01C7C80F-DA6A-4698-BA70-4DA27991C5A9}",
+        )
 
         maps_data = next(
             record["data"]

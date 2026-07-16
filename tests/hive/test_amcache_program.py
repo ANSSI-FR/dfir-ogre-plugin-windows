@@ -121,6 +121,11 @@ class AmCacheProgram(TestCase):
                         js["data"]["install_dir"],
                         ["C:\\Program Files (x86)\\WinPcap"],
                     )
+                if i == 26:
+                    self.assertEqual(
+                        js["data"]["msi_package_code"],
+                        "{032c2206-4938-4565-bebf-bad670550a1f}",
+                    )
 
                 i += 1
             self.assertEqual(i, expected_lines)
@@ -181,6 +186,15 @@ class AmCacheProgram(TestCase):
                     self.assertEqual(
                         js["data"]["install_dir"],
                         "C:\\Windows\\SystemApps\\microsoft.creddialoghost_cw5n1h2txyewy",
+                    )
+                if i == 25:
+                    self.assertEqual(
+                        js["data"]["msi_product_code"],
+                        "{7fed75a1-600c-394b-8376-712e2a8861f2}",
+                    )
+                    self.assertEqual(
+                        js["data"]["msi_package_code"],
+                        "{93d97caa-b398-4f6a-8898-9aaa305c718c}",
                     )
 
                 i += 1
