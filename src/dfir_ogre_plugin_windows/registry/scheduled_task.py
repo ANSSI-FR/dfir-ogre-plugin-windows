@@ -1,12 +1,13 @@
 import logging
-from datetime import timezone
-from typing import List
+from dataclasses import dataclass
+from datetime import datetime, timezone, tzinfo
+from typing import Dict, List, Optional
 from uuid import UUID
 
 from dateutil import parser as date_parser
 from dfir_ogre_common import (
-    Metadata,
-    OgrePlugin,
+    BatchEntry,
+    OgreBatchedPlugin,
     Output,
     PluginConfiguration,
     PluginDescription,
@@ -14,18 +15,62 @@ from dfir_ogre_common import (
     Registry,
     RegKey,
     RegValue,
-    RunConfiguration,
     RunReport,
     Value,
 )
 
 from dfir_ogre_plugin_windows.common import filetime_to_utc, value
 from dfir_ogre_plugin_windows.security_descriptor import SecurityDescriptor
+from dfir_ogre_plugin_windows.system_timezone import (
+    entry_snapshot,
+    entry_source_basename,
+    is_system_hive,
+    resolve_system_timezone_or_utc,
+)
 
 logger = logging.getLogger(__name__)
 
 
-class RegScheduledTask(OgrePlugin):
+@dataclass
+class ScheduledTaskBatch:
+    software_entries: List[BatchEntry]
+    system_entries: List[BatchEntry]
+
+
+def is_software_hive(entry: BatchEntry) -> bool:
+    filename = entry_source_basename(entry)
+    return (
+        filename == "software"
+        or filename.startswith("software.")
+        or filename.startswith("software_")
+    )
+
+
+def group_scheduled_task_inputs(
+    input_files: List[BatchEntry],
+) -> Dict[Optional[str], ScheduledTaskBatch]:
+    grouped: Dict[Optional[str], ScheduledTaskBatch] = {}
+    for entry in input_files:
+        snapshot = entry_snapshot(entry)
+        batch = grouped.setdefault(snapshot, ScheduledTaskBatch([], []))
+        if is_system_hive(entry):
+            batch.system_entries.append(entry)
+        elif is_software_hive(entry):
+            batch.software_entries.append(entry)
+    return grouped
+
+
+def registration_date_to_utc(
+    registration_date: str,
+    source_timezone: tzinfo,
+) -> datetime:
+    parsed = date_parser.parse(registration_date)
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=source_timezone, fold=0)
+    return parsed.astimezone(timezone.utc)
+
+
+class RegScheduledTask(OgreBatchedPlugin):
     def description(self) -> PluginDescription:
         return PluginDescription(
             "RegScheduledTask",
@@ -34,44 +79,68 @@ class RegScheduledTask(OgrePlugin):
 
     def parse(
         self,
-        input_file: str,
+        input_files: List[BatchEntry],
         plugin_file: str,
-        run_config: RunConfiguration,
-        metadata: Metadata,
     ) -> RunReport:
         plugin_config = PluginConfiguration.load(plugin_file)
         report = RunReport()
+
+        for snapshot, batch in group_scheduled_task_inputs(input_files).items():
+            if not batch.software_entries:
+                continue
+
+            timezone_info = resolve_system_timezone_or_utc(
+                batch.system_entries,
+                snapshot,
+                report,
+            )
+            for entry in batch.software_entries:
+                self.parse_software(entry, plugin_config, timezone_info, report)
+
+        return report
+
+    def parse_software(
+        self,
+        entry: BatchEntry,
+        plugin_config: PluginConfiguration,
+        timezone_info: tzinfo,
+        report: RunReport,
+    ) -> None:
         key_paths = [
             "\\HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Schedule\\TaskCache",
             "\\HKLM\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows NT\\CurrentVersion\\Schedule",
         ]
 
         try:
-            reg = Registry.load(input_file, "\\HKLM\\SOFTWARE")
+            reg = Registry.load(entry.file, "\\HKLM\\SOFTWARE")
         except Exception as e:
             report.add_error(f"{e}")
-            return report
+            return
 
         with Output(
-            run_config,
+            entry.run_config,
             plugin_config,
-            metadata,
+            entry.metadata,
         ) as output:
             try:
                 for key_path in key_paths:
                     keys = reg.glob_keys(key_path)
 
                     for key in keys:
-                        self.parse_key(output, key, report)
+                        self.parse_key(output, key, report, timezone_info)
 
             except Exception as e:
                 report.add_error(f"{e}")
 
             report.add_output_report(output.get_report())
 
-        return report
-
-    def parse_key(self, output: Output, task_cache_key: RegKey, report: RunReport):
+    def parse_key(
+        self,
+        output: Output,
+        task_cache_key: RegKey,
+        report: RunReport,
+        timezone_info: tzinfo,
+    ):
         tasks = task_cache_key.sub_key("Tasks")
 
         if not tasks:
@@ -96,10 +165,10 @@ class RegScheduledTask(OgrePlugin):
 
             registration_date_local = task.value_data("Date")
             if registration_date_local:
-                # This datetime have different formats,
-                # this is why the super slow dateutil.parser is used
-                registration_date = date_parser.parse(registration_date_local)
-                registration_date = registration_date.astimezone(timezone.utc)
+                registration_date = registration_date_to_utc(
+                    registration_date_local,
+                    timezone_info,
+                )
                 tuple.add("registration_date_local", value(registration_date))
 
             task_description = task.value_data("Description")

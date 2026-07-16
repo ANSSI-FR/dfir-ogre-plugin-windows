@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<plugin parser="RegScheduledTask" file_encoding="UTF_8">
+<plugin parser="RegScheduledTask" batch="true" file_encoding="UTF_8">
   <mapping data_type="scheduled_tasks">
     <description
     ><![CDATA[

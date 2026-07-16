@@ -1,10 +1,20 @@
 import json
 import os
+import time
+from datetime import timezone
 from unittest import TestCase
+from zoneinfo import ZoneInfo
 
-from dfir_ogre_common import Metadata, OutputConfiguration, RunConfiguration
+from dfir_ogre_common import (
+    BatchEntry,
+    Metadata,
+    OgreBatchedPlugin,
+    OutputConfiguration,
+    RunConfiguration,
+)
 
 from dfir_ogre_plugin_windows import RegScheduledTask
+from dfir_ogre_plugin_windows.registry import scheduled_task
 from dfir_ogre_plugin_windows.registry.scheduled_task import decode_task_action
 
 from . import CONF_FOLDER, DATA_FOLDER, TEMP_FOLDER
@@ -58,6 +68,113 @@ class TestScheduledTask(TestCase):
             [r"C:\evidence\one.txt", r"C:\evidence\two.zip"],
         )
 
+    def scheduled_helper(self, name: str):
+        self.assertTrue(
+            hasattr(scheduled_task, name),
+            f"Scheduled Task helper {name} is not implemented",
+        )
+        return getattr(scheduled_task, name)
+
+    def test_groups_software_and_system_hives_by_vss(self):
+        run_config = RunConfiguration(
+            [OutputConfiguration("unused", TEMP_FOLDER, with_timeline=False)]
+        )
+
+        def entry(file: str, original_filename: str, vss: str) -> BatchEntry:
+            metadata = Metadata("test")
+            metadata.original_filename = original_filename
+            metadata.vss = vss
+            return BatchEntry(file, run_config, metadata)
+
+        grouped = self.scheduled_helper("group_scheduled_task_inputs")(
+            [
+                entry(
+                    "software-2",
+                    r"C:\Windows\System32\config\SOFTWARE",
+                    "vss-2",
+                ),
+                entry(
+                    "system-1",
+                    r"C:\Windows\System32\config\SYSTEM",
+                    "vss-1",
+                ),
+                entry(
+                    "software-1a",
+                    r"C:\Windows\System32\config\SOFTWARE",
+                    "vss-1",
+                ),
+                entry("software-1b", "SOFTWARE.dat", "vss-1"),
+                entry(
+                    "system-2",
+                    r"C:\Windows\System32\config\SYSTEM",
+                    "vss-2",
+                ),
+                entry("ignored", r"C:\Windows\System32\config\SAM", "vss-1"),
+            ]
+        )
+
+        self.assertEqual(
+            [item.file for item in grouped["vss-1"].software_entries],
+            ["software-1a", "software-1b"],
+        )
+        self.assertEqual(
+            [item.file for item in grouped["vss-1"].system_entries],
+            ["system-1"],
+        )
+        self.assertEqual(
+            [item.file for item in grouped["vss-2"].software_entries],
+            ["software-2"],
+        )
+        self.assertEqual(
+            [item.file for item in grouped["vss-2"].system_entries],
+            ["system-2"],
+        )
+
+    def test_registration_date_uses_source_timezone_not_process_timezone(self):
+        normalize = self.scheduled_helper("registration_date_to_utc")
+        original_timezone = os.environ.get("TZ")
+        results = []
+        try:
+            if not hasattr(time, "tzset"):
+                self.skipTest("process timezone switching requires time.tzset")
+            for process_timezone in ("UTC", "America/New_York"):
+                os.environ["TZ"] = process_timezone
+                time.tzset()
+                results.append(
+                    normalize(
+                        "2024-07-01T12:00:00",
+                        ZoneInfo("Europe/Paris"),
+                    ).isoformat()
+                )
+        finally:
+            if original_timezone is None:
+                os.environ.pop("TZ", None)
+            else:
+                os.environ["TZ"] = original_timezone
+            if hasattr(time, "tzset"):
+                time.tzset()
+
+        self.assertEqual(
+            results,
+            ["2024-07-01T10:00:00+00:00", "2024-07-01T10:00:00+00:00"],
+        )
+
+    def test_registration_date_honors_embedded_offset(self):
+        normalized = self.scheduled_helper("registration_date_to_utc")(
+            "2024-01-15T12:00:00+05:30",
+            ZoneInfo("Europe/Paris"),
+        )
+
+        self.assertEqual(normalized.isoformat(), "2024-01-15T06:30:00+00:00")
+
+    def test_registration_date_uses_naive_utc_fallback(self):
+        normalized = self.scheduled_helper("registration_date_to_utc")(
+            "2024-01-15T12:00:00",
+            timezone.utc,
+        )
+
+        self.assertEqual(normalized.isoformat(), "2024-01-15T12:00:00+00:00")
+
     # python -m unittest tests.hive.test_scheduled_task.TestScheduledTask.test_scheduled_task -v
     def test_scheduled_task(self):
         plugin_file = os.path.join(CONF_FOLDER, "scheduled_task.xml")
@@ -78,12 +195,29 @@ class TestScheduledTask(TestCase):
             include_empty=False,
         )
 
-        metadata = Metadata("test")
+        software_metadata = Metadata("test")
+        software_metadata.vss = "test_vss"
+        software_metadata.original_filename = (
+            r"C:\Windows\System32\config\SOFTWARE"
+        )
+        system_metadata = Metadata("test")
+        system_metadata.vss = "test_vss"
+        system_metadata.original_filename = r"C:\Windows\System32\config\SYSTEM"
+
         parser = RegScheduledTask()
-        self.assertEqual("RegScheduledTask", parser.description().command)  # type: ignore
+        self.assertIsInstance(parser, OgreBatchedPlugin)
+        self.assertEqual("RegScheduledTask", parser.description().command)
 
         run_config = RunConfiguration([output_config])
-        report = parser.parse(input_file, plugin_file, run_config, metadata)
+        entries = [
+            BatchEntry(input_file, run_config, software_metadata),
+            BatchEntry(
+                os.path.join(DATA_FOLDER, "hive", "SYSTEM.dat"),
+                run_config,
+                system_metadata,
+            ),
+        ]
+        report = parser.parse(entries, plugin_file)
         self.assertEqual(None, report.last_error)
 
         expected_lines = 530
@@ -97,6 +231,18 @@ class TestScheduledTask(TestCase):
             records = [json.loads(line) for line in fp]
 
         self.assertEqual(len(records), expected_lines)
+
+        maps_data = next(
+            record["data"]
+            for record in records
+            if record["data"].get("task")
+            == r"\Microsoft\Windows\Maps\MapsUpdateTask"
+            and "registration_date_local" in record["data"]
+        )
+        self.assertEqual(
+            maps_data["registration_date_local"],
+            "2014-11-04T23:00:00.000000+00:00",
+        )
 
         jsoned = records[14]
         self.assertEqual(jsoned["related_user"], "S-1-5-32-544")
@@ -132,3 +278,61 @@ class TestScheduledTask(TestCase):
             if action.get("action_type") == "ComHandler"
         }
         self.assertEqual(class_ids, {"48794782-6a1f-47b9-bd52-1d5f95d49c1b"})
+
+    def test_scheduled_task_without_system_reports_and_uses_utc_fallback(self):
+        plugin_file = os.path.join(CONF_FOLDER, "scheduled_task.xml")
+        software_file = os.path.join(DATA_FOLDER, "hive", "SOFTWARE.dat")
+        base_output_name = "scheduled_task_without_system"
+        output_file = os.path.join(
+            TEMP_FOLDER,
+            base_output_name + ".scheduled_tasks.jsonl",
+        )
+        if os.path.exists(output_file):
+            os.remove(output_file)
+
+        run_config = RunConfiguration(
+            [
+                OutputConfiguration(
+                    base_output_name,
+                    TEMP_FOLDER,
+                    with_timeline=True,
+                    include_empty=False,
+                )
+            ]
+        )
+        metadata = Metadata("test")
+        metadata.vss = "missing-system"
+        metadata.original_filename = r"C:\Windows\System32\config\SOFTWARE"
+        parser = RegScheduledTask()
+        self.assertIsInstance(parser, OgreBatchedPlugin)
+
+        with self.assertLogs(
+            "dfir_ogre_plugin_windows.system_timezone",
+            level="WARNING",
+        ) as logs:
+            report = parser.parse(
+                [BatchEntry(software_file, run_config, metadata)],
+                plugin_file,
+            )
+
+        self.assertEqual(report.num_errors, 1)
+        self.assertEqual(
+            report.last_error,
+            "No SYSTEM hive found for VSS snapshot 'missing-system'",
+        )
+        self.assertEqual(len(logs.output), 1)
+        self.assertEqual(report.output_reports[0].file_reports[0].num_lines, 531)
+
+        with open(output_file) as fp:
+            records = [json.loads(line) for line in fp]
+        maps_data = next(
+            record["data"]
+            for record in records
+            if record["data"].get("task")
+            == r"\Microsoft\Windows\Maps\MapsUpdateTask"
+            and "registration_date_local" in record["data"]
+        )
+        self.assertEqual(
+            maps_data["registration_date_local"],
+            "2014-11-05T00:00:00.000000+00:00",
+        )
