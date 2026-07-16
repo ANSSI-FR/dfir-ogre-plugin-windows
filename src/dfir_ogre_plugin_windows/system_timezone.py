@@ -1,10 +1,15 @@
+import logging
 import os
+from datetime import timezone, tzinfo
 from typing import List, Optional
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from dfir_ogre_common import BatchEntry, Registry, RunReport
 
 from dfir_ogre_plugin_windows.common import win_tz_to_iana
+
+
+logger = logging.getLogger(__name__)
 
 
 def entry_snapshot(entry: BatchEntry) -> Optional[str]:
@@ -57,6 +62,23 @@ def resolve_system_timezone(
         )
 
     return None
+
+
+def resolve_system_timezone_or_utc(
+    system_entries: List[BatchEntry],
+    snapshot: Optional[str],
+    report: RunReport,
+) -> tzinfo:
+    timezone_info = resolve_system_timezone(system_entries, snapshot, report)
+    if timezone_info is not None:
+        return timezone_info
+
+    logger.warning(
+        "Unable to resolve source timezone for VSS snapshot %r; "
+        "interpreting local timestamps as UTC",
+        snapshot,
+    )
+    return timezone.utc
 
 
 def get_system_timezone(registry: Registry) -> Optional[ZoneInfo]:
