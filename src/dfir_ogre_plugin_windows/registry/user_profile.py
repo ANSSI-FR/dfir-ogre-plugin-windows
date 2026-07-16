@@ -22,6 +22,17 @@ from dfir_ogre_plugin_windows.common import value
 logger = logging.getLogger(__name__)
 
 
+def _get_hidden_users(reg: Registry) -> Dict[str, bool]:
+    hidden_users: Dict[str, bool] = {}
+    for reg_key in reg.glob_keys(
+        "HKLM\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon"
+        "\\SpecialAccounts\\UserList"
+    ):
+        for user_visibility in reg_key.values():
+            hidden_users[user_visibility.name()] = user_visibility.data() == 0
+    return hidden_users
+
+
 class RegUserProfile(OgrePlugin):
     def description(self) -> PluginDescription:
         return PluginDescription(
@@ -44,14 +55,7 @@ class RegUserProfile(OgrePlugin):
             report.add_error(f"{e}")
             return report
 
-        hidden_users: Dict[str, bool] = {}
-        for reg_key in reg.glob_keys(
-            "HKLM\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\SpecialAccounts\\UserList"
-        ):
-            for is_hidden in reg_key.values():
-                name = is_hidden.name()
-                if is_hidden.data() != 0:
-                    hidden_users[name] = True
+        hidden_users = _get_hidden_users(reg)
 
         with Output(run_config, plugin_config, metadata) as output:
             try:
@@ -84,8 +88,8 @@ class RegUserProfile(OgrePlugin):
             if image_path:
                 profile = (image_path.split("\\"))[-1].lower()
 
-                if hidden_users.get(profile, False):
-                    tuple.add("is_hidden", value(True))
+                if profile in hidden_users:
+                    tuple.add("is_hidden", value(hidden_users[profile]))
 
                 tuple.add("user_name", value(profile))
 
