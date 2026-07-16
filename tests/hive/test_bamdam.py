@@ -1,8 +1,16 @@
 import json
 import os
+import struct
 from unittest import TestCase
+from unittest.mock import Mock, patch
 
-from dfir_ogre_common import Metadata, OutputConfiguration, RunConfiguration
+from dfir_ogre_common import (
+    Metadata,
+    OutputConfiguration,
+    Registry,
+    RunConfiguration,
+    RunReport,
+)
 
 from dfir_ogre_plugin_windows import RegBamDam
 
@@ -12,6 +20,39 @@ DATA_FOLDER = os.path.join("tests", "data")
 
 
 class BamDam(TestCase):
+    def test_timestamp_decode_is_independent_of_native_long_size(self):
+        registry = Registry.load(
+            os.path.join(DATA_FOLDER, "hive", "SYSTEM_2.dat"),
+            r"\HKLM\System",
+        )
+        keys = registry.glob_keys(
+            r"\HKLM\System\*ControlSet*\Services\bam\UserSettings\*"
+        )
+        key = next(key for key in keys if len(key.values()) > 2)
+
+        native_unpack = struct.unpack
+
+        def windows_unpack(format_string, data):
+            if format_string == "L":
+                return native_unpack("<L", data)
+            return native_unpack(format_string, data)
+
+        output = Mock()
+        report = RunReport()
+        with patch(
+            "dfir_ogre_plugin_windows.registry.bamdam.struct.unpack",
+            side_effect=windows_unpack,
+        ):
+            RegBamDam().parse_key(key, output, report)
+
+        self.assertIsNone(report.last_error)
+        self.assertEqual(output.write.call_count, 2)
+        record = json.loads(output.write.call_args_list[0].args[0].to_string())
+        self.assertEqual(
+            record["exec_time"],
+            "2019-07-18T15:47:14.088154+00:00",
+        )
+
     # python -m unittest tests.hive.test_bamdam.BamDam.test_bamdam -v
     def test_bamdam(self):
         plugin_file = os.path.join(CONF_FOLDER, "bamdam.xml")

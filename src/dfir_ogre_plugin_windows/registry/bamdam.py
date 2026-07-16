@@ -72,7 +72,7 @@ class RegBamDam(OgrePlugin):
                     tuple = Record()
                     tuple.add("exec_path", value(val.name()))
                     tuple.add("user_sid", value(key.name))
-                    exec_time_int: int = struct.unpack("L", val.data()[0:8])[0]
+                    exec_time_int: int = struct.unpack("<Q", val.data()[0:8])[0]
                     exec_time = filetime_to_utc(exec_time_int)
                     tuple.add("exec_time", value(exec_time))
                     tuple.add("key_path", value(key.path))
