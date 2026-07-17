@@ -49,6 +49,35 @@ def windows_10_cache(
     return bytes(header) + b"".join(entries)
 
 
+def windows_8_entry(
+    path: str,
+    version: str,
+    flag1: bytes,
+    flag2: bytes,
+    filetime: int = FILETIME,
+    data: bytes = b"",
+) -> bytes:
+    encoded_path = path.encode("utf-16-le")
+    unknown = b"\x5a\xa5" if version == "8.1" else b""
+    body = (
+        struct.pack("<H", len(encoded_path))
+        + encoded_path
+        + flag1
+        + flag2
+        + unknown
+        + struct.pack("<QI", filetime, len(data))
+        + data
+    )
+    marker = b"00ts" if version == "8.0" else b"10ts"
+    return variable_entry(marker, body)
+
+
+def windows_8_cache(entries: list[bytes], first_dword: int = 128) -> bytes:
+    header = bytearray(128)
+    struct.pack_into("<I", header, 0, first_dword)
+    return bytes(header) + b"".join(entries)
+
+
 def windows_xp_cache(paths: list[str]) -> bytes:
     header = bytearray(400)
     struct.pack_into("<IIII", header, 0, 0xDEADBEEF, len(paths), len(paths), 0)
@@ -185,6 +214,54 @@ class AppCompatCacheFormats(TestCase):
         self.assertEqual([entry.path for entry in result.entries], [r"C:\Evidence\good.exe"])
         self.assertEqual(len(result.diagnostics), 1)
         self.assertIn("invalid path range", result.diagnostics[0])
+
+    def test_windows_8_layouts_and_flag_alignment(self):
+        flag1 = bytes.fromhex("11223344")
+        flag2 = bytes.fromhex("aabbccdd")
+        for version in ("8.0", "8.1"):
+            with self.subTest(version=version):
+                result = parse_appcompat_cache(
+                    windows_8_cache(
+                        [
+                            windows_8_entry(
+                                rf"C:\Evidence\windows-{version}.exe",
+                                version,
+                                flag1,
+                                flag2,
+                                data=b"forensic-data",
+                            )
+                        ],
+                        first_dword=0,
+                    )
+                )
+                self.assertEqual(result.diagnostics, ())
+                self.assertEqual(len(result.entries), 1)
+                self.assertEqual(result.entries[0].flag1, flag1)
+                self.assertEqual(result.entries[0].flag2, flag2)
+                self.assertEqual(result.entries[0].modification_date, EXPECTED_DATE)
+
+    def test_windows_8_skips_malformed_bounded_body(self):
+        valid_1 = windows_8_entry(
+            r"C:\Evidence\first.exe",
+            "8.1",
+            bytes(4),
+            bytes(4),
+        )
+        malformed = variable_entry(b"10ts", b"\x03\x00abc")
+        valid_2 = windows_8_entry(
+            r"C:\Evidence\second.exe",
+            "8.1",
+            bytes(4),
+            bytes(4),
+        )
+        result = parse_appcompat_cache(windows_8_cache([valid_1, malformed, valid_2]))
+
+        self.assertEqual(
+            [entry.path for entry in result.entries],
+            [r"C:\Evidence\first.exe", r"C:\Evidence\second.exe"],
+        )
+        self.assertEqual(len(result.diagnostics), 1)
+        self.assertIn("invalid byte size 3", result.diagnostics[0])
 
     def test_windows_10_headers(self):
         for header_size in (48, 52):

@@ -384,6 +384,69 @@ WINDOWS_7_LAYOUTS = (
 )
 
 
+def _parse_windows_8_body(
+    body: bytes,
+    entry_index: int,
+    version: str,
+) -> tuple[AppCompatCacheEntry, list[str]]:
+    path_size = _read_uint(body, 0, 2, "path size")
+    path = _decode_utf16(body, 2, path_size, "path")
+    flags_offset = 2 + path_size
+    if flags_offset + 8 > len(body):
+        raise AppCompatCacheParseError("flags extend outside the entry body")
+    flag1 = body[flags_offset : flags_offset + 4]
+    flag2 = body[flags_offset + 4 : flags_offset + 8]
+    filetime_offset = flags_offset + 8
+    if version == "8.1":
+        _read_uint(body, filetime_offset, 2, "Windows 8.1 unknown field")
+        filetime_offset += 2
+    raw_filetime = _read_uint(body, filetime_offset, 8, "modification FILETIME")
+    data_size_offset = filetime_offset + 8
+    data_size = _read_uint(body, data_size_offset, 4, "data size")
+    expected_size = data_size_offset + 4 + data_size
+    if expected_size != len(body):
+        raise AppCompatCacheParseError(
+            f"declared data ends at {expected_size}, body ends at {len(body)}"
+        )
+    modification_date, diagnostics = _decode_filetime(
+        raw_filetime,
+        f"Windows {version}",
+        entry_index,
+    )
+    return AppCompatCacheEntry(path, modification_date, flag1, flag2), diagnostics
+
+
+def _parse_windows_8_0_body(
+    body: bytes,
+    entry_index: int,
+) -> tuple[AppCompatCacheEntry, list[str]]:
+    return _parse_windows_8_body(body, entry_index, "8.0")
+
+
+def _parse_windows_8_1_body(
+    body: bytes,
+    entry_index: int,
+) -> tuple[AppCompatCacheEntry, list[str]]:
+    return _parse_windows_8_body(body, entry_index, "8.1")
+
+
+def _parse_windows_8(cache: bytes, marker: bytes) -> AppCompatCacheParseResult:
+    if marker == b"00ts":
+        format_name = "Windows 8.0"
+        body_parser = _parse_windows_8_0_body
+    else:
+        format_name = "Windows 8.1"
+        body_parser = _parse_windows_8_1_body
+    result, _ = _parse_variable_entries(
+        cache,
+        128,
+        marker,
+        format_name,
+        body_parser,
+    )
+    return result
+
+
 def parse_appcompat_cache(cache: bytes) -> AppCompatCacheParseResult:
     if not isinstance(cache, bytes):
         raise AppCompatCacheParseError("AppCompatCache value is not bytes")
@@ -419,8 +482,14 @@ def parse_appcompat_cache(cache: bytes) -> AppCompatCacheParseResult:
                 f"Windows 10 header size {signature} is not followed by 10ts"
             )
         return _parse_windows_10(cache, signature)
+    if len(cache) >= 132 and cache[128:132] in (b"00ts", b"10ts"):
+        return _parse_windows_8(cache, cache[128:132])
     if signature == 128 and len(cache) == 128:
         return AppCompatCacheParseResult((), ())
+    if signature == 128:
+        raise AppCompatCacheParseError(
+            "Windows 8 header is not followed by a supported entry marker"
+        )
 
     raise UnsupportedAppCompatCacheFormat(
         f"unsupported AppCompatCache signature 0x{signature:08x}"
