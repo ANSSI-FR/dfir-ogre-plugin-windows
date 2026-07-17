@@ -162,6 +162,75 @@ def _parse_windows_10(cache: bytes, header_size: int) -> AppCompatCacheParseResu
     return AppCompatCacheParseResult(result.entries, tuple(diagnostics))
 
 
+def _parse_windows_xp(cache: bytes) -> AppCompatCacheParseResult:
+    header_size = 400
+    entry_size = 552
+    if len(cache) < header_size:
+        raise AppCompatCacheParseError(
+            f"Windows XP header requires {header_size} bytes, found {len(cache)}"
+        )
+
+    cached_count = _read_uint(cache, 4, 4, "cached entry count")
+    if cached_count > 96:
+        raise AppCompatCacheParseError(
+            f"Windows XP cached entry count {cached_count} exceeds 96"
+        )
+    entries_end = header_size + cached_count * entry_size
+    if entries_end > len(cache):
+        raise AppCompatCacheParseError(
+            f"Windows XP entry array ends at {entries_end}, cache ends at {len(cache)}"
+        )
+
+    diagnostics: list[str] = []
+    lru_count = _read_uint(cache, 8, 4, "LRU entry count")
+    if lru_count > 96:
+        diagnostics.append(f"Windows XP LRU entry count {lru_count} exceeds 96")
+    else:
+        for lru_index in range(lru_count):
+            cached_index = _read_uint(cache, 16 + lru_index * 4, 4, "LRU index")
+            if cached_index >= cached_count:
+                diagnostics.append(
+                    f"Windows XP LRU index {cached_index} is outside "
+                    f"{cached_count} cached entries"
+                )
+
+    entries: list[AppCompatCacheEntry] = []
+    for entry_index in range(cached_count):
+        entry_offset = header_size + entry_index * entry_size
+        path_field = cache[entry_offset : entry_offset + 528]
+        terminator = None
+        for path_offset in range(0, 528, 2):
+            if path_field[path_offset : path_offset + 2] == b"\x00\x00":
+                terminator = path_offset
+                break
+        if terminator is None:
+            diagnostics.append(
+                f"Windows XP entry {entry_index}: missing UTF-16 terminator"
+            )
+            continue
+        try:
+            path = _decode_utf16(path_field, 0, terminator, "path")
+        except AppCompatCacheParseError as exception:
+            diagnostics.append(f"Windows XP entry {entry_index}: {exception}")
+            continue
+
+        raw_filetime = _read_uint(
+            cache,
+            entry_offset + 528,
+            8,
+            "modification FILETIME",
+        )
+        modification_date, date_diagnostics = _decode_filetime(
+            raw_filetime,
+            "Windows XP",
+            entry_index,
+        )
+        diagnostics.extend(date_diagnostics)
+        entries.append(AppCompatCacheEntry(path, modification_date))
+
+    return AppCompatCacheParseResult(tuple(entries), tuple(diagnostics))
+
+
 def parse_appcompat_cache(cache: bytes) -> AppCompatCacheParseResult:
     if not isinstance(cache, bytes):
         raise AppCompatCacheParseError("AppCompatCache value is not bytes")
@@ -171,6 +240,8 @@ def parse_appcompat_cache(cache: bytes) -> AppCompatCacheParseResult:
         )
 
     signature = _read_uint(cache, 0, 4, "signature")
+    if signature == 0xDEADBEEF:
+        return _parse_windows_xp(cache)
     if signature in (48, 52):
         if len(cache) == signature:
             return AppCompatCacheParseResult((), ())

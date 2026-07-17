@@ -49,7 +49,43 @@ def windows_10_cache(
     return bytes(header) + b"".join(entries)
 
 
+def windows_xp_cache(paths: list[str]) -> bytes:
+    header = bytearray(400)
+    struct.pack_into("<IIII", header, 0, 0xDEADBEEF, len(paths), len(paths), 0)
+    for index in range(len(paths)):
+        struct.pack_into("<I", header, 16 + index * 4, index)
+
+    entries = []
+    for path in paths:
+        encoded_path = path.encode("utf-16-le") + b"\x00\x00"
+        path_field = encoded_path + bytes(528 - len(encoded_path))
+        entries.append(path_field + struct.pack("<QQQ", FILETIME, 1234, FILETIME))
+    return bytes(header) + b"".join(entries)
+
+
 class AppCompatCacheFormats(TestCase):
+    def test_windows_xp(self):
+        result = parse_appcompat_cache(
+            windows_xp_cache([r"\??\C:\Windows\System32\calc.exe"])
+        )
+
+        self.assertEqual(result.diagnostics, ())
+        self.assertEqual(len(result.entries), 1)
+        self.assertEqual(
+            result.entries[0].path,
+            r"\??\C:\Windows\System32\calc.exe",
+        )
+        self.assertEqual(result.entries[0].modification_date, EXPECTED_DATE)
+
+    def test_windows_xp_skips_bad_fixed_entry_and_continues(self):
+        cache = bytearray(windows_xp_cache([r"C:\bad.exe", r"C:\good.exe"]))
+        cache[400:928] = b"A" * 528
+        result = parse_appcompat_cache(bytes(cache))
+
+        self.assertEqual([entry.path for entry in result.entries], [r"C:\good.exe"])
+        self.assertEqual(len(result.diagnostics), 1)
+        self.assertIn("missing UTF-16 terminator", result.diagnostics[0])
+
     def test_windows_10_headers(self):
         for header_size in (48, 52):
             with self.subTest(header_size=header_size):
