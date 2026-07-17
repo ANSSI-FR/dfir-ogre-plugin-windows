@@ -1,5 +1,5 @@
-import io
 import logging
+from collections.abc import Iterator
 
 from dfir_ogre_common import (
     Metadata,
@@ -15,9 +15,19 @@ from dfir_ogre_common import (
     Value,
 )
 
-from dfir_ogre_plugin_windows.common import filetime_to_utc, value
+from dfir_ogre_plugin_windows.common import value
+from dfir_ogre_plugin_windows.registry.app_compat_cache_formats import (
+    AppCompatCacheEntry,
+    AppCompatCacheParseError,
+    parse_appcompat_cache,
+)
 
 logger = logging.getLogger(__name__)
+
+CACHE_KEY_PATTERNS = (
+    "\\HKLM\\SYSTEM\\*ControlSet*\\Control\\Session Manager\\AppCompatibility",
+    "\\HKLM\\SYSTEM\\*ControlSet*\\Control\\Session Manager\\AppCompatCache",
+)
 
 
 class RegAppCompatCache(OgrePlugin):
@@ -26,6 +36,19 @@ class RegAppCompatCache(OgrePlugin):
             "RegAppCompatCache",
             "Get the Application Compatibility cache from System hive",
         )
+
+    @staticmethod
+    def add_diagnostic(report: RunReport, location: str, reason: str) -> None:
+        message = f"AppCompatCache {location}: {reason}"
+        logger.warning("%s", message)
+        report.add_error(message)
+
+    def cache_keys(self, reg: Registry, report: RunReport) -> Iterator[RegKey]:
+        for pattern in CACHE_KEY_PATTERNS:
+            try:
+                yield from reg.glob_keys(pattern)
+            except Exception as exception:
+                self.add_diagnostic(report, pattern, str(exception))
 
     def parse(
         self,
@@ -38,77 +61,84 @@ class RegAppCompatCache(OgrePlugin):
         report = RunReport()
         try:
             reg = Registry.load(input_file, "\\HKLM\\SYSTEM")
-        except Exception as e:
-            report.add_error(f"{e}")
+        except Exception as exception:
+            report.add_error(f"{exception}")
             return report
 
         with Output(run_config, plugin_config, metadata) as output:
-            try:
-                keys = reg.glob_keys(
-                    "\\HKLM\\SYSTEM\\*ControlSet*\\Control\\Session Manager\\AppCompatCache"
-                )
-                for key in keys:
-                    self.parse_key(key, output, report)
-            except Exception as e:
-                report.add_error(f"{e}")
-
+            for key in self.cache_keys(reg, report):
+                self.parse_key(key, output, report)
             report.add_output_report(output.get_report())
 
         return report
 
-    def parse_key(self, key: RegKey, output: Output, report: RunReport):
+    def write_entry(
+        self,
+        parsed_entry: AppCompatCacheEntry,
+        index: int,
+        key: RegKey,
+        key_security: Value,
+        output: Output,
+    ) -> None:
+        record = Record()
+        record.add("index", value(index))
+        record.add("path", value(parsed_entry.path))
+        record.add("modification_date", value(parsed_entry.modification_date))
+        if parsed_entry.flag1 is not None:
+            record.add("flag1", value(parsed_entry.flag1))
+        if parsed_entry.flag2 is not None:
+            record.add("flag2", value(parsed_entry.flag2))
+        record.add("key_path", value(key.path))
+        record.add("key_modif_time", value(key.mtime))
+        record.add("key_security", key_security)
+        output.write(record)
+
+    def parse_key(self, key: RegKey, output: Output, report: RunReport) -> None:
         try:
-            cache_key = key.value("AppCompatCache")
+            cache_value = key.value("AppCompatCache")
+        except Exception as exception:
+            self.add_diagnostic(report, key.path, str(exception))
+            return
+        if cache_value is None:
+            self.add_diagnostic(report, key.path, "missing AppCompatCache value")
+            return
 
-            if cache_key and isinstance(cache_key.data(), bytes):
-                cache = cache_key.data()
-                sig = cache[0:4].hex()
-                # windows8
-                if sig in ["00000000", "80000000"]:
-                    header_size = 128
-                # windows10
-                elif sig in ["30000000", "34000000"]:
-                    header_size = int.from_bytes(cache[0:4], byteorder="little")
-                else:
-                    header_size = 8
-                i = 0
-                index = header_size
-                while index < len(cache):
-                    # check signature
-                    if cache[index : index + 4] == b"10ts":
-                        entry_size = int.from_bytes(
-                            cache[index + 8 : index + 8 + 4], byteorder="little"
-                        )
+        try:
+            cache = cache_value.data()
+        except Exception as exception:
+            self.add_diagnostic(report, key.path, str(exception))
+            return
+        if not isinstance(cache, bytes):
+            self.add_diagnostic(report, key.path, "AppCompatCache value is not bytes")
+            return
 
-                        tuple = Record()
-                        tuple.add("index", value(i))
-                        record = io.BytesIO(cache[index + 12 : index + 12 + entry_size])
+        try:
+            result = parse_appcompat_cache(cache)
+        except AppCompatCacheParseError as exception:
+            self.add_diagnostic(report, key.path, str(exception))
+            return
+        except Exception as exception:
+            self.add_diagnostic(report, key.path, f"unexpected parser failure: {exception}")
+            return
 
-                        path_size = int.from_bytes(record.read(2), byteorder="little")
-                        path = record.read(path_size).decode("utf-16-le")
-                        tuple.add("path", value(path))
+        for diagnostic in result.diagnostics:
+            self.add_diagnostic(report, key.path, diagnostic)
 
-                        # windows8 need to skip 10 bytes
-                        if sig in ["00000000", "80000000"]:
-                            record.read(2)
-                            tuple.add("flag1", value(record.read(4)))
-                            tuple.add("flag2", value(record.read(4)))
+        try:
+            key_security = Value.Object(key.security_descriptor.to_record())
+        except Exception as exception:
+            self.add_diagnostic(report, key.path, str(exception))
+            return
 
-                        filetime = int.from_bytes(record.read(8), byteorder="little")
-                        modification_date = filetime_to_utc(filetime)
-                        tuple.add("modification_date", value(modification_date))
-
-                        tuple.add("key_path", value(key.path))
-                        tuple.add("key_modif_time", value(key.mtime))
-                        tuple.add(
-                            "key_security",
-                            Value.Object(key.security_descriptor.to_record()),
-                        )
-                        output.write(tuple)
-                        i += 1
-                        index += 12 + entry_size
-                    else:
-                        index += 1
-
-        except Exception as e:
-            report.add_error(f"{e}")
+        for index, parsed_entry in enumerate(result.entries):
+            try:
+                self.write_entry(
+                    parsed_entry,
+                    index,
+                    key,
+                    key_security,
+                    output,
+                )
+            except Exception as exception:
+                self.add_diagnostic(report, key.path, str(exception))
+                break
