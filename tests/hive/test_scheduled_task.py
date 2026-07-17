@@ -333,6 +333,14 @@ class TestScheduledTask(TestCase):
             "action_type: Exec - exec_command: sc.exe - exec_arguments: config upnphost start= auto",
         )
         data = jsoned["data"]
+        self.assertEqual(len(data["security_descriptor"]["dacl_aces"]), 3)
+        self.assertNotIn("dacl_ace", data["security_descriptor"])
+        self.assertGreater(len(data["key_security"]["dacl_aces"]), 1)
+        self.assertEqual(
+            data["key_security"]["dacl_aces"][0]["account_sid"],
+            "S-1-5-32-544",
+        )
+        self.assertNotIn("dacl_ace", data["key_security"])
         self.assertEqual(
             data["creation_date"],
             "2016-01-21T18:20:43.399251+00:00",
