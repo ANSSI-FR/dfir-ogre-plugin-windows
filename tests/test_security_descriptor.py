@@ -5,14 +5,14 @@ from dfir_ogre_plugin_windows.security_descriptor import ACE, SecurityDescriptor
 
 
 class SecurityDescriptorTest(TestCase):
-    def test_security_descriptor_uses_plural_ace_arrays(self):
+    def test_security_descriptor_preserves_local_sddl_ace_arrays(self):
         dacl_descriptor = SecurityDescriptor()
         dacl_descriptor.from_string("O:SYG:BAD:(A;;KR;;;BU)")
 
         dacl_record = json.loads(dacl_descriptor.to_record().to_string())
 
         self.assertEqual(
-            dacl_record["dacl_aces"],
+            dacl_record["dacl_ace"],
             [
                 {
                     "ace_type": "ACCESS_ALLOWED_ACE_TYPE",
@@ -21,7 +21,7 @@ class SecurityDescriptorTest(TestCase):
                 }
             ],
         )
-        self.assertNotIn("dacl_ace", dacl_record)
+        self.assertNotIn("dacl_aces", dacl_record)
 
         sacl_descriptor = SecurityDescriptor()
         sacl_descriptor.from_string("S:(AU;SA;KR;;;WD)")
@@ -29,7 +29,7 @@ class SecurityDescriptorTest(TestCase):
         sacl_record = json.loads(sacl_descriptor.to_record().to_string())
 
         self.assertEqual(
-            sacl_record["sacl_aces"],
+            sacl_record["sacl_ace"],
             [
                 {
                     "ace_type": "SYSTEM_AUDIT_ACE_TYPE",
@@ -39,7 +39,7 @@ class SecurityDescriptorTest(TestCase):
                 }
             ],
         )
-        self.assertNotIn("sacl_ace", sacl_record)
+        self.assertNotIn("sacl_aces", sacl_record)
 
     def test_object_ace_guids_are_lowercase(self):
         ace = ACE()

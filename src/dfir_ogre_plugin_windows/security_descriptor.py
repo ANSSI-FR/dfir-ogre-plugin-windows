@@ -292,13 +292,13 @@ class SecurityDescriptor:
     group_sid: str | None = None
     dacl_flags: str | None = None
     control_flags: List[str | None] = []
-    dacl_aces: List[ACE | None]
+    dacl_ace: List[ACE | None]
     sacl_flags: str | None = None
-    sacl_aces: List[ACE | None] = []
+    sacl_ace: List[ACE | None] = []
 
     def from_string(self, sd_string):
-        self.dacl_aces = []
-        self.sacl_aces = []
+        self.dacl_ace = []
+        self.sacl_ace = []
 
         sd_pattern = re.compile(
             r"(O:(?P<osid>[\w-]+?))?(G:(?P<gsid>.+?))?(D:(?P<dacl_flags>[\w_]+?)?(?P<dacl>\(.+\)?))?(S:(?P<sacl_flags>[\w_]+?)?(?P<sacl>\(.+\)?))?$"
@@ -315,7 +315,7 @@ class SecurityDescriptor:
                 for ace in list(filter(None, re.split(r"[(|)]", dacl))):
                     ace_obj = ACE()
                     ace_obj.from_string(ace)
-                    self.dacl_aces.append(ace_obj)
+                    self.dacl_ace.append(ace_obj)
 
             self.sacl_flags = match.group("sacl_flags")
             sacl = match.group("sacl")
@@ -323,7 +323,7 @@ class SecurityDescriptor:
                 for ace in list(filter(None, re.split(r"[(|)]", sacl))):
                     ace_obj = ACE()
                     ace_obj.from_string(ace)
-                    self.sacl_aces.append(ace_obj)
+                    self.sacl_ace.append(ace_obj)
 
     def to_record(self) -> Record:
         record = Record()
@@ -340,17 +340,17 @@ class SecurityDescriptor:
             record.add("sacl_flags", Value.String(self.sacl_flags))
 
         ace_list = []
-        for dacl_ace in self.dacl_aces:
+        for dacl_ace in self.dacl_ace:
             if dacl_ace:
                 ace_list.append(Value.Object(dacl_ace.to_record()))
         if ace_list:
-            record.add("dacl_aces", Value.Array(ace_list))
+            record.add("dacl_ace", Value.Array(ace_list))
 
         ace_list = []
-        for sacl_ace in self.sacl_aces:
+        for sacl_ace in self.sacl_ace:
             if sacl_ace:
                 ace_list.append(Value.Object(sacl_ace.to_record()))
         if ace_list:
-            record.add("sacl_aces", Value.Array(ace_list))
+            record.add("sacl_ace", Value.Array(ace_list))
 
         return record

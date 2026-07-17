@@ -221,42 +221,7 @@ Extracts metadata for Windows scheduled tasks stored in the `Software` hive.
         </object>
       </array>
 
-      <object input="security_descriptor">
-        <field input="owner_sid" parser="String" />
-        <field input="group_sid" parser="String" />
-        <field input="dacl_flags" parser="String" />
-        <field input="sacl_flags" parser="String" />
-        <array>
-          <object input="sacl_aces" ignore="false">
-            <field input="ace_type" parser="String" />
-            <field input="object_guid" parser="String" />
-            <field input="inherit_object_guid" parser="String" />
-            <field input="account_sid" parser="String" />
-            <field input="resource_attribute" parser="String" />
-            <array>
-              <field input="ace_flags" parser="String" />
-            </array>
-            <array>
-              <field input="rights" parser="String" />
-            </array>
-          </object>
-        </array>
-        <array>
-          <object input="dacl_aces" ignore="false">
-            <field input="ace_type" parser="String" />
-            <field input="object_guid" parser="String" />
-            <field input="inherit_object_guid" parser="String" />
-            <field input="account_sid" parser="String" />
-            <field input="resource_attribute" parser="String" />
-            <array>
-              <field input="ace_flags" parser="String" />
-            </array>
-            <array>
-              <field input="rights" parser="String" />
-            </array>
-          </object>
-        </array>
-      </object>
+      <object input="security_descriptor" />
 
       <object input="boot">
         <field

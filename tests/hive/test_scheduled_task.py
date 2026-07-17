@@ -29,7 +29,7 @@ def bstr(text: str) -> bytes:
 
 
 class TestScheduledTask(TestCase):
-    def test_security_descriptor_mappings_use_plural_ace_arrays(self):
+    def test_only_key_security_mapping_uses_plural_ace_arrays(self):
         plugin_file = os.path.join(CONF_FOLDER, "scheduled_task.xml")
         root = ET.parse(plugin_file).getroot()
         fields = root.find("./mapping/fields")
@@ -60,23 +60,7 @@ class TestScheduledTask(TestCase):
             }
 
         sddl = descriptor("security_descriptor")
-        self.assertLessEqual(
-            {"owner_sid", "group_sid", "dacl_flags", "sacl_flags"},
-            direct_fields(sddl),
-        )
-        for acl_name in ("sacl_aces", "dacl_aces"):
-            ace = ace_mapping(sddl, acl_name)
-            self.assertLessEqual(
-                {
-                    "ace_type",
-                    "object_guid",
-                    "inherit_object_guid",
-                    "account_sid",
-                    "resource_attribute",
-                },
-                direct_fields(ace),
-            )
-            self.assertLessEqual({"ace_flags", "rights"}, array_fields(ace))
+        self.assertEqual([], list(sddl))
 
         key_security = descriptor("key_security")
         self.assertLessEqual(
@@ -333,8 +317,8 @@ class TestScheduledTask(TestCase):
             "action_type: Exec - exec_command: sc.exe - exec_arguments: config upnphost start= auto",
         )
         data = jsoned["data"]
-        self.assertEqual(len(data["security_descriptor"]["dacl_aces"]), 3)
-        self.assertNotIn("dacl_ace", data["security_descriptor"])
+        self.assertEqual(len(data["security_descriptor"]["dacl_ace"]), 3)
+        self.assertNotIn("dacl_aces", data["security_descriptor"])
         self.assertGreater(len(data["key_security"]["dacl_aces"]), 1)
         self.assertEqual(
             data["key_security"]["dacl_aces"][0]["account_sid"],
