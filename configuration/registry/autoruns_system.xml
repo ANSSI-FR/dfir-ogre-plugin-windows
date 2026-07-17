@@ -78,32 +78,102 @@ Extracts persistence‑related registry data from the SYSTEM hive.
                         description="security descriptor control flags for the key"
                     />
             </array>
-            <object input="dacl_ace">
-            <field
-                        input="ace_type"
-                        parser="String"
-                        description="type of ACE (e.g., allow, deny)"
-                    />
-            <field
-                        input="account_sid"
-                        parser="String"
-                        description="SID of the account the ACE applies to"
-                    />
             <array>
+              <object input="sacl_aces" ignore="false">
                 <field
-                            input="ace_flags"
-                            parser="String"
-                            description="ACE flags that modify inheritance or behavior"
-                        />
+                  input="ace_type"
+                  parser="String"
+                  description="type of ACE (e.g., allow, deny)"
+                />
+                <array>
+                  <field
+                    input="ace_flags"
+                    parser="String"
+                    description="ACE flags that modify inheritance or behavior"
+                  />
+                </array>
+                <array>
+                  <field
+                    input="rights"
+                    parser="String"
+                    description="permissions granted or denied by the ACE"
+                  />
+                </array>
+                <field
+                  input="account_sid"
+                  parser="String"
+                  description="SID of the account the ACE applies to"
+                />
+                <field
+                  input="ace_size"
+                  parser="Int"
+                  description="declared ACE size in bytes"
+                />
+                <field
+                  input="object_type_guid"
+                  parser="String"
+                  description="GUID identifying the object type governed by the ACE"
+                />
+                <field
+                  input="inherited_object_type_guid"
+                  parser="String"
+                  description="GUID identifying the inherited object type governed by the ACE"
+                />
+                <field
+                  input="raw_hex"
+                  parser="String"
+                  description="raw ACE bytes preserved as hexadecimal"
+                />
+              </object>
             </array>
             <array>
+              <object input="dacl_aces" ignore="false">
                 <field
-                            input="rights"
-                            parser="String"
-                            description="permissions granted or denied by the ACE"
-                        />
+                  input="ace_type"
+                  parser="String"
+                  description="type of ACE (e.g., allow, deny)"
+                />
+                <array>
+                  <field
+                    input="ace_flags"
+                    parser="String"
+                    description="ACE flags that modify inheritance or behavior"
+                  />
+                </array>
+                <array>
+                  <field
+                    input="rights"
+                    parser="String"
+                    description="permissions granted or denied by the ACE"
+                  />
+                </array>
+                <field
+                  input="account_sid"
+                  parser="String"
+                  description="SID of the account the ACE applies to"
+                />
+                <field
+                  input="ace_size"
+                  parser="Int"
+                  description="declared ACE size in bytes"
+                />
+                <field
+                  input="object_type_guid"
+                  parser="String"
+                  description="GUID identifying the object type governed by the ACE"
+                />
+                <field
+                  input="inherited_object_type_guid"
+                  parser="String"
+                  description="GUID identifying the inherited object type governed by the ACE"
+                />
+                <field
+                  input="raw_hex"
+                  parser="String"
+                  description="raw ACE bytes preserved as hexadecimal"
+                />
+              </object>
             </array>
-            </object>
         </object>
     </fields>
   </mapping>

@@ -54,6 +54,68 @@ class ConfigurationTest(TestCase):
 
         self.assertEqual([], unresolved)
 
+    def test_common_security_descriptor_mappings_use_plural_ace_arrays(self):
+        required_fields = {
+            "ace_type",
+            "account_sid",
+            "ace_size",
+            "object_type_guid",
+            "inherited_object_type_guid",
+            "raw_hex",
+        }
+        required_array_fields = {"ace_flags", "rights"}
+        errors = []
+        mapping_count = 0
+
+        for plugin_file in sorted(Path(CONF_FOLDER).rglob("*.xml")):
+            root = ET.parse(plugin_file).getroot()
+            for singular_name in ("sacl_ace", "dacl_ace"):
+                if root.findall(f".//object[@input='{singular_name}']"):
+                    errors.append(f"{plugin_file}: contains {singular_name}")
+
+            descriptors = list(root.findall(".//object[@input='key_security']"))
+            if plugin_file == Path(CONF_FOLDER, "hive.xml"):
+                descriptors.extend(root.findall(".//object[@input='descriptor']"))
+
+            for descriptor in descriptors:
+                mapping_count += 1
+                descriptor_name = descriptor.attrib["input"]
+                for acl_name in ("sacl_aces", "dacl_aces"):
+                    ace_mappings = descriptor.findall(
+                        f"./array/object[@input='{acl_name}']"
+                    )
+                    if len(ace_mappings) != 1:
+                        errors.append(
+                            f"{plugin_file}: {descriptor_name}.{acl_name} "
+                            f"has {len(ace_mappings)} mappings"
+                        )
+                        continue
+
+                    ace_mapping = ace_mappings[0]
+                    direct_fields = {
+                        field.attrib["input"]
+                        for field in ace_mapping.findall("./field")
+                    }
+                    array_fields = {
+                        field.attrib["input"]
+                        for field in ace_mapping.findall("./array/field")
+                    }
+                    missing_fields = required_fields - direct_fields
+                    missing_array_fields = required_array_fields - array_fields
+                    if missing_fields:
+                        errors.append(
+                            f"{plugin_file}: {descriptor_name}.{acl_name} missing "
+                            f"fields {sorted(missing_fields)}"
+                        )
+                    if missing_array_fields:
+                        errors.append(
+                            f"{plugin_file}: {descriptor_name}.{acl_name} missing "
+                            f"array fields {sorted(missing_array_fields)}"
+                        )
+
+        self.assertEqual(28, mapping_count)
+        self.assertEqual([], errors)
+
 
 def collect_output_paths(element, prefix=""):
     fields = set()

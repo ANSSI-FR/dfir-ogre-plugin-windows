@@ -1,39 +1,27 @@
-# Scheduled Task Security Descriptor Migration Design
+# Common Security Descriptor XML Migration Design
 
 ## Context
 
 The `fix/security-descriptor-robustness` branch in `dfir-ogre-common` changes
-the Python-facing security descriptor schema. The optional singular
+the Python-facing binary security descriptor schema. The optional singular
 `sacl_ace` and `dacl_ace` objects become the `sacl_aces` and `dacl_aces`
 arrays. ACE records can also contain `ace_size`, `object_type_guid`,
 `inherited_object_type_guid`, and `raw_hex`, while `account_sid` becomes
 optional.
 
-Scheduled Tasks is the pilot migration because it emits two security
-descriptor records:
+The Windows plugin repository contains 28 XML mappings for records produced
+by this common parser: 27 objects named `key_security` and the generic Hive
+parser object named `descriptor`.
 
-- `security_descriptor`, parsed from the task's SDDL value by the local
-  `security_descriptor.py` implementation; and
-- `key_security`, provided by `RegKey.security_descriptor` from
-  `dfir-ogre-common`.
-
-The local SDDL implementation is the only Python code in this repository that
-directly implements the old singular ACE field names. Other registry plugins
-call `SecurityDescriptor.to_record()` without accessing those names directly.
+Scheduled Tasks also emits a field named `security_descriptor`. That field is
+different: it parses an SDDL string with the local Python
+`security_descriptor.py` implementation. It does not consume the binary
+descriptor API from `dfir-ogre-common` and remains unchanged.
 
 ## Output Contract
 
-Both Scheduled Task descriptor records will expose `sacl_aces` and
-`dacl_aces` as arrays. Empty or absent ACLs remain empty or omitted according
-to the existing producer behavior; consumers must not receive the old
-singular names.
-
-The local SDDL record retains its existing owner, group, ACL flag, ACE flag,
-rights, SID, resource attribute, and GUID semantics. This pilot only renames
-its ACE containers to match the plural common schema.
-
-The common `key_security` mapping will declare both ACE arrays and all fields
-available from the robustness branch:
+Every common-produced descriptor mapping will declare `sacl_aces` and
+`dacl_aces` as arrays of ACE objects. Each ACE mapping includes:
 
 - `ace_type`;
 - `ace_flags`;
@@ -44,62 +32,59 @@ available from the robustness branch:
 - `inherited_object_type_guid`; and
 - `raw_hex`.
 
-Optional ACE fields may be absent without causing the Scheduled Task record to
-be rejected.
+Optional ACE fields may be absent without rejecting the containing record.
+The old singular object names will not remain in common-produced XML
+mappings.
+
+Scheduled Task `security_descriptor` retains its existing local SDDL schema,
+including the list-valued singular keys `sacl_ace` and `dacl_ace`. The field
+remains a dynamic XML object so this migration cannot accidentally couple it
+to the binary common schema.
 
 ## Python Changes
 
-Rename the local `SecurityDescriptor` attributes and serialized record keys
-from `dacl_ace` and `sacl_ace` to `dacl_aces` and `sacl_aces`. Parsing remains
-best-effort and preserves ACE order.
-
-The calls in `registry/scheduled_task.py` already serialize both descriptor
-producers through `to_record()`, so they require no artificial wrapper or
-compatibility branch. The local serializer is imported only by Scheduled
-Tasks, keeping the pilot isolated.
+No production Python changes are required. Registry plugins already call
+`RegKey.security_descriptor.to_record()` and do not access the renamed common
+attributes directly. The local Scheduled Task SDDL serializer remains
+unchanged.
 
 ## XML Changes
 
-In `configuration/registry/scheduled_task.xml`, expand the task SDDL
-`security_descriptor` mapping to declare its plural ACE arrays and existing
-SDDL fields.
+Replace each common descriptor's singular `dacl_ace` object with two
+array/object mappings, one for `sacl_aces` and one for `dacl_aces`. Preserve
+the existing owner SID, group SID, control flag, timeline, qualifier, and
+top-level output mappings.
 
-Replace the singular `key_security.dacl_ace` object with plural
-`key_security.sacl_aces` and `key_security.dacl_aces` array/object mappings.
-Each common ACE mapping includes the optional diagnostic fields introduced by
-the sibling branch.
-
-Timeline paths and top-level output field names remain unchanged.
+The migration covers all 27 `key_security` configurations plus
+`configuration/hive.xml`. It does not expand or otherwise change
+`configuration/registry/scheduled_task.xml`'s local `security_descriptor`
+object.
 
 ## Error Handling and Compatibility
 
-No dual-write compatibility aliases will be emitted. Producing both singular
-and plural names would duplicate forensic data and hide incomplete migrations.
+No dual-write aliases are emitted for common-produced records. Keeping both
+singular and plural common names would duplicate forensic data and hide
+incomplete migrations.
 
-Malformed or partial common ACEs remain representable because every new
-diagnostic field is optional. Existing SDDL parsing and omission behavior is
-unchanged apart from the plural container names.
+Malformed, unknown, or partial binary ACEs remain representable because the
+new diagnostic fields are optional. Local SDDL parsing and omission behavior
+are outside this common API migration and stay unchanged.
 
 ## Tests and Verification
 
-Follow a red/green cycle:
-
-1. Add a local serializer test that requires `dacl_aces` and `sacl_aces` and
-   rejects the singular keys; run it and observe the expected failure.
-2. Add a Scheduled Task XML contract test requiring array/object mappings for
-   both descriptors and the new common ACE fields; run it and observe the
-   expected failure.
-3. Make the minimal Python and XML changes and rerun the focused tests.
-4. Build the sibling robustness branch and run the Scheduled Task integration
-   tests against that build, not the older common package currently installed
-   in the Windows plugin virtual environment.
-5. Run configuration validation and the complete Windows plugin test suite.
+- Assert that Scheduled Task's local SDDL serializer and dynamic XML object
+  retain their original singular schema.
+- Validate all 28 common descriptor mappings repository-wide, including both
+  plural arrays, nested array fields, scalar ACE fields, and absence of the
+  old singular XML objects.
+- Run Scheduled Task integration against a fresh build of common commit
+  `ff2c2e4` to prove local SDDL remains singular while `key_security` is
+  plural.
+- Parse every XML configuration and run the complete Windows plugin test
+  suite against that common build.
 
 ## Scope
 
-This pilot changes only the shared local SDDL serializer, Scheduled Task XML,
-and their focused tests. It does not migrate the other affected registry XML
-files, add compatibility aliases, alter registry traversal, or change
-Scheduled Task timeline behavior. Once reviewed, the same common
-`key_security` XML pattern can be applied mechanically to the remaining
-plugins.
+This change migrates only binary security descriptor records produced by
+`dfir-ogre-common`. It does not change registry traversal, plugin selection,
+timeline behavior, the local SDDL parser, or unrelated descriptor-like data.
