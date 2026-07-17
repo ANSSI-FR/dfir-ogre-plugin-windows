@@ -158,6 +158,51 @@ def fixed_cache(signature: int, paths: list[str], is_64bit: bool) -> bytes:
 
 
 class AppCompatCacheFormats(TestCase):
+    def test_compact_golden_vectors(self):
+        path = r"C:\golden.exe"
+        encoded_path = path.encode("utf-16-le")
+
+        win8_body = (
+            len(encoded_path).to_bytes(2, "little")
+            + encoded_path
+            + bytes.fromhex("0200000001000000")
+            + bytes.fromhex("5aa5")
+            + FILETIME.to_bytes(8, "little")
+            + (0).to_bytes(4, "little")
+        )
+        win8 = (
+            (128).to_bytes(4, "little")
+            + bytes(124)
+            + b"10ts"
+            + bytes(4)
+            + len(win8_body).to_bytes(4, "little")
+            + win8_body
+        )
+
+        win10_body = (
+            len(encoded_path).to_bytes(2, "little")
+            + encoded_path
+            + FILETIME.to_bytes(8, "little")
+            + (0).to_bytes(4, "little")
+        )
+        win10_header = bytearray(52)
+        win10_header[0:4] = (52).to_bytes(4, "little")
+        win10_header[40:44] = (1).to_bytes(4, "little")
+        win10 = (
+            bytes(win10_header)
+            + b"10ts"
+            + bytes(4)
+            + len(win10_body).to_bytes(4, "little")
+            + win10_body
+        )
+
+        for label, cache in (("Windows 8.1", win8), ("Windows 10", win10)):
+            with self.subTest(label=label):
+                result = parse_appcompat_cache(cache)
+                self.assertEqual(result.diagnostics, ())
+                self.assertEqual(result.entries[0].path, path)
+                self.assertEqual(result.entries[0].modification_date, EXPECTED_DATE)
+
     def test_windows_xp(self):
         result = parse_appcompat_cache(
             windows_xp_cache([r"\??\C:\Windows\System32\calc.exe"])
