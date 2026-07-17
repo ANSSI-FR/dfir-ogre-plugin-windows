@@ -1,6 +1,7 @@
 import json
 import os
 import time
+import xml.etree.ElementTree as ET
 from datetime import timezone
 from unittest import TestCase
 from zoneinfo import ZoneInfo
@@ -28,6 +29,75 @@ def bstr(text: str) -> bytes:
 
 
 class TestScheduledTask(TestCase):
+    def test_security_descriptor_mappings_use_plural_ace_arrays(self):
+        plugin_file = os.path.join(CONF_FOLDER, "scheduled_task.xml")
+        root = ET.parse(plugin_file).getroot()
+        fields = root.find("./mapping/fields")
+        self.assertIsNotNone(fields)
+        assert fields is not None
+
+        self.assertEqual([], root.findall(".//object[@input='dacl_ace']"))
+        self.assertEqual([], root.findall(".//object[@input='sacl_ace']"))
+
+        def descriptor(name: str):
+            element = fields.find(f"./object[@input='{name}']")
+            self.assertIsNotNone(element, f"missing {name} mapping")
+            assert element is not None
+            return element
+
+        def ace_mapping(element, name: str):
+            ace = element.find(f"./array/object[@input='{name}']")
+            self.assertIsNotNone(ace, f"missing {name} array mapping")
+            assert ace is not None
+            return ace
+
+        def direct_fields(element):
+            return {field.attrib["input"] for field in element.findall("./field")}
+
+        def array_fields(element):
+            return {
+                field.attrib["input"] for field in element.findall("./array/field")
+            }
+
+        sddl = descriptor("security_descriptor")
+        self.assertLessEqual(
+            {"owner_sid", "group_sid", "dacl_flags", "sacl_flags"},
+            direct_fields(sddl),
+        )
+        for acl_name in ("sacl_aces", "dacl_aces"):
+            ace = ace_mapping(sddl, acl_name)
+            self.assertLessEqual(
+                {
+                    "ace_type",
+                    "object_guid",
+                    "inherit_object_guid",
+                    "account_sid",
+                    "resource_attribute",
+                },
+                direct_fields(ace),
+            )
+            self.assertLessEqual({"ace_flags", "rights"}, array_fields(ace))
+
+        key_security = descriptor("key_security")
+        self.assertLessEqual(
+            {"owner_sid", "group_sid"}, direct_fields(key_security)
+        )
+        self.assertIn("control_flags", array_fields(key_security))
+        for acl_name in ("sacl_aces", "dacl_aces"):
+            ace = ace_mapping(key_security, acl_name)
+            self.assertLessEqual(
+                {
+                    "ace_type",
+                    "account_sid",
+                    "ace_size",
+                    "object_type_guid",
+                    "inherited_object_type_guid",
+                    "raw_hex",
+                },
+                direct_fields(ace),
+            )
+            self.assertLessEqual({"ace_flags", "rights"}, array_fields(ace))
+
     def test_decode_com_handler_action(self):
         raw_class_id = bytes.fromhex("824779481f6ab947bd521d5f95d49c1b")
         action = b"\x77\x77" + bstr("handler") + raw_class_id + bstr("payload")
