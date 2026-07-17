@@ -63,6 +63,71 @@ def windows_xp_cache(paths: list[str]) -> bytes:
     return bytes(header) + b"".join(entries)
 
 
+def fixed_cache(signature: int, paths: list[str], is_64bit: bool) -> bytes:
+    if signature == 0xBADC0FFE:
+        header_size = 8
+        entry_size = 32 if is_64bit else 24
+    else:
+        header_size = 128
+        entry_size = 48 if is_64bit else 32
+    encoded_paths = [path.encode("utf-16-le") for path in paths]
+    next_path_offset = header_size + entry_size * len(paths)
+    entries = []
+    path_data = []
+
+    for encoded_path in encoded_paths:
+        if signature == 0xBADC0FFE and is_64bit:
+            entry = struct.pack(
+                "<HHIQQQ",
+                len(encoded_path),
+                len(encoded_path) + 2,
+                0,
+                next_path_offset,
+                FILETIME,
+                0,
+            )
+        elif signature == 0xBADC0FFE:
+            entry = struct.pack(
+                "<HHIQQ",
+                len(encoded_path),
+                len(encoded_path) + 2,
+                next_path_offset,
+                FILETIME,
+                0,
+            )
+        elif is_64bit:
+            entry = struct.pack(
+                "<HHIQQIIQQ",
+                len(encoded_path),
+                len(encoded_path) + 2,
+                0,
+                next_path_offset,
+                FILETIME,
+                2,
+                0,
+                0,
+                0,
+            )
+        else:
+            entry = struct.pack(
+                "<HHIQIIII",
+                len(encoded_path),
+                len(encoded_path) + 2,
+                next_path_offset,
+                FILETIME,
+                2,
+                0,
+                0,
+                0,
+            )
+        entries.append(entry)
+        path_data.append(encoded_path + b"\x00\x00")
+        next_path_offset += len(encoded_path) + 2
+
+    header = struct.pack("<II", signature, len(paths)) + bytes(header_size - 8)
+    return header + b"".join(entries) + b"".join(path_data)
+
+
 class AppCompatCacheFormats(TestCase):
     def test_windows_xp(self):
         result = parse_appcompat_cache(
@@ -85,6 +150,41 @@ class AppCompatCacheFormats(TestCase):
         self.assertEqual([entry.path for entry in result.entries], [r"C:\good.exe"])
         self.assertEqual(len(result.diagnostics), 1)
         self.assertIn("missing UTF-16 terminator", result.diagnostics[0])
+
+    def test_fixed_layouts(self):
+        cases = (
+            (0xBADC0FFE, False, "Windows 2003/Vista x86"),
+            (0xBADC0FFE, True, "Windows 2003/Vista x64"),
+            (0xBADC0FEE, False, "Windows 7 x86"),
+            (0xBADC0FEE, True, "Windows 7 x64"),
+        )
+        for signature, is_64bit, label in cases:
+            with self.subTest(label=label):
+                path = rf"C:\Evidence\case-{signature:x}-{int(is_64bit)}.exe"
+                result = parse_appcompat_cache(
+                    fixed_cache(signature, [path], is_64bit)
+                )
+                self.assertEqual(result.diagnostics, ())
+                self.assertEqual(len(result.entries), 1)
+                self.assertEqual(result.entries[0].path, path)
+                self.assertEqual(result.entries[0].modification_date, EXPECTED_DATE)
+                self.assertIsNone(result.entries[0].flag1)
+                self.assertIsNone(result.entries[0].flag2)
+
+    def test_fixed_layout_skips_bad_path_and_continues(self):
+        cache = bytearray(
+            fixed_cache(
+                0xBADC0FEE,
+                [r"C:\Evidence\bad.exe", r"C:\Evidence\good.exe"],
+                False,
+            )
+        )
+        struct.pack_into("<I", cache, 128 + 4, len(cache) + 100)
+        result = parse_appcompat_cache(bytes(cache))
+
+        self.assertEqual([entry.path for entry in result.entries], [r"C:\Evidence\good.exe"])
+        self.assertEqual(len(result.diagnostics), 1)
+        self.assertIn("invalid path range", result.diagnostics[0])
 
     def test_windows_10_headers(self):
         for header_size in (48, 52):
