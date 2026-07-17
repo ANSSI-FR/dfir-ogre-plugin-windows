@@ -180,7 +180,7 @@ class AppCompatCacheFormats(TestCase):
 Run:
 
 ```bash
-.venv/bin/python -m pytest tests/hive/test_app_compat_cache_formats.py -q
+PYTHONPATH=src ../../.venv/bin/python -m unittest tests.hive.test_app_compat_cache_formats -v
 ```
 
 Expected: test collection fails with `ModuleNotFoundError: No module named 'dfir_ogre_plugin_windows.registry.app_compat_cache_formats'`.
@@ -384,10 +384,10 @@ def parse_appcompat_cache(cache: bytes) -> AppCompatCacheParseResult:
 Run:
 
 ```bash
-.venv/bin/python -m pytest tests/hive/test_app_compat_cache_formats.py -q
+PYTHONPATH=src ../../.venv/bin/python -m unittest tests.hive.test_app_compat_cache_formats -v
 ```
 
-Expected: `7 passed`.
+Expected: `Ran 7 tests` followed by `OK`.
 
 - [ ] **Step 5: Commit the parser core**
 
@@ -456,7 +456,7 @@ Add these tests to `AppCompatCacheFormats`:
 Run:
 
 ```bash
-.venv/bin/python -m pytest tests/hive/test_app_compat_cache_formats.py -q
+PYTHONPATH=src ../../.venv/bin/python -m unittest tests.hive.test_app_compat_cache_formats -v
 ```
 
 Expected: the two XP tests fail with `UnsupportedAppCompatCacheFormat` containing `0xdeadbeef`.
@@ -547,10 +547,10 @@ Insert this branch immediately after reading `signature` in `parse_appcompat_cac
 Run:
 
 ```bash
-.venv/bin/python -m pytest tests/hive/test_app_compat_cache_formats.py -q
+PYTHONPATH=src ../../.venv/bin/python -m unittest tests.hive.test_app_compat_cache_formats -v
 ```
 
-Expected: `9 passed`.
+Expected: `Ran 9 tests` followed by `OK`.
 
 - [ ] **Step 5: Commit XP support**
 
@@ -683,7 +683,7 @@ Add this test:
 Run:
 
 ```bash
-.venv/bin/python -m pytest tests/hive/test_app_compat_cache_formats.py -q
+PYTHONPATH=src ../../.venv/bin/python -m unittest tests.hive.test_app_compat_cache_formats -v
 ```
 
 Expected: both fixed-layout tests fail with `UnsupportedAppCompatCacheFormat`.
@@ -872,10 +872,10 @@ Insert these branches in `parse_appcompat_cache` after the XP branch:
 Run:
 
 ```bash
-.venv/bin/python -m pytest tests/hive/test_app_compat_cache_formats.py -q
+PYTHONPATH=src ../../.venv/bin/python -m unittest tests.hive.test_app_compat_cache_formats -v
 ```
 
-Expected: `11 passed`.
+Expected: `Ran 11 tests` followed by `OK`.
 
 - [ ] **Step 5: Commit fixed-layout support**
 
@@ -985,7 +985,7 @@ Add these tests:
 Run:
 
 ```bash
-.venv/bin/python -m pytest tests/hive/test_app_compat_cache_formats.py -q
+PYTHONPATH=src ../../.venv/bin/python -m unittest tests.hive.test_app_compat_cache_formats -v
 ```
 
 Expected: both new tests fail with `UnsupportedAppCompatCacheFormat`.
@@ -1115,10 +1115,10 @@ def parse_appcompat_cache(cache: bytes) -> AppCompatCacheParseResult:
 Run:
 
 ```bash
-.venv/bin/python -m pytest tests/hive/test_app_compat_cache_formats.py -q
+PYTHONPATH=src ../../.venv/bin/python -m unittest tests.hive.test_app_compat_cache_formats -v
 ```
 
-Expected: `13 passed`.
+Expected: `Ran 13 tests` followed by `OK`.
 
 - [ ] **Step 5: Commit Windows 8 support**
 
@@ -1291,12 +1291,12 @@ from .test_app_compat_cache_formats import windows_8_cache, windows_8_entry
 Run:
 
 ```bash
-.venv/bin/python -m pytest \
-  tests/hive/test_app_compat_cache.py::AppCompatCache::test_cache_key_discovery_includes_xp_and_later_paths \
-  tests/hive/test_app_compat_cache.py::AppCompatCache::test_cache_key_discovery_continues_after_one_pattern_fails \
-  tests/hive/test_app_compat_cache.py::AppCompatCache::test_unsupported_format_warns_and_updates_run_report \
-  tests/hive/test_app_compat_cache.py::AppCompatCache::test_missing_and_non_byte_values_are_diagnostic \
-  tests/hive/test_app_compat_cache.py::AppCompatCache::test_windows_8_record_keeps_existing_schema \
+PYTHONPATH=src ../../.venv/bin/python -m unittest \
+  tests.hive.test_app_compat_cache.AppCompatCache.test_cache_key_discovery_includes_xp_and_later_paths \
+  tests.hive.test_app_compat_cache.AppCompatCache.test_cache_key_discovery_continues_after_one_pattern_fails \
+  tests.hive.test_app_compat_cache.AppCompatCache.test_unsupported_format_warns_and_updates_run_report \
+  tests.hive.test_app_compat_cache.AppCompatCache.test_missing_and_non_byte_values_are_diagnostic \
+  tests.hive.test_app_compat_cache.AppCompatCache.test_windows_8_record_keeps_existing_schema \
   -q
 ```
 
@@ -1460,13 +1460,14 @@ class RegAppCompatCache(OgrePlugin):
 Run:
 
 ```bash
-.venv/bin/python -m pytest \
-  tests/hive/test_app_compat_cache.py \
-  tests/hive/test_app_compat_cache_formats.py \
-  -q
+PYTHONPATH=src ../../.venv/bin/python -m unittest \
+  tests.hive.test_app_compat_cache \
+  tests.hive.test_app_compat_cache_formats \
+  -v
 ```
 
-Expected: `20 passed`; the existing `SYSTEM.dat` test still emits 108 lines and `SYSTEM_2.dat` still emits 474 lines with no errors.
+Expected: `Ran 20 tests` followed by `OK`; the existing `SYSTEM.dat` test still
+emits 108 lines and `SYSTEM_2.dat` still emits 474 lines with no errors.
 
 - [ ] **Step 5: Commit plugin integration**
 
@@ -1540,15 +1541,15 @@ Add this test using literal headers and bodies rather than the shared builders:
 Run:
 
 ```bash
-.venv/bin/python -m pytest tests/hive/test_app_compat_cache_formats.py -q
-.venv/bin/python -m pytest tests/hive/test_app_compat_cache.py -q
-.venv/bin/python -m pytest -q
+PYTHONPATH=src ../../.venv/bin/python -m unittest tests.hive.test_app_compat_cache_formats -v
+PYTHONPATH=src ../../.venv/bin/python -m unittest tests.hive.test_app_compat_cache -v
+PYTHONPATH=src ../../.venv/bin/python -m unittest discover -q
 ```
 
 Expected:
 
-- Pure parser: `14 passed`.
-- AppCompatCache integration: `7 passed`.
+- Pure parser: `Ran 14 tests` followed by `OK`.
+- AppCompatCache integration: `Ran 7 tests` followed by `OK`.
 - Complete suite: all tests pass; the pre-change baseline was 149 tests, so the expected new total is 168 tests.
 
 - [ ] **Step 3: Run static and repository-state checks**
