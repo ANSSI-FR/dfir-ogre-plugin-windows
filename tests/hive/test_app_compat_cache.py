@@ -1,3 +1,4 @@
+import hashlib
 import json
 import os
 import struct
@@ -15,9 +16,40 @@ from dfir_ogre_common import (
 from dfir_ogre_plugin_windows import RegAppCompatCache
 
 from . import CONF_FOLDER, TEMP_FOLDER
-from .test_app_compat_cache_formats import windows_8_cache, windows_8_entry
+from .test_app_compat_cache_formats import (
+    variable_entry,
+    windows_10_cache,
+    windows_8_cache,
+    windows_8_entry,
+    windows_xp_cache,
+)
 
 DATA_FOLDER = os.path.join("tests", "data")
+
+
+def canonical_cache_sequence_snapshot(output_file: str) -> tuple[int, str]:
+    sequence = []
+    seen = set()
+    with open(output_file, encoding="utf-8") as stream:
+        for line in stream:
+            data = json.loads(line)["data"]
+            item = (
+                data["key_path"],
+                data["index"],
+                data["path"],
+                data["modification_date"],
+            )
+            if item in seen:
+                continue
+            seen.add(item)
+            sequence.append(item)
+
+    payload = json.dumps(
+        sequence,
+        ensure_ascii=False,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    return len(sequence), hashlib.sha256(payload).hexdigest()
 
 
 class AppCompatCache(TestCase):
@@ -148,6 +180,224 @@ class AppCompatCache(TestCase):
         self.assertEqual(record["flag1"], "0x11223344")
         self.assertEqual(record["flag2"], "0xaabbccdd")
 
+    def test_windows_10_exact_headers_report_count_mismatch(self):
+        parser = RegAppCompatCache()
+        key_path = (
+            r"HKLM\SYSTEM\ControlSet001\Control\Session Manager\AppCompatCache"
+        )
+        for header_size in (48, 52):
+            with self.subTest(header_size=header_size):
+                key = Mock()
+                cache_value = Mock()
+                cache_value.data.return_value = windows_10_cache(
+                    [],
+                    header_size=header_size,
+                    declared_count=3,
+                )
+                key.value.return_value = cache_value
+                key.path = key_path
+                key.security_descriptor.to_record.return_value = Record()
+                output = Mock()
+                report = RunReport()
+                expected_message = (
+                    f"AppCompatCache {key_path}: Windows 10 header declares 3 "
+                    "entries but contains 0"
+                )
+
+                with self.assertLogs(
+                    "dfir_ogre_plugin_windows.registry.app_compat_cache",
+                    level="WARNING",
+                ) as logs:
+                    parser.parse_key(key, output, report)
+
+                self.assertEqual(
+                    [record.getMessage() for record in logs.records],
+                    [expected_message],
+                )
+                self.assertEqual(report.num_errors, 1)
+                self.assertEqual(report.last_error, expected_message)
+                self.assertEqual(output.write.call_count, 0)
+
+    def test_windows_xp_trailing_bytes_report_exact_diagnostic(self):
+        parser = RegAppCompatCache()
+        key_path = (
+            r"HKLM\SYSTEM\ControlSet001\Control\Session Manager\AppCompatibility"
+        )
+        undeclared = bytearray(windows_xp_cache([r"C:\undeclared.exe"]))
+        struct.pack_into("<II", undeclared, 4, 0, 0)
+        cases = (
+            (
+                "undeclared-entry",
+                bytes(undeclared),
+                "Windows XP entry array ends at 400, cache has 552 trailing bytes",
+                0,
+            ),
+            (
+                "trailing-byte",
+                windows_xp_cache([r"C:\declared.exe"]) + b"\xa5",
+                "Windows XP entry array ends at 952, cache has 1 trailing byte",
+                1,
+            ),
+        )
+        for label, cache, diagnostic, expected_writes in cases:
+            with self.subTest(label=label):
+                key = Mock()
+                cache_value = Mock()
+                cache_value.data.return_value = cache
+                key.value.return_value = cache_value
+                key.path = key_path
+                key.mtime = None
+                key.security_descriptor.to_record.return_value = Record()
+                output = Mock()
+                report = RunReport()
+                expected_message = f"AppCompatCache {key_path}: {diagnostic}"
+
+                with self.assertLogs(
+                    "dfir_ogre_plugin_windows.registry.app_compat_cache",
+                    level="WARNING",
+                ) as logs:
+                    parser.parse_key(key, output, report)
+
+                self.assertEqual(
+                    [record.getMessage() for record in logs.records],
+                    [expected_message],
+                )
+                self.assertEqual(report.num_errors, 1)
+                self.assertEqual(report.last_error, expected_message)
+                self.assertEqual(output.write.call_count, expected_writes)
+
+    def test_fixed_layout_ambiguity_reports_key_format_and_reason(self):
+        parser = RegAppCompatCache()
+        cases = (
+            (
+                0xBADC0FFE,
+                8,
+                "Windows 2003/Vista",
+                r"HKLM\SYSTEM\ControlSet001\Control\Session Manager\AppCompatCache",
+            ),
+            (
+                0xBADC0FEE,
+                128,
+                "Windows 7",
+                r"HKLM\SYSTEM\ControlSet002\Control\Session Manager\AppCompatCache",
+            ),
+        )
+        for signature, header_size, format_name, key_path in cases:
+            with self.subTest(format_name=format_name):
+                key = Mock()
+                cache_value = Mock()
+                cache_value.data.return_value = (
+                    struct.pack("<II", signature, 1)
+                    + bytes(header_size - 8)
+                )
+                key.value.return_value = cache_value
+                key.path = key_path
+                output = Mock()
+                report = RunReport()
+                expected_message = (
+                    f"AppCompatCache {key_path}: {format_name}: unable to determine "
+                    "fixed-entry architecture (x86=-1, x64=-1)"
+                )
+
+                with self.assertLogs(
+                    "dfir_ogre_plugin_windows.registry.app_compat_cache",
+                    level="WARNING",
+                ) as logs:
+                    parser.parse_key(key, output, report)
+
+                self.assertEqual(
+                    [record.getMessage() for record in logs.records],
+                    [expected_message],
+                )
+                self.assertEqual(report.num_errors, 1)
+                self.assertEqual(report.last_error, expected_message)
+                self.assertEqual(output.write.call_count, 0)
+
+    def test_recoverable_entry_and_later_key_continue(self):
+        parser = RegAppCompatCache()
+        first_key_path = (
+            r"HKLM\SYSTEM\ControlSet001\Control\Session Manager\AppCompatCache"
+        )
+        later_key_path = (
+            r"HKLM\SYSTEM\ControlSet002\Control\Session Manager\AppCompatCache"
+        )
+        first_cache = windows_8_cache(
+            [
+                windows_8_entry(
+                    r"C:\Evidence\before.exe",
+                    "8.1",
+                    bytes(4),
+                    bytes(4),
+                ),
+                variable_entry(b"10ts", b"\x03\x00abc"),
+                windows_8_entry(
+                    r"C:\Evidence\recovered.exe",
+                    "8.1",
+                    bytes(4),
+                    bytes(4),
+                ),
+            ]
+        )
+        later_cache = windows_8_cache(
+            [
+                windows_8_entry(
+                    r"C:\Evidence\later-key.exe",
+                    "8.1",
+                    bytes(4),
+                    bytes(4),
+                )
+            ]
+        )
+        first_key = Mock()
+        first_value = Mock()
+        first_value.data.return_value = first_cache
+        first_key.value.return_value = first_value
+        first_key.path = first_key_path
+        first_key.mtime = None
+        first_key.security_descriptor.to_record.return_value = Record()
+        later_key = Mock()
+        later_value = Mock()
+        later_value.data.return_value = later_cache
+        later_key.value.return_value = later_value
+        later_key.path = later_key_path
+        later_key.mtime = None
+        later_key.security_descriptor.to_record.return_value = Record()
+        output = Mock()
+        report = RunReport()
+        expected_message = (
+            f"AppCompatCache {first_key_path}: Windows 8.1 entry 1: "
+            "path has invalid byte size 3"
+        )
+
+        with self.assertLogs(
+            "dfir_ogre_plugin_windows.registry.app_compat_cache",
+            level="WARNING",
+        ) as logs:
+            parser.parse_key(first_key, output, report)
+            parser.parse_key(later_key, output, report)
+
+        self.assertEqual(
+            [record.getMessage() for record in logs.records],
+            [expected_message],
+        )
+        self.assertEqual(report.num_errors, 1)
+        self.assertEqual(report.last_error, expected_message)
+        records = [
+            json.loads(write.args[0].to_string())
+            for write in output.write.call_args_list
+        ]
+        self.assertEqual(
+            [
+                (record["key_path"], record["index"], record["path"])
+                for record in records
+            ],
+            [
+                (first_key_path, 0, r"C:\Evidence\before.exe"),
+                (first_key_path, 1, r"C:\Evidence\recovered.exe"),
+                (later_key_path, 0, r"C:\Evidence\later-key.exe"),
+            ],
+        )
+
     # python -m unittest tests.hive.test_app_compat_cache.AppCompatCache.test_compat_cache -v
     def test_compat_cache(self):
         plugin_file = os.path.join(CONF_FOLDER, "app_compat_cache.xml")
@@ -201,6 +451,13 @@ class AppCompatCache(TestCase):
                 i += 1
             self.assertEqual(i, expected_lines)
 
+        entry_count, sequence_digest = canonical_cache_sequence_snapshot(output_file)
+        self.assertEqual(entry_count, 54)
+        self.assertEqual(
+            sequence_digest,
+            "fc7b0fd772a90954b308e30ffb9c7cbe73ea33ce35a105f6358541e637f25fb4",
+        )
+
     # python -m unittest tests.hive.test_app_compat_cache.AppCompatCache.test_compat_cache_2 -v
     def test_compat_cache_2(self):
         plugin_file = os.path.join(CONF_FOLDER, "app_compat_cache.xml")
@@ -253,3 +510,10 @@ class AppCompatCache(TestCase):
 
                 i += 1
             self.assertEqual(i, expected_lines)
+
+        entry_count, sequence_digest = canonical_cache_sequence_snapshot(output_file)
+        self.assertEqual(entry_count, 237)
+        self.assertEqual(
+            sequence_digest,
+            "190f6d64ba5326b2af8b6f1cc683532c0fde5cf9e5e129995b634be5a726a0b2",
+        )

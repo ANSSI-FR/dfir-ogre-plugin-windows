@@ -157,51 +157,122 @@ def fixed_cache(signature: int, paths: list[str], is_64bit: bool) -> bytes:
     return header + b"".join(entries) + b"".join(path_data)
 
 
+def set_windows_7_data_extent(
+    cache: bytearray,
+    is_64bit: bool,
+    data_size: int,
+    data_offset: int,
+) -> None:
+    field_offset = 128 + (32 if is_64bit else 24)
+    field_format = "<QQ" if is_64bit else "<II"
+    struct.pack_into(field_format, cache, field_offset, data_size, data_offset)
+
+
 class AppCompatCacheFormats(TestCase):
-    def test_compact_golden_vectors(self):
-        path = r"C:\golden.exe"
-        encoded_path = path.encode("utf-16-le")
+    def test_independent_reference_vectors(self):
+        filetime = bytes.fromhex("8000c44a19c1d501")
+        xp_x86 = (
+            bytes.fromhex(
+                "efbeadde"
+                "01000000"
+                "01000000"
+                "00000000"
+                "00000000"
+            )
+            + bytes(380)
+            + bytes.fromhex("43003a005c0078002e00650078006500")
+            + b"\x00\x00"
+            + bytes(510)
+            + filetime
+            + bytes(16)
+        )
+        nt5_x86 = bytes.fromhex(
+            "fe0fdcba01000000"
+            "1000120020000000"
+            "8000c44a19c1d5010000000000000000"
+            "43003a005c0061002e006500780065000000"
+        )
+        nt5_x64 = bytes.fromhex(
+            "fe0fdcba01000000"
+            "10001200000000002800000000000000"
+            "8000c44a19c1d5010000000000000000"
+            "43003a005c0062002e006500780065000000"
+        )
+        windows_7_x86 = (
+            bytes.fromhex("ee0fdcba0100000078000000")
+            + bytes(116)
+            + bytes.fromhex(
+                "10001200a0000000"
+                "8000c44a19c1d5010200000000000000"
+                "0000000000000000"
+                "43003a005c0063002e006500780065000000"
+            )
+        )
+        windows_7_x64 = (
+            bytes.fromhex("ee0fdcba0100000078000000")
+            + bytes(116)
+            + bytes.fromhex(
+                "1000120000000000b000000000000000"
+                "8000c44a19c1d5010200000000000000"
+                "00000000000000000000000000000000"
+                "43003a005c0064002e006500780065000000"
+            )
+        )
+        windows_8_0 = bytes(128) + bytes.fromhex(
+            "303074730000000026000000"
+            "100043003a005c0065002e00650078006500"
+            "11223344aabbccdd8000c44a19c1d50100000000"
+        )
+        windows_8_1 = bytes(128) + bytes.fromhex(
+            "313074730000000028000000"
+            "100043003a005c0066002e00650078006500"
+            "11223344aabbccdd5aa58000c44a19c1d50100000000"
+        )
+        windows_10_48 = (
+            bytes.fromhex("30000000")
+            + bytes(32)
+            + bytes.fromhex("01000000")
+            + bytes(8)
+            + bytes.fromhex(
+                "31307473000000001e000000"
+                "100043003a005c0067002e00650078006500"
+                "8000c44a19c1d50100000000"
+            )
+        )
+        windows_10_52 = (
+            bytes.fromhex("34000000")
+            + bytes(36)
+            + bytes.fromhex("01000000")
+            + bytes(8)
+            + bytes.fromhex(
+                "31307473000000001e000000"
+                "100043003a005c0068002e00650078006500"
+                "8000c44a19c1d50100000000"
+            )
+        )
+        flag1 = bytes.fromhex("11223344")
+        flag2 = bytes.fromhex("aabbccdd")
+        vectors = (
+            ("Windows XP x86", xp_x86, r"C:\x.exe", None, None),
+            ("0xbadc0ffe x86", nt5_x86, r"C:\a.exe", None, None),
+            ("0xbadc0ffe x64", nt5_x64, r"C:\b.exe", None, None),
+            ("Windows 7 x86", windows_7_x86, r"C:\c.exe", None, None),
+            ("Windows 7 x64", windows_7_x64, r"C:\d.exe", None, None),
+            ("Windows 8.0", windows_8_0, r"C:\e.exe", flag1, flag2),
+            ("Windows 8.1", windows_8_1, r"C:\f.exe", flag1, flag2),
+            ("Windows 10/48", windows_10_48, r"C:\g.exe", None, None),
+            ("Windows 10/52", windows_10_52, r"C:\h.exe", None, None),
+        )
 
-        win8_body = (
-            len(encoded_path).to_bytes(2, "little")
-            + encoded_path
-            + bytes.fromhex("0200000001000000")
-            + bytes.fromhex("5aa5")
-            + FILETIME.to_bytes(8, "little")
-            + (0).to_bytes(4, "little")
-        )
-        win8 = (
-            (128).to_bytes(4, "little")
-            + bytes(124)
-            + b"10ts"
-            + bytes(4)
-            + len(win8_body).to_bytes(4, "little")
-            + win8_body
-        )
-
-        win10_body = (
-            len(encoded_path).to_bytes(2, "little")
-            + encoded_path
-            + FILETIME.to_bytes(8, "little")
-            + (0).to_bytes(4, "little")
-        )
-        win10_header = bytearray(52)
-        win10_header[0:4] = (52).to_bytes(4, "little")
-        win10_header[40:44] = (1).to_bytes(4, "little")
-        win10 = (
-            bytes(win10_header)
-            + b"10ts"
-            + bytes(4)
-            + len(win10_body).to_bytes(4, "little")
-            + win10_body
-        )
-
-        for label, cache in (("Windows 8.1", win8), ("Windows 10", win10)):
+        for label, cache, path, expected_flag1, expected_flag2 in vectors:
             with self.subTest(label=label):
                 result = parse_appcompat_cache(cache)
                 self.assertEqual(result.diagnostics, ())
+                self.assertEqual(len(result.entries), 1)
                 self.assertEqual(result.entries[0].path, path)
                 self.assertEqual(result.entries[0].modification_date, EXPECTED_DATE)
+                self.assertEqual(result.entries[0].flag1, expected_flag1)
+                self.assertEqual(result.entries[0].flag2, expected_flag2)
 
     def test_windows_xp(self):
         result = parse_appcompat_cache(
@@ -225,6 +296,30 @@ class AppCompatCacheFormats(TestCase):
         self.assertEqual(len(result.diagnostics), 1)
         self.assertIn("missing UTF-16 terminator", result.diagnostics[0])
 
+    def test_windows_xp_reports_undeclared_entry_bytes(self):
+        cache = bytearray(windows_xp_cache([r"C:\undeclared.exe"]))
+        struct.pack_into("<II", cache, 4, 0, 0)
+
+        result = parse_appcompat_cache(bytes(cache))
+
+        self.assertEqual(result.entries, ())
+        self.assertEqual(
+            result.diagnostics,
+            ("Windows XP entry array ends at 400, cache has 552 trailing bytes",),
+        )
+
+    def test_windows_xp_keeps_declared_entry_before_trailing_byte(self):
+        cache = windows_xp_cache([r"C:\declared.exe"]) + b"\xa5"
+
+        result = parse_appcompat_cache(cache)
+
+        self.assertEqual([entry.path for entry in result.entries], [r"C:\declared.exe"])
+        self.assertEqual(result.entries[0].modification_date, EXPECTED_DATE)
+        self.assertEqual(
+            result.diagnostics,
+            ("Windows XP entry array ends at 952, cache has 1 trailing byte",),
+        )
+
     def test_fixed_layouts(self):
         cases = (
             (0xBADC0FFE, False, "Windows 2003/Vista x86"),
@@ -245,6 +340,74 @@ class AppCompatCacheFormats(TestCase):
                 self.assertIsNone(result.entries[0].flag1)
                 self.assertIsNone(result.entries[0].flag2)
 
+    def test_windows_7_zero_size_data_extent_is_valid(self):
+        for is_64bit in (False, True):
+            with self.subTest(is_64bit=is_64bit):
+                result = parse_appcompat_cache(
+                    fixed_cache(
+                        0xBADC0FEE,
+                        [r"C:\Evidence\zero-data.exe"],
+                        is_64bit,
+                    )
+                )
+
+                self.assertEqual(result.diagnostics, ())
+                self.assertEqual(
+                    [entry.path for entry in result.entries],
+                    [r"C:\Evidence\zero-data.exe"],
+                )
+
+    def test_windows_7_in_bounds_data_extent_is_valid(self):
+        for is_64bit in (False, True):
+            with self.subTest(is_64bit=is_64bit):
+                cache = bytearray(
+                    fixed_cache(
+                        0xBADC0FEE,
+                        [r"C:\Evidence\bounded-data.exe"],
+                        is_64bit,
+                    )
+                )
+                data_offset = len(cache)
+                cache.extend(b"DATA")
+                set_windows_7_data_extent(cache, is_64bit, 4, data_offset)
+
+                result = parse_appcompat_cache(bytes(cache))
+
+                self.assertEqual(result.diagnostics, ())
+                self.assertEqual(
+                    [entry.path for entry in result.entries],
+                    [r"C:\Evidence\bounded-data.exe"],
+                )
+
+    def test_windows_7_out_of_bounds_data_extent_keeps_entry(self):
+        for is_64bit, architecture in ((False, "x86"), (True, "x64")):
+            with self.subTest(architecture=architecture):
+                cache = bytearray(
+                    fixed_cache(
+                        0xBADC0FEE,
+                        [r"C:\Evidence\bad-data.exe"],
+                        is_64bit,
+                    )
+                )
+                data_offset = len(cache) - 2
+                set_windows_7_data_extent(cache, is_64bit, 4, data_offset)
+
+                result = parse_appcompat_cache(bytes(cache))
+
+                self.assertEqual(
+                    [entry.path for entry in result.entries],
+                    [r"C:\Evidence\bad-data.exe"],
+                )
+                self.assertEqual(result.entries[0].modification_date, EXPECTED_DATE)
+                self.assertEqual(
+                    result.diagnostics,
+                    (
+                        f"Windows 7 {architecture} entry 0: data range "
+                        f"{data_offset}:{data_offset + 4} extends outside "
+                        f"{len(cache)} bytes",
+                    ),
+                )
+
     def test_fixed_layout_skips_bad_path_and_continues(self):
         cache = bytearray(
             fixed_cache(
@@ -259,6 +422,27 @@ class AppCompatCacheFormats(TestCase):
         self.assertEqual([entry.path for entry in result.entries], [r"C:\Evidence\good.exe"])
         self.assertEqual(len(result.diagnostics), 1)
         self.assertIn("invalid path range", result.diagnostics[0])
+
+    def test_fixed_layout_ambiguity_identifies_format(self):
+        cases = (
+            (0xBADC0FFE, 8, "Windows 2003/Vista"),
+            (0xBADC0FEE, 128, "Windows 7"),
+        )
+        for signature, header_size, format_name in cases:
+            with self.subTest(format_name=format_name):
+                cache = (
+                    struct.pack("<II", signature, 1)
+                    + bytes(header_size - 8)
+                )
+                expected_message = (
+                    f"{format_name}: unable to determine fixed-entry architecture "
+                    "(x86=-1, x64=-1)"
+                )
+
+                with self.assertRaises(AppCompatCacheParseError) as raised:
+                    parse_appcompat_cache(cache)
+
+                self.assertEqual(str(raised.exception), expected_message)
 
     def test_windows_8_layouts_and_flag_alignment(self):
         flag1 = bytes.fromhex("11223344")
@@ -351,14 +535,36 @@ class AppCompatCacheFormats(TestCase):
         self.assertIn("outside the cache", result.diagnostics[0])
         self.assertIn("declares 2 entries but contains 1", result.diagnostics[1])
 
-    def test_header_only_caches_are_empty(self):
-        for header_size in (48, 52, 128):
+    def test_windows_10_exact_headers_honor_declared_count(self):
+        for header_size in (48, 52):
             with self.subTest(header_size=header_size):
-                header = bytearray(header_size)
-                struct.pack_into("<I", header, 0, header_size)
-                result = parse_appcompat_cache(bytes(header))
-                self.assertEqual(result.entries, ())
-                self.assertEqual(result.diagnostics, ())
+                empty = parse_appcompat_cache(
+                    windows_10_cache([], header_size=header_size)
+                )
+                self.assertEqual(empty.entries, ())
+                self.assertEqual(empty.diagnostics, ())
+
+                declared = parse_appcompat_cache(
+                    windows_10_cache(
+                        [],
+                        header_size=header_size,
+                        declared_count=3,
+                    )
+                )
+                self.assertEqual(declared.entries, ())
+                self.assertEqual(
+                    declared.diagnostics,
+                    ("Windows 10 header declares 3 entries but contains 0",),
+                )
+
+    def test_windows_8_header_only_cache_is_empty(self):
+        header = bytearray(128)
+        struct.pack_into("<I", header, 0, 128)
+
+        result = parse_appcompat_cache(bytes(header))
+
+        self.assertEqual(result.entries, ())
+        self.assertEqual(result.diagnostics, ())
 
     def test_unsupported_signature_is_explicit(self):
         with self.assertRaisesRegex(

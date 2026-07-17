@@ -182,6 +182,13 @@ def _parse_windows_xp(cache: bytes) -> AppCompatCacheParseResult:
         )
 
     diagnostics: list[str] = []
+    trailing_bytes = len(cache) - entries_end
+    if trailing_bytes:
+        byte_label = "byte" if trailing_bytes == 1 else "bytes"
+        diagnostics.append(
+            f"Windows XP entry array ends at {entries_end}, cache has "
+            f"{trailing_bytes} trailing {byte_label}"
+        )
     lru_count = _read_uint(cache, 8, 4, "LRU entry count")
     if lru_count > 96:
         diagnostics.append(f"Windows XP LRU entry count {lru_count} exceeds 96")
@@ -239,6 +246,9 @@ class _FixedLayout:
     path_offset_size: int
     modification_time_field: int
     requires_padding: bool
+    data_size_field: int | None = None
+    data_offset_field: int | None = None
+    data_field_size: int = 0
 
 
 def _fixed_layout_score(
@@ -281,6 +291,7 @@ def _fixed_layout_score(
 
 def _select_fixed_layout(
     cache: bytes,
+    format_name: str,
     header_size: int,
     cached_count: int,
     layouts: tuple[_FixedLayout, _FixedLayout],
@@ -294,7 +305,7 @@ def _select_fixed_layout(
     if best_score <= 0 or len(best_layouts) != 1:
         labels = ", ".join(f"{layout.name}={score}" for score, layout in scores)
         raise AppCompatCacheParseError(
-            f"unable to determine fixed-entry architecture ({labels})"
+            f"{format_name}: unable to determine fixed-entry architecture ({labels})"
         )
     return best_layouts[0]
 
@@ -321,7 +332,13 @@ def _parse_fixed_cache(
         )
         return AppCompatCacheParseResult((), diagnostics)
 
-    layout = _select_fixed_layout(cache, header_size, cached_count, layouts)
+    layout = _select_fixed_layout(
+        cache,
+        format_name,
+        header_size,
+        cached_count,
+        layouts,
+    )
     table_end = header_size + cached_count * layout.entry_size
     entries: list[AppCompatCacheEntry] = []
     diagnostics: list[str] = []
@@ -335,6 +352,28 @@ def _parse_fixed_cache(
             layout.path_offset_size,
             "path offset",
         )
+        if (
+            layout.data_size_field is not None
+            and layout.data_offset_field is not None
+        ):
+            data_size = _read_uint(
+                cache,
+                entry_offset + layout.data_size_field,
+                layout.data_field_size,
+                "data size",
+            )
+            data_offset = _read_uint(
+                cache,
+                entry_offset + layout.data_offset_field,
+                layout.data_field_size,
+                "data offset",
+            )
+            data_end = data_offset + data_size
+            if data_size and data_end > len(cache):
+                diagnostics.append(
+                    f"{format_name} {layout.name} entry {entry_index}: data range "
+                    f"{data_offset}:{data_end} extends outside {len(cache)} bytes"
+                )
         if (
             path_size == 0
             or path_size % 2
@@ -379,8 +418,28 @@ NT5_LAYOUTS = (
 )
 
 WINDOWS_7_LAYOUTS = (
-    _FixedLayout("x86", 32, 4, 4, 8, False),
-    _FixedLayout("x64", 48, 8, 8, 16, True),
+    _FixedLayout(
+        "x86",
+        32,
+        4,
+        4,
+        8,
+        False,
+        data_size_field=24,
+        data_offset_field=28,
+        data_field_size=4,
+    ),
+    _FixedLayout(
+        "x64",
+        48,
+        8,
+        8,
+        16,
+        True,
+        data_size_field=32,
+        data_offset_field=40,
+        data_field_size=8,
+    ),
 )
 
 
@@ -476,7 +535,7 @@ def parse_appcompat_cache(cache: bytes) -> AppCompatCacheParseResult:
         )
     if signature in (48, 52):
         if len(cache) == signature:
-            return AppCompatCacheParseResult((), ())
+            return _parse_windows_10(cache, signature)
         if len(cache) < signature + 4 or cache[signature : signature + 4] != b"10ts":
             raise AppCompatCacheParseError(
                 f"Windows 10 header size {signature} is not followed by 10ts"
