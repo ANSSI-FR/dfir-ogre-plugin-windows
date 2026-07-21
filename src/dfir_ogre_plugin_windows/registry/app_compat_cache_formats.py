@@ -170,12 +170,12 @@ def _parse_windows_xp(cache: bytes) -> AppCompatCacheParseResult:
             f"Windows XP header requires {header_size} bytes, found {len(cache)}"
         )
 
-    cached_count = _read_uint(cache, 4, 4, "cached entry count")
-    if cached_count > 96:
+    allocated_count = _read_uint(cache, 4, 4, "allocated entry count")
+    if allocated_count > 96:
         raise AppCompatCacheParseError(
-            f"Windows XP cached entry count {cached_count} exceeds 96"
+            f"Windows XP allocated entry count {allocated_count} exceeds 96"
         )
-    entries_end = header_size + cached_count * entry_size
+    entries_end = header_size + allocated_count * entry_size
     if entries_end > len(cache):
         raise AppCompatCacheParseError(
             f"Windows XP entry array ends at {entries_end}, cache ends at {len(cache)}"
@@ -189,20 +189,33 @@ def _parse_windows_xp(cache: bytes) -> AppCompatCacheParseResult:
             f"Windows XP entry array ends at {entries_end}, cache has "
             f"{trailing_bytes} trailing {byte_label}"
         )
-    active_indexes: list[int] = []
     lru_count = _read_uint(cache, 8, 4, "LRU entry count")
-    if lru_count > 96:
-        diagnostics.append(f"Windows XP LRU entry count {lru_count} exceeds 96")
-    else:
-        for lru_index in range(lru_count):
-            cached_index = _read_uint(cache, 16 + lru_index * 4, 4, "LRU index")
-            if cached_index >= cached_count:
-                diagnostics.append(
-                    f"Windows XP LRU index {cached_index} is outside "
-                    f"{cached_count} cached entries"
-                )
-            else:
-                active_indexes.append(cached_index)
+    if lru_count > allocated_count:
+        raise AppCompatCacheParseError(
+            f"Windows XP LRU entry count {lru_count} exceeds "
+            f"{allocated_count} allocated slots"
+        )
+
+    active_indexes: list[int] = []
+    seen_indexes: set[int] = set()
+    for lru_position in range(lru_count):
+        active_index = _read_uint(
+            cache,
+            16 + lru_position * 4,
+            4,
+            "LRU index",
+        )
+        if active_index >= allocated_count:
+            raise AppCompatCacheParseError(
+                f"Windows XP LRU index {active_index} is outside "
+                f"{allocated_count} allocated slots"
+            )
+        if active_index in seen_indexes:
+            raise AppCompatCacheParseError(
+                f"Windows XP LRU index {active_index} is duplicated"
+            )
+        seen_indexes.add(active_index)
+        active_indexes.append(active_index)
 
     entries: list[AppCompatCacheEntry] = []
     for entry_index in sorted(active_indexes):

@@ -344,6 +344,41 @@ class AppCompatCacheFormats(TestCase):
         )
         self.assertEqual(result.diagnostics, ())
 
+    def test_windows_xp_rejects_lru_count_beyond_allocated_slots(self):
+        cache = bytearray(windows_xp_cache([r"C:\active.exe"], slot_count=2))
+        struct.pack_into("<I", cache, 8, 3)
+
+        with self.assertRaisesRegex(
+            AppCompatCacheParseError,
+            "LRU entry count 3 exceeds 2 allocated slots",
+        ):
+            parse_appcompat_cache(bytes(cache))
+
+    def test_windows_xp_rejects_out_of_range_lru_index(self):
+        cache = bytearray(windows_xp_cache([r"C:\active.exe"], slot_count=2))
+        struct.pack_into("<I", cache, 16, 2)
+
+        with self.assertRaisesRegex(
+            AppCompatCacheParseError,
+            "LRU index 2 is outside 2 allocated slots",
+        ):
+            parse_appcompat_cache(bytes(cache))
+
+    def test_windows_xp_rejects_duplicate_lru_index(self):
+        cache = bytearray(
+            windows_xp_cache(
+                [r"C:\first.exe", r"C:\second.exe"],
+                slot_count=2,
+            )
+        )
+        struct.pack_into("<I", cache, 20, 0)
+
+        with self.assertRaisesRegex(
+            AppCompatCacheParseError,
+            "LRU index 0 is duplicated",
+        ):
+            parse_appcompat_cache(bytes(cache))
+
     def test_windows_xp_skips_bad_fixed_entry_and_continues(self):
         cache = bytearray(windows_xp_cache([r"C:\bad.exe", r"C:\good.exe"]))
         cache[400:928] = b"A" * 528
