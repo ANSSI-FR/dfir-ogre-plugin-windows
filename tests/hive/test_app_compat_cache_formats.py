@@ -78,17 +78,39 @@ def windows_8_cache(entries: list[bytes], first_dword: int = 128) -> bytes:
     return bytes(header) + b"".join(entries)
 
 
-def windows_xp_cache(paths: list[str]) -> bytes:
-    header = bytearray(400)
-    struct.pack_into("<IIII", header, 0, 0xDEADBEEF, len(paths), len(paths), 0)
-    for index in range(len(paths)):
-        struct.pack_into("<I", header, 16 + index * 4, index)
+def windows_xp_entry(path: str) -> bytes:
+    encoded_path = path.encode("utf-16-le") + b"\x00\x00"
+    path_field = encoded_path + bytes(528 - len(encoded_path))
+    return path_field + struct.pack("<QQQ", FILETIME, 1234, FILETIME)
 
-    entries = []
-    for path in paths:
-        encoded_path = path.encode("utf-16-le") + b"\x00\x00"
-        path_field = encoded_path + bytes(528 - len(encoded_path))
-        entries.append(path_field + struct.pack("<QQQ", FILETIME, 1234, FILETIME))
+
+def windows_xp_cache(
+    paths: list[str],
+    *,
+    slot_count: int | None = None,
+    lru_indexes: list[int] | None = None,
+) -> bytes:
+    if slot_count is None:
+        slot_count = len(paths)
+    if lru_indexes is None:
+        lru_indexes = list(range(len(paths)))
+    if len(paths) != len(lru_indexes):
+        raise ValueError("each XP path requires one LRU index")
+
+    header = bytearray(400)
+    struct.pack_into(
+        "<IIII",
+        header,
+        0,
+        0xDEADBEEF,
+        slot_count,
+        len(lru_indexes),
+        0,
+    )
+    entries = [bytes(552) for _ in range(slot_count)]
+    for lru_position, (slot_index, path) in enumerate(zip(lru_indexes, paths)):
+        struct.pack_into("<I", header, 16 + lru_position * 4, slot_index)
+        entries[slot_index] = windows_xp_entry(path)
     return bytes(header) + b"".join(entries)
 
 
@@ -286,6 +308,41 @@ class AppCompatCacheFormats(TestCase):
             r"\??\C:\Windows\System32\calc.exe",
         )
         self.assertEqual(result.entries[0].modification_date, EXPECTED_DATE)
+
+    def test_windows_xp_ignores_unused_allocated_slots(self):
+        result = parse_appcompat_cache(
+            windows_xp_cache(
+                [r"C:\active-one.exe", r"C:\active-two.exe"],
+                slot_count=96,
+            )
+        )
+
+        self.assertEqual(
+            [entry.path for entry in result.entries],
+            [r"C:\active-one.exe", r"C:\active-two.exe"],
+        )
+        self.assertEqual(result.diagnostics, ())
+
+    def test_windows_xp_uses_lru_indexes_in_physical_slot_order(self):
+        cache = bytearray(
+            windows_xp_cache(
+                [r"C:\slot-five.exe", r"C:\slot-two.exe"],
+                slot_count=6,
+                lru_indexes=[5, 2],
+            )
+        )
+        stale_offset = 400 + 4 * 552
+        cache[stale_offset : stale_offset + 552] = windows_xp_entry(
+            r"C:\unreferenced-stale.exe"
+        )
+
+        result = parse_appcompat_cache(bytes(cache))
+
+        self.assertEqual(
+            [entry.path for entry in result.entries],
+            [r"C:\slot-two.exe", r"C:\slot-five.exe"],
+        )
+        self.assertEqual(result.diagnostics, ())
 
     def test_windows_xp_skips_bad_fixed_entry_and_continues(self):
         cache = bytearray(windows_xp_cache([r"C:\bad.exe", r"C:\good.exe"]))

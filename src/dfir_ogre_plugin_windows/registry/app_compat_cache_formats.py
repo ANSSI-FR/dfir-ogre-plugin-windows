@@ -189,6 +189,7 @@ def _parse_windows_xp(cache: bytes) -> AppCompatCacheParseResult:
             f"Windows XP entry array ends at {entries_end}, cache has "
             f"{trailing_bytes} trailing {byte_label}"
         )
+    active_indexes: list[int] = []
     lru_count = _read_uint(cache, 8, 4, "LRU entry count")
     if lru_count > 96:
         diagnostics.append(f"Windows XP LRU entry count {lru_count} exceeds 96")
@@ -200,9 +201,11 @@ def _parse_windows_xp(cache: bytes) -> AppCompatCacheParseResult:
                     f"Windows XP LRU index {cached_index} is outside "
                     f"{cached_count} cached entries"
                 )
+            else:
+                active_indexes.append(cached_index)
 
     entries: list[AppCompatCacheEntry] = []
-    for entry_index in range(cached_count):
+    for entry_index in sorted(active_indexes):
         entry_offset = header_size + entry_index * entry_size
         path_field = cache[entry_offset : entry_offset + 528]
         terminator = None
