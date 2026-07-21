@@ -5,7 +5,7 @@ from dfir_ogre_common import (
     PluginDescription,
     RunConfiguration,
     RunReport,
-    parse_hive_keys,
+    parse_hive_keys, parse_hive_values,
 )
 
 
@@ -13,7 +13,7 @@ class HiveKeys(OgrePlugin):
     def description(self) -> PluginDescription:
         return PluginDescription(
             "HiveKey",
-            "(Beta) Extract Keys from Windows Registry File",
+            "Extract Keys and Values from Windows Registry File",
         )
 
     def parse(
@@ -27,7 +27,7 @@ class HiveKeys(OgrePlugin):
         root_name = run_config.params.get("root_name", None)
         filter = run_config.params.get("filter", None)
 
-        return parse_hive_keys(
+        return parse_hive_values(
             input_file,
             run_config,
             plugin_config,
