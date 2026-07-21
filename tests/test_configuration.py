@@ -75,7 +75,9 @@ class ConfigurationTest(TestCase):
 
             descriptors = list(root.findall(".//object[@input='key_security']"))
             if plugin_file == Path(CONF_FOLDER, "hive.xml"):
-                descriptors.extend(root.findall(".//object[@input='descriptor']"))
+                descriptors.extend(
+                    root.findall(".//object[@input='security_descriptor']")
+                )
 
             for descriptor in descriptors:
                 mapping_count += 1

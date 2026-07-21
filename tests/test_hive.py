@@ -21,7 +21,7 @@ class HiveTest(TestCase):
         input_file = os.path.join(DATA_FOLDER, "hive", "testhive")
         base_output_name = "hive_test"
 
-        output_file = os.path.join(TEMP_FOLDER, base_output_name + ".reg_keys.jsonl")
+        output_file = os.path.join(TEMP_FOLDER, base_output_name + ".hive.jsonl")
         if os.path.exists(output_file):
             os.remove(output_file)
 
@@ -40,7 +40,12 @@ class HiveTest(TestCase):
 
         metadata = Metadata("test")
         parser = HiveKeys()
-        self.assertEqual("HiveKey", parser.description().command)  # type: ignore
+        description = parser.description()
+        self.assertEqual("HiveKey", description.command)  # type: ignore
+        self.assertEqual(
+            "Extract Keys and Values from Windows Registry File",
+            description.description,  # type: ignore
+        )
 
         report = parser.parse(input_file, plugin_file, run_config, metadata)
         self.assertEqual(None, report.last_error)
@@ -54,13 +59,24 @@ class HiveTest(TestCase):
         self.assertEqual(filename, output_file)
 
         with open(output_file) as fp:
-            i = 0
-            for line in fp:
-                jsoned = json.loads(line)
-                if i == 3:
-                    self.assertEqual(
-                        jsoned["data"]["path"],
-                        "HELLO\\subpath-test\\with-two-levels-of-subkeys",
-                    )
-                i += 1
-            self.assertEqual(i, expected_lines)
+            rows = [json.loads(line) for line in fp]
+
+        self.assertEqual(len(rows), expected_lines)
+        self.assertEqual(
+            rows[3]["data"]["path"],
+            "HELLO\\subpath-test\\with-two-levels-of-subkeys",
+        )
+
+        for row in rows:
+            data = row["data"]
+            self.assertEqual("hive", row["data_type"])
+            self.assertNotIn("values", data)
+            self.assertIn("mtime", data)
+            self.assertEqual("Default", data["name"])
+            self.assertEqual("", data["data"])
+            self.assertEqual("REG_NONE", data["type"])
+            self.assertEqual(0, data["size"])
+            self.assertTrue(data["is_placeholder"])
+            self.assertIn("invalid_signature", data)
+            self.assertIn("error", data)
+            self.assertIsInstance(data["security_descriptor"], dict)

@@ -5,7 +5,7 @@ from dfir_ogre_common import (
     PluginDescription,
     RunConfiguration,
     RunReport,
-    parse_hive_keys, parse_hive_values,
+    parse_hive_values,
 )
 
 
