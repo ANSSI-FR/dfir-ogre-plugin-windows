@@ -698,31 +698,35 @@ class AppCompatCacheFormats(TestCase):
         result = parse_appcompat_cache(windows_10_cache([valid, truncated]))
 
         self.assertEqual([entry.path for entry in result.entries], [r"C:\Evidence\valid.exe"])
-        self.assertEqual(len(result.diagnostics), 2)
+        self.assertEqual(len(result.diagnostics), 1)
         self.assertIn("outside the cache", result.diagnostics[0])
-        self.assertIn("declares 2 entries but contains 1", result.diagnostics[1])
 
-    def test_windows_10_exact_headers_honor_declared_count(self):
+    def test_windows_10_exact_headers_ignore_stale_count(self):
         for header_size in (48, 52):
             with self.subTest(header_size=header_size):
                 empty = parse_appcompat_cache(
-                    windows_10_cache([], header_size=header_size)
-                )
-                self.assertEqual(empty.entries, ())
-                self.assertEqual(empty.diagnostics, ())
-
-                declared = parse_appcompat_cache(
                     windows_10_cache(
                         [],
                         header_size=header_size,
                         declared_count=3,
                     )
                 )
-                self.assertEqual(declared.entries, ())
-                self.assertEqual(
-                    declared.diagnostics,
-                    ("Windows 10 header declares 3 entries but contains 0",),
+                self.assertEqual(empty.entries, ())
+                self.assertEqual(empty.diagnostics, ())
+
+                result = parse_appcompat_cache(
+                    windows_10_cache(
+                        [windows_10_entry(r"C:\Evidence\stale-count.exe")],
+                        header_size=header_size,
+                        declared_count=0,
+                    )
                 )
+
+                self.assertEqual(
+                    [entry.path for entry in result.entries],
+                    [r"C:\Evidence\stale-count.exe"],
+                )
+                self.assertEqual(result.diagnostics, ())
 
     def test_windows_8_header_only_cache_is_empty(self):
         header = bytearray(128)

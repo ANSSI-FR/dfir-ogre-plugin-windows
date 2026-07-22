@@ -19,6 +19,7 @@ from . import CONF_FOLDER, TEMP_FOLDER
 from .test_app_compat_cache_formats import (
     variable_entry,
     windows_10_cache,
+    windows_10_entry,
     windows_8_cache,
     windows_8_entry,
     windows_xp_cache,
@@ -180,7 +181,7 @@ class AppCompatCache(TestCase):
         self.assertEqual(record["flag1"], "0x11223344")
         self.assertEqual(record["flag2"], "0xaabbccdd")
 
-    def test_windows_10_exact_headers_report_count_mismatch(self):
+    def test_windows_10_stale_header_count_is_not_an_error(self):
         parser = RegAppCompatCache()
         key_path = (
             r"HKLM\SYSTEM\ControlSet001\Control\Session Manager\AppCompatCache"
@@ -190,33 +191,22 @@ class AppCompatCache(TestCase):
                 key = Mock()
                 cache_value = Mock()
                 cache_value.data.return_value = windows_10_cache(
-                    [],
+                    [windows_10_entry(r"C:\Evidence\stale-count.exe")],
                     header_size=header_size,
-                    declared_count=3,
+                    declared_count=0,
                 )
                 key.value.return_value = cache_value
                 key.path = key_path
+                key.mtime = None
                 key.security_descriptor.to_record.return_value = Record()
                 output = Mock()
                 report = RunReport()
-                expected_message = (
-                    f"AppCompatCache {key_path}: Windows 10 header declares 3 "
-                    "entries but contains 0"
-                )
 
-                with self.assertLogs(
-                    "dfir_ogre_plugin_windows.registry.app_compat_cache",
-                    level="WARNING",
-                ) as logs:
-                    parser.parse_key(key, output, report)
+                parser.parse_key(key, output, report)
 
-                self.assertEqual(
-                    [record.getMessage() for record in logs.records],
-                    [expected_message],
-                )
-                self.assertEqual(report.num_errors, 1)
-                self.assertEqual(report.last_error, expected_message)
-                self.assertEqual(output.write.call_count, 0)
+                self.assertEqual(report.num_errors, 0)
+                self.assertIsNone(report.last_error)
+                self.assertEqual(output.write.call_count, 1)
 
     def test_windows_xp_trailing_bytes_report_exact_diagnostic(self):
         parser = RegAppCompatCache()

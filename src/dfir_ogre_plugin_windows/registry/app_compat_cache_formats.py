@@ -144,22 +144,14 @@ def _parse_windows_10_body(
 
 
 def _parse_windows_10(cache: bytes, header_size: int) -> AppCompatCacheParseResult:
-    result, seen_entries = _parse_variable_entries(
+    result, _ = _parse_variable_entries(
         cache,
         header_size,
         b"10ts",
         "Windows 10",
         _parse_windows_10_body,
     )
-    count_offset = 36 if header_size == 48 else 40
-    declared_count = _read_uint(cache, count_offset, 4, "cached entry count")
-    diagnostics = list(result.diagnostics)
-    if declared_count != seen_entries:
-        diagnostics.append(
-            f"Windows 10 header declares {declared_count} entries "
-            f"but contains {seen_entries}"
-        )
-    return AppCompatCacheParseResult(result.entries, tuple(diagnostics))
+    return result
 
 
 def _parse_windows_xp(cache: bytes) -> AppCompatCacheParseResult:
