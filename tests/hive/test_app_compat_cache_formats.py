@@ -56,15 +56,16 @@ def windows_8_entry(
     flag2: bytes,
     filetime: int = FILETIME,
     data: bytes = b"",
+    package: bytes = b"",
 ) -> bytes:
     encoded_path = path.encode("utf-16-le")
-    unknown = b"\x5a\xa5" if version == "8.1" else b""
     body = (
         struct.pack("<H", len(encoded_path))
         + encoded_path
+        + struct.pack("<H", len(package))
+        + package
         + flag1
         + flag2
-        + unknown
         + struct.pack("<QI", filetime, len(data))
         + data
     )
@@ -241,14 +242,14 @@ class AppCompatCacheFormats(TestCase):
             )
         )
         windows_8_0 = bytes(128) + bytes.fromhex(
-            "303074730000000026000000"
+            "303074730000000028000000"
             "100043003a005c0065002e00650078006500"
-            "11223344aabbccdd8000c44a19c1d50100000000"
+            "000011223344aabbccdd8000c44a19c1d50100000000"
         )
         windows_8_1 = bytes(128) + bytes.fromhex(
             "313074730000000028000000"
             "100043003a005c0066002e00650078006500"
-            "11223344aabbccdd5aa58000c44a19c1d50100000000"
+            "000011223344aabbccdd8000c44a19c1d50100000000"
         )
         windows_10_48 = (
             bytes.fromhex("30000000")
@@ -560,6 +561,80 @@ class AppCompatCacheFormats(TestCase):
                 self.assertEqual(result.entries[0].flag1, flag1)
                 self.assertEqual(result.entries[0].flag2, flag2)
                 self.assertEqual(result.entries[0].modification_date, EXPECTED_DATE)
+
+    def test_windows_8_server_2012_reference_entry(self):
+        entry = bytes.fromhex(
+            "30307473868ab2fd5e000000"
+            "460053005900530056004f004c005c00570069006e0064006f00770073005c00"
+            "530079007300740065006d00330032005c004c006f0067006f006e0055004900"
+            "2e00650078006500"
+            "00004300000000000001c0e30af0db6acd0100000000"
+        )
+
+        result = parse_appcompat_cache(bytes(128) + entry)
+
+        self.assertEqual(result.diagnostics, ())
+        self.assertEqual(len(result.entries), 1)
+        self.assertEqual(
+            result.entries[0].path,
+            r"SYSVOL\Windows\System32\LogonUI.exe",
+        )
+        self.assertEqual(result.entries[0].flag1, bytes.fromhex("43000000"))
+        self.assertEqual(result.entries[0].flag2, bytes.fromhex("00000001"))
+        self.assertEqual(
+            result.entries[0].modification_date,
+            datetime(2012, 7, 26, 3, 8, 32, 124000, tzinfo=timezone.utc),
+        )
+
+    def test_windows_8_skips_package_data_before_flags(self):
+        flag1 = bytes.fromhex("11223344")
+        flag2 = bytes.fromhex("aabbccdd")
+        for version in ("8.0", "8.1"):
+            with self.subTest(version=version):
+                result = parse_appcompat_cache(
+                    windows_8_cache(
+                        [
+                            windows_8_entry(
+                                rf"C:\Evidence\package-{version}.exe",
+                                version,
+                                flag1,
+                                flag2,
+                                package=b"\x5a\xa5\x7f",
+                            )
+                        ]
+                    )
+                )
+
+                self.assertEqual(result.diagnostics, ())
+                self.assertEqual(len(result.entries), 1)
+                self.assertEqual(result.entries[0].flag1, flag1)
+                self.assertEqual(result.entries[0].flag2, flag2)
+                self.assertEqual(result.entries[0].modification_date, EXPECTED_DATE)
+
+    def test_windows_8_skips_package_extent_outside_bounded_body(self):
+        encoded_path = r"C:\Evidence\bad-package.exe".encode("utf-16-le")
+        malformed_body = (
+            struct.pack("<H", len(encoded_path))
+            + encoded_path
+            + struct.pack("<H", 100)
+        )
+        valid = windows_8_entry(
+            r"C:\Evidence\valid.exe",
+            "8.0",
+            bytes(4),
+            bytes(4),
+        )
+
+        result = parse_appcompat_cache(
+            windows_8_cache([variable_entry(b"00ts", malformed_body), valid])
+        )
+
+        self.assertEqual(
+            [entry.path for entry in result.entries],
+            [r"C:\Evidence\valid.exe"],
+        )
+        self.assertEqual(len(result.diagnostics), 1)
+        self.assertIn("flags extend outside the entry body", result.diagnostics[0])
 
     def test_windows_8_skips_malformed_bounded_body(self):
         valid_1 = windows_8_entry(

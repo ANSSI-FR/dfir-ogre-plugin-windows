@@ -466,15 +466,14 @@ def _parse_windows_8_body(
 ) -> tuple[AppCompatCacheEntry, list[str]]:
     path_size = _read_uint(body, 0, 2, "path size")
     path = _decode_utf16(body, 2, path_size, "path")
-    flags_offset = 2 + path_size
+    package_size_offset = 2 + path_size
+    package_size = _read_uint(body, package_size_offset, 2, "package size")
+    flags_offset = package_size_offset + 2 + package_size
     if flags_offset + 8 > len(body):
         raise AppCompatCacheParseError("flags extend outside the entry body")
     flag1 = body[flags_offset : flags_offset + 4]
     flag2 = body[flags_offset + 4 : flags_offset + 8]
     filetime_offset = flags_offset + 8
-    if version == "8.1":
-        _read_uint(body, filetime_offset, 2, "Windows 8.1 unknown field")
-        filetime_offset += 2
     raw_filetime = _read_uint(body, filetime_offset, 8, "modification FILETIME")
     data_size_offset = filetime_offset + 8
     data_size = _read_uint(body, data_size_offset, 4, "data size")
