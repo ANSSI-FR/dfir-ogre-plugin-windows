@@ -185,7 +185,7 @@ dependencies = [
 [[package]]
 name = "dfir-ogre-common"
 version = "2.0.0b2"
-source = { git = "https://github.com/ANSSI-FR/dfir-ogre-common.git#529d96d5677705c6ae6ffda4599547b5704fb5f3" }
+source = { git = "https://github.com/ANSSI-FR/dfir-ogre-common.git#34313390be5c566c87544f07fd0949d2186d705e" }
 
 [[package]]
 name = "dfir-ogre-plugin-windows"
