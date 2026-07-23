@@ -5,7 +5,10 @@ from datetime import datetime
 from dfir_ogre_plugin_windows.common import filetime_to_utc
 
 
-BodyParser = Callable[[bytes, int], tuple["AppCompatCacheEntry", list[str]]]
+BodyParser = Callable[
+    [bytes, int],
+    tuple["AppCompatCacheEntry | None", list[str]],
+]
 
 
 class AppCompatCacheParseError(ValueError):
@@ -111,7 +114,8 @@ def _parse_variable_entries(
         except AppCompatCacheParseError as exception:
             diagnostics.append(f"{format_name} entry {seen_entries}: {exception}")
         else:
-            entries.append(entry)
+            if entry is not None:
+                entries.append(entry)
             diagnostics.extend(entry_diagnostics)
 
         seen_entries += 1
@@ -455,11 +459,13 @@ def _parse_windows_8_body(
     body: bytes,
     entry_index: int,
     version: str,
-) -> tuple[AppCompatCacheEntry, list[str]]:
+) -> tuple[AppCompatCacheEntry | None, list[str]]:
     path_size = _read_uint(body, 0, 2, "path size")
-    path = _decode_utf16(body, 2, path_size, "path")
+    path = _decode_utf16(body, 2, path_size, "path") if path_size else None
     package_size_offset = 2 + path_size
     package_size = _read_uint(body, package_size_offset, 2, "package size")
+    if path is None and package_size == 0:
+        raise AppCompatCacheParseError("path has invalid byte size 0")
     flags_offset = package_size_offset + 2 + package_size
     if flags_offset + 8 > len(body):
         raise AppCompatCacheParseError("flags extend outside the entry body")
@@ -479,20 +485,22 @@ def _parse_windows_8_body(
         f"Windows {version}",
         entry_index,
     )
+    if path is None:
+        return None, diagnostics
     return AppCompatCacheEntry(path, modification_date, flag1, flag2), diagnostics
 
 
 def _parse_windows_8_0_body(
     body: bytes,
     entry_index: int,
-) -> tuple[AppCompatCacheEntry, list[str]]:
+) -> tuple[AppCompatCacheEntry | None, list[str]]:
     return _parse_windows_8_body(body, entry_index, "8.0")
 
 
 def _parse_windows_8_1_body(
     body: bytes,
     entry_index: int,
-) -> tuple[AppCompatCacheEntry, list[str]]:
+) -> tuple[AppCompatCacheEntry | None, list[str]]:
     return _parse_windows_8_body(body, entry_index, "8.1")
 
 

@@ -611,6 +611,86 @@ class AppCompatCacheFormats(TestCase):
                 self.assertEqual(result.entries[0].flag2, flag2)
                 self.assertEqual(result.entries[0].modification_date, EXPECTED_DATE)
 
+    def test_windows_8_skips_valid_package_only_entry(self):
+        package = (
+            "00000009\t0011000425804000\t0006000300000000\t"
+            "microsoft.windowscommunicationsapps\t8wekyb3d8bbwe\t"
+        ).encode("utf-16-le")
+        for version in ("8.0", "8.1"):
+            with self.subTest(version=version):
+                first = windows_8_entry(
+                    r"C:\Evidence\first.exe",
+                    version,
+                    bytes.fromhex("01000000"),
+                    bytes(4),
+                )
+                package_only = windows_8_entry(
+                    "",
+                    version,
+                    bytes.fromhex("15000000"),
+                    bytes.fromhex("00010000"),
+                    package=package,
+                )
+                last = windows_8_entry(
+                    r"C:\Evidence\last.exe",
+                    version,
+                    bytes.fromhex("02000000"),
+                    bytes(4),
+                )
+
+                result = parse_appcompat_cache(
+                    windows_8_cache([first, package_only, last])
+                )
+
+                self.assertEqual(
+                    [entry.path for entry in result.entries],
+                    [r"C:\Evidence\first.exe", r"C:\Evidence\last.exe"],
+                )
+                self.assertEqual(result.diagnostics, ())
+
+    def test_windows_8_zero_path_without_package_is_malformed(self):
+        empty = windows_8_entry(
+            "",
+            "8.1",
+            bytes.fromhex("15000000"),
+            bytes.fromhex("00010000"),
+        )
+        valid = windows_8_entry(
+            r"C:\Evidence\valid.exe",
+            "8.1",
+            bytes(4),
+            bytes(4),
+        )
+
+        result = parse_appcompat_cache(windows_8_cache([empty, valid]))
+
+        self.assertEqual(
+            [entry.path for entry in result.entries],
+            [r"C:\Evidence\valid.exe"],
+        )
+        self.assertEqual(len(result.diagnostics), 1)
+        self.assertIn("path has invalid byte size 0", result.diagnostics[0])
+
+    def test_windows_8_package_only_entry_still_validates_package_extent(self):
+        malformed_body = struct.pack("<HH", 0, 100)
+        valid = windows_8_entry(
+            r"C:\Evidence\valid.exe",
+            "8.1",
+            bytes(4),
+            bytes(4),
+        )
+
+        result = parse_appcompat_cache(
+            windows_8_cache([variable_entry(b"10ts", malformed_body), valid])
+        )
+
+        self.assertEqual(
+            [entry.path for entry in result.entries],
+            [r"C:\Evidence\valid.exe"],
+        )
+        self.assertEqual(len(result.diagnostics), 1)
+        self.assertIn("flags extend outside the entry body", result.diagnostics[0])
+
     def test_windows_8_skips_package_extent_outside_bounded_body(self):
         encoded_path = r"C:\Evidence\bad-package.exe".encode("utf-16-le")
         malformed_body = (
