@@ -100,7 +100,6 @@ class RegAppCompatCache(OgrePlugin):
             self.add_diagnostic(report, key.path, str(exception))
             return
         if cache_value is None:
-            self.add_diagnostic(report, key.path, "missing AppCompatCache value")
             return
 
         try:

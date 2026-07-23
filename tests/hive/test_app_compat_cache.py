@@ -118,30 +118,44 @@ class AppCompatCache(TestCase):
         self.assertEqual(report.num_errors, 1)
         self.assertIn("XP traversal failed", report.last_error)
 
-    def test_missing_and_non_byte_values_are_diagnostic(self):
+    def test_missing_value_is_artifact_absent(self):
         parser = RegAppCompatCache()
-        cases = (("missing", None), ("non-byte", "not bytes"))
-        for label, cache_data in cases:
-            with self.subTest(label=label):
-                key = Mock()
-                key.path = rf"HKLM\SYSTEM\ControlSet001\{label}"
-                if cache_data is None:
-                    key.value.return_value = None
-                else:
-                    cache_value = Mock()
-                    cache_value.data.return_value = cache_data
-                    key.value.return_value = cache_value
-                output = Mock()
-                report = RunReport()
+        key = Mock()
+        key.value.return_value = None
+        key.path = r"HKLM\SYSTEM\ControlSet001\missing"
+        output = Mock()
+        report = RunReport()
 
-                with self.assertLogs(
-                    "dfir_ogre_plugin_windows.registry.app_compat_cache",
-                    level="WARNING",
-                ):
-                    parser.parse_key(key, output, report)
+        with self.assertNoLogs(
+            "dfir_ogre_plugin_windows.registry.app_compat_cache",
+            level="WARNING",
+        ):
+            parser.parse_key(key, output, report)
 
-                self.assertEqual(output.write.call_count, 0)
-                self.assertEqual(report.num_errors, 1)
+        self.assertEqual(output.write.call_count, 0)
+        self.assertEqual(report.num_errors, 0)
+        self.assertIsNone(report.last_error)
+
+    def test_non_byte_value_is_diagnostic(self):
+        parser = RegAppCompatCache()
+        key = Mock()
+        cache_value = Mock()
+        cache_value.data.return_value = "not bytes"
+        key.value.return_value = cache_value
+        key.path = r"HKLM\SYSTEM\ControlSet001\non-byte"
+        output = Mock()
+        report = RunReport()
+
+        with self.assertLogs(
+            "dfir_ogre_plugin_windows.registry.app_compat_cache",
+            level="WARNING",
+        ) as logs:
+            parser.parse_key(key, output, report)
+
+        self.assertEqual(output.write.call_count, 0)
+        self.assertEqual(report.num_errors, 1)
+        self.assertIn("AppCompatCache value is not bytes", report.last_error)
+        self.assertIn("AppCompatCache value is not bytes", logs.output[0])
 
     def test_windows_8_record_keeps_existing_schema(self):
         parser = RegAppCompatCache()
