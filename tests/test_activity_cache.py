@@ -9,7 +9,7 @@ from unittest import TestCase
 from dfir_ogre_common import Metadata, OutputConfiguration, RunConfiguration
 from dfir_ogre_plugin_windows import ActivityCache
 
-from . import CONF_FOLDER
+from . import CONF_FOLDER, DATA_FOLDER
 
 
 MINIMAL_ACTIVITY_SCHEMA = """
@@ -62,6 +62,13 @@ class ActivityCacheTest(TestCase):
             json.loads(line)
             for line in path.read_text(encoding="utf-8").splitlines()
         ]
+
+    def report_line_count(self, report) -> int:
+        return sum(
+            file_report.num_lines
+            for output_report in report.output_reports
+            for file_report in output_report.file_reports
+        )
 
     def test_plugin_uses_fallback_timestamp_and_typed_values(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -244,3 +251,55 @@ class ActivityCacheTest(TestCase):
             self.assertIn("expects 0 or 1", report.last_error)
             records = self.read_output(output_directory)
             self.assertEqual([record["id"] for record in records], ["good"])
+
+    def test_empty_legacy_fixture_is_supported_without_source_sidecars(self):
+        database = Path(
+            DATA_FOLDER,
+            "sqlite",
+            "activities_cache.2016.db",
+        )
+        source_sidecars = tuple(
+            database.parent.glob(f"{database.name}-*")
+        )
+        self.assertEqual(source_sidecars, ())
+        with tempfile.TemporaryDirectory() as temporary:
+            report = self.parse(database, Path(temporary), "legacy_fixture")
+
+        self.assertIsNone(report.last_error)
+        self.assertEqual(self.report_line_count(report), 0)
+        self.assertEqual(
+            tuple(database.parent.glob(f"{database.name}-*")),
+            (),
+        )
+
+    def test_modern_fixture_preserves_fields_with_typed_scalars(self):
+        database = Path(DATA_FOLDER, "sqlite", "activities_cache.db")
+        with tempfile.TemporaryDirectory() as temporary:
+            output_directory = Path(temporary)
+            report = self.parse(
+                database,
+                output_directory,
+                "modern_fixture",
+            )
+            records = self.read_output(
+                output_directory,
+                "modern_fixture",
+            )
+
+        self.assertIsNone(report.last_error)
+        self.assertEqual(len(records), 23)
+        first = records[0]
+        self.assertEqual(
+            first["tag"],
+            "windows.data.bluelightreduction.settings",
+        )
+        self.assertEqual(
+            first["app_activity_id"],
+            "default$windows.data.bluelightreduction.settings|"
+            "windows.data.bluelightreduction.settings",
+        )
+        self.assertIs(type(first["activity_type"]), int)
+        self.assertIs(type(first["e_tag"]), int)
+        self.assertIs(type(first["is_local_only"]), bool)
+        self.assertEqual(first["record_source"], "activity")
+        self.assertEqual(first["start_time_source"], "start_time")
