@@ -278,3 +278,154 @@ def read_normalized_table(
             )
 
     return TableReadResult(tuple(records), tuple(diagnostics))
+
+
+@dataclass(frozen=True)
+class MergeResult:
+    records: tuple[NormalizedActivity, ...]
+    diagnostics: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class ActivityCacheParseResult:
+    records: tuple[NormalizedActivity, ...]
+    diagnostics: tuple[str, ...]
+    warnings: tuple[str, ...]
+    user_version: int
+
+
+def _merge_key(record: NormalizedActivity) -> tuple[str, int] | None:
+    identifier = record.values.get("id")
+    e_tag = record.values.get("e_tag")
+    if not isinstance(identifier, str) or not isinstance(e_tag, int):
+        return None
+    return identifier, e_tag
+
+
+def _finalize_record(record: NormalizedActivity) -> NormalizedActivity:
+    values = dict(record.values)
+    if values.get("start_time") is not None:
+        values["start_time_source"] = "start_time"
+    elif values.get("last_modified_time") is not None:
+        values["start_time"] = values["last_modified_time"]
+        values["start_time_source"] = "last_modified_time"
+    else:
+        values["start_time"] = None
+        values["start_time_source"] = "unavailable"
+    source_labels = {
+        "Activity": "activity",
+        "ActivityOperation": "activity_operation",
+        "activity+activity_operation": "activity+activity_operation",
+    }
+    values["record_source"] = source_labels[record.source_table]
+    return NormalizedActivity(values, record.source_table, record.source_row)
+
+
+def _record_sort_key(
+    record: NormalizedActivity,
+) -> tuple[datetime, int, str, int, str]:
+    start_time = record.values.get("start_time")
+    if not isinstance(start_time, datetime):
+        start_time = datetime.max.replace(tzinfo=timezone.utc)
+    operation_order = record.values.get("operation_order")
+    if not isinstance(operation_order, int):
+        operation_order = -1
+    identifier = record.values.get("id")
+    if not isinstance(identifier, str):
+        identifier = ""
+    e_tag = record.values.get("e_tag")
+    if not isinstance(e_tag, int):
+        e_tag = -1
+    return (
+        start_time,
+        operation_order,
+        identifier,
+        e_tag,
+        record.source_table,
+    )
+
+
+def merge_activity_cache_records(
+    activity_rows: tuple[NormalizedActivity, ...],
+    operation_rows: tuple[NormalizedActivity, ...],
+) -> MergeResult:
+    activity_by_key: dict[
+        tuple[str, int],
+        list[NormalizedActivity],
+    ] = {}
+    for activity in activity_rows:
+        key = _merge_key(activity)
+        if key is not None:
+            activity_by_key.setdefault(key, []).append(activity)
+
+    merged_activity_rows: set[int] = set()
+    output: list[NormalizedActivity] = []
+    diagnostics: list[str] = []
+
+    for operation in operation_rows:
+        key = _merge_key(operation)
+        candidates = activity_by_key.get(key, []) if key is not None else []
+        if len(candidates) == 1:
+            activity = candidates[0]
+            values = dict(activity.values)
+            values.update(
+                name_value
+                for name_value in operation.values.items()
+                if name_value[1] is not None
+            )
+            output.append(
+                NormalizedActivity(
+                    values,
+                    "activity+activity_operation",
+                    operation.source_row,
+                )
+            )
+            merged_activity_rows.add(activity.source_row)
+        elif len(candidates) > 1:
+            diagnostics.append(
+                f"ambiguous Activity key {key!r}: "
+                f"{len(candidates)} rows; preserving all rows"
+            )
+            output.append(operation)
+        else:
+            output.append(operation)
+
+    output.extend(
+        activity
+        for activity in activity_rows
+        if activity.source_row not in merged_activity_rows
+    )
+    finalized = tuple(
+        sorted(
+            (_finalize_record(record) for record in output),
+            key=_record_sort_key,
+        )
+    )
+    return MergeResult(finalized, tuple(diagnostics))
+
+
+def parse_activity_cache(
+    connection: sqlite3.Connection,
+) -> ActivityCacheParseResult:
+    schema = inspect_activity_cache_schema(connection)
+    activity = read_normalized_table(connection, schema, "Activity")
+    operations = read_normalized_table(
+        connection,
+        schema,
+        "ActivityOperation",
+    )
+    merged = merge_activity_cache_records(
+        activity.records,
+        operations.records,
+    )
+    diagnostics = (
+        activity.diagnostics
+        + operations.diagnostics
+        + merged.diagnostics
+    )
+    return ActivityCacheParseResult(
+        merged.records,
+        diagnostics,
+        schema.warnings,
+        schema.user_version,
+    )

@@ -3,8 +3,12 @@ from datetime import datetime, timezone
 from unittest import TestCase
 
 from dfir_ogre_plugin_windows.activity_cache_model import (
+    ActivityValue,
+    NormalizedActivity,
     UnsupportedActivityCacheSchema,
     inspect_activity_cache_schema,
+    merge_activity_cache_records,
+    parse_activity_cache,
     read_normalized_table,
 )
 
@@ -43,6 +47,14 @@ CREATE TABLE ActivityOperation(
     ETag INT NOT NULL
 )
 """
+
+
+def normalized(
+    source: str,
+    row: int,
+    **values: ActivityValue,
+) -> NormalizedActivity:
+    return NormalizedActivity(dict(values), source, row)
 
 
 class ActivityCacheModelTest(TestCase):
@@ -225,3 +237,198 @@ class ActivityCacheModelTest(TestCase):
         self.assertEqual(values["patch_fields"], "--8")
         self.assertEqual(values["publish_process_status"], 3)
         self.assertIsInstance(values["start_time"], datetime)
+
+    def test_matching_versions_merge_without_collapsing_operations(self):
+        activity = normalized(
+            "Activity",
+            0,
+            id="activity-1",
+            e_tag=9,
+            app_id="persisted-app",
+            activity_status=1,
+            last_modified_time=datetime(
+                2024,
+                1,
+                1,
+                tzinfo=timezone.utc,
+            ),
+            start_time=datetime(2024, 1, 2, tzinfo=timezone.utc),
+            database_user_version=30,
+        )
+        operations = (
+            normalized(
+                "ActivityOperation",
+                0,
+                id="activity-1",
+                e_tag=9,
+                app_id="queued-app",
+                operation_order=10,
+                operation_type=2,
+                last_modified_time=datetime(
+                    2024,
+                    1,
+                    3,
+                    tzinfo=timezone.utc,
+                ),
+                database_user_version=30,
+            ),
+            normalized(
+                "ActivityOperation",
+                1,
+                id="activity-1",
+                e_tag=9,
+                operation_order=11,
+                operation_type=3,
+                database_user_version=30,
+            ),
+        )
+
+        result = merge_activity_cache_records((activity,), operations)
+
+        self.assertEqual(result.diagnostics, ())
+        self.assertEqual(len(result.records), 2)
+        first, second = result.records
+        self.assertEqual(
+            first.values["record_source"],
+            "activity+activity_operation",
+        )
+        self.assertEqual(first.values["app_id"], "queued-app")
+        self.assertEqual(first.values["activity_status"], 1)
+        self.assertEqual(first.values["operation_type"], 2)
+        self.assertEqual(first.values["operation_order"], 10)
+        self.assertEqual(second.values["operation_order"], 11)
+        self.assertEqual(
+            [record.values["start_time_source"] for record in result.records],
+            ["start_time", "start_time"],
+        )
+
+    def test_different_etags_and_missing_keys_remain_independent(self):
+        rows = (
+            normalized(
+                "Activity",
+                0,
+                id="same-id",
+                e_tag=1,
+                last_modified_time=datetime(
+                    2024,
+                    2,
+                    1,
+                    tzinfo=timezone.utc,
+                ),
+                database_user_version=30,
+            ),
+            normalized(
+                "Activity",
+                1,
+                id=None,
+                e_tag=2,
+                last_modified_time=datetime(
+                    2024,
+                    2,
+                    2,
+                    tzinfo=timezone.utc,
+                ),
+                database_user_version=30,
+            ),
+        )
+        operations = (
+            normalized(
+                "ActivityOperation",
+                0,
+                id="same-id",
+                e_tag=2,
+                operation_order=8,
+                last_modified_time=datetime(
+                    2024,
+                    2,
+                    3,
+                    tzinfo=timezone.utc,
+                ),
+                database_user_version=30,
+            ),
+        )
+
+        result = merge_activity_cache_records(rows, operations)
+
+        self.assertEqual(len(result.records), 3)
+        self.assertEqual(
+            {record.values["record_source"] for record in result.records},
+            {"activity", "activity_operation"},
+        )
+        self.assertTrue(
+            all(
+                record.values["start_time_source"] == "last_modified_time"
+                for record in result.records
+            )
+        )
+
+    def test_ambiguous_activity_key_preserves_every_row(self):
+        activities = (
+            normalized(
+                "Activity",
+                0,
+                id="duplicate",
+                e_tag=1,
+                database_user_version=30,
+            ),
+            normalized(
+                "Activity",
+                1,
+                id="duplicate",
+                e_tag=1,
+                database_user_version=30,
+            ),
+        )
+        operation = normalized(
+            "ActivityOperation",
+            0,
+            id="duplicate",
+            e_tag=1,
+            operation_order=1,
+            database_user_version=30,
+        )
+
+        result = merge_activity_cache_records(activities, (operation,))
+
+        self.assertEqual(len(result.records), 3)
+        self.assertEqual(len(result.diagnostics), 1)
+        self.assertIn("ambiguous Activity key", result.diagnostics[0])
+        self.assertTrue(
+            all(
+                record.values["start_time"] is None
+                and record.values["start_time_source"] == "unavailable"
+                for record in result.records
+            )
+        )
+
+    def test_parse_skips_bad_row_and_sorts_deterministically(self):
+        connection = self.connection()
+        connection.execute(LEGACY_ACTIVITY_SCHEMA)
+        connection.execute("PRAGMA user_version=4")
+        connection.executemany(
+            """
+            INSERT INTO Activity(
+                Id, AppId, ActivityType, LastModifiedTime,
+                IsLocalOnly, ETag
+            ) VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (
+                ("later", "app", 1, 200, 0, 2),
+                ("bad", "app", 1, 150, 2, 3),
+                ("earlier", "app", 1, 100, 1, 1),
+            ),
+        )
+
+        result = parse_activity_cache(connection)
+
+        self.assertEqual(len(result.records), 2)
+        self.assertEqual(
+            [record.values["id"] for record in result.records],
+            ["earlier", "later"],
+        )
+        self.assertEqual(len(result.diagnostics), 1)
+        self.assertIn("expects 0 or 1", result.diagnostics[0])
+        self.assertEqual(
+            [record.values["start_time_source"] for record in result.records],
+            ["last_modified_time", "last_modified_time"],
+        )
