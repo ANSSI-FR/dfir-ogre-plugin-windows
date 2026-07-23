@@ -238,6 +238,160 @@ class ActivityCacheModelTest(TestCase):
         self.assertEqual(values["publish_process_status"], 3)
         self.assertIsInstance(values["start_time"], datetime)
 
+    def test_guid_normalization_is_limited_to_identifier_columns(self):
+        connection = self.connection()
+        connection.execute(
+            """
+            CREATE TABLE Activity(
+                Id GUID NOT NULL,
+                AppId TEXT NOT NULL,
+                AppActivityId TEXT,
+                ActivityType INT NOT NULL,
+                Tag TEXT,
+                LastModifiedTime DATETIME NOT NULL,
+                Payload BLOB,
+                ETag INT NOT NULL
+            )
+            """
+        )
+        identifier = "{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}"
+        raw_text = "{11111111-AAAA-BBBB-CCCC-222222222222}"
+        connection.execute(
+            """
+            INSERT INTO Activity(
+                Id, AppId, AppActivityId, ActivityType, Tag,
+                LastModifiedTime, Payload, ETag
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                identifier,
+                "app",
+                identifier,
+                1,
+                raw_text,
+                100,
+                raw_text,
+                1,
+            ),
+        )
+        schema = inspect_activity_cache_schema(connection)
+
+        result = read_normalized_table(connection, schema, "Activity")
+
+        self.assertEqual(result.diagnostics, ())
+        values = result.records[0].values
+        self.assertEqual(values["id"], identifier.lower())
+        self.assertEqual(values["app_activity_id"], identifier.lower())
+        self.assertEqual(values["tag"], raw_text)
+        self.assertEqual(values["payload"], raw_text)
+
+    def test_binary_values_in_typed_columns_are_diagnostics(self):
+        connection = self.connection()
+        connection.execute(LEGACY_ACTIVITY_SCHEMA)
+        connection.executemany(
+            """
+            INSERT INTO Activity(
+                Id, AppId, ActivityType, LastModifiedTime,
+                IsLocalOnly, ETag
+            ) VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (
+                ("blob-int", "app", b"\x01", 100, 1, 1),
+                ("blob-bool", "app", 1, 100, b"\x01", 2),
+                ("blob-date", "app", 1, b"\x01", 1, 3),
+            ),
+        )
+        schema = inspect_activity_cache_schema(connection)
+
+        result = read_normalized_table(connection, schema, "Activity")
+
+        self.assertEqual(result.records, ())
+        self.assertEqual(len(result.diagnostics), 3)
+        self.assertIn("activity_type expects an integer", result.diagnostics[0])
+        self.assertIn("is_local_only expects 0 or 1", result.diagnostics[1])
+        self.assertIn(
+            "last_modified_time expects a datetime",
+            result.diagnostics[2],
+        )
+
+    def test_fractional_numeric_values_are_diagnostics(self):
+        connection = self.connection()
+        connection.execute(LEGACY_ACTIVITY_SCHEMA)
+        connection.executemany(
+            """
+            INSERT INTO Activity(
+                Id, AppId, ActivityType, LastModifiedTime,
+                IsLocalOnly, ETag
+            ) VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (
+                ("fractional-int", "app", 1.5, 100, 1, 1),
+                ("fractional-bool", "app", 1, 100, 1.5, 2),
+            ),
+        )
+        schema = inspect_activity_cache_schema(connection)
+
+        result = read_normalized_table(connection, schema, "Activity")
+
+        self.assertEqual(result.records, ())
+        self.assertEqual(len(result.diagnostics), 2)
+        self.assertIn("activity_type expects an integer", result.diagnostics[0])
+        self.assertIn("is_local_only expects 0 or 1", result.diagnostics[1])
+
+    def test_unrecognized_table_does_not_hide_supported_table(self):
+        connection = self.connection()
+        connection.execute("CREATE TABLE Activity(FutureColumn TEXT)")
+        connection.execute(LEGACY_OPERATION_SCHEMA)
+
+        schema = inspect_activity_cache_schema(connection)
+
+        self.assertEqual(
+            set(schema.table_columns),
+            {"ActivityOperation"},
+        )
+        self.assertIn(
+            "Activity: ignoring unknown column FutureColumn",
+            schema.warnings,
+        )
+        self.assertIn(
+            "Activity: no recognized columns; ignoring table",
+            schema.warnings,
+        )
+
+    def test_row_diagnostic_identity_is_case_insensitive(self):
+        connection = self.connection()
+        connection.execute(
+            """
+            CREATE TABLE Activity(
+                id GUID NOT NULL,
+                appid TEXT NOT NULL,
+                activitytype INT NOT NULL,
+                lastmodifiedtime DATETIME NOT NULL,
+                islocalonly INT,
+                etag INT NOT NULL
+            )
+            """
+        )
+        connection.execute(
+            """
+            INSERT INTO Activity(
+                id, appid, activitytype, lastmodifiedtime,
+                islocalonly, etag
+            ) VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            ("lowercase-id", "app", 1, 100, 2, 9),
+        )
+        schema = inspect_activity_cache_schema(connection)
+
+        result = read_normalized_table(connection, schema, "Activity")
+
+        self.assertEqual(result.records, ())
+        self.assertEqual(len(result.diagnostics), 1)
+        self.assertIn(
+            "Id='lowercase-id', ETag=9",
+            result.diagnostics[0],
+        )
+
     def test_matching_versions_merge_without_collapsing_operations(self):
         activity = normalized(
             "Activity",
@@ -431,4 +585,92 @@ class ActivityCacheModelTest(TestCase):
         self.assertEqual(
             [record.values["start_time_source"] for record in result.records],
             ["last_modified_time", "last_modified_time"],
+        )
+
+    def test_sort_is_independent_of_input_order_when_primary_keys_tie(self):
+        start_time = datetime(2024, 3, 1, tzinfo=timezone.utc)
+        rows = (
+            normalized(
+                "Activity",
+                0,
+                id="same-id",
+                e_tag=1,
+                app_id="zeta",
+                start_time=start_time,
+                database_user_version=30,
+            ),
+            normalized(
+                "Activity",
+                1,
+                id="same-id",
+                e_tag=1,
+                app_id="alpha",
+                start_time=start_time,
+                database_user_version=30,
+            ),
+        )
+
+        forward = merge_activity_cache_records(rows, ())
+        reverse = merge_activity_cache_records(tuple(reversed(rows)), ())
+
+        self.assertEqual(
+            [record.values["app_id"] for record in forward.records],
+            ["alpha", "zeta"],
+        )
+        self.assertEqual(
+            [record.values for record in forward.records],
+            [record.values for record in reverse.records],
+        )
+
+    def test_non_operation_sorts_before_negative_operation_order(self):
+        start_time = datetime(2024, 3, 1, tzinfo=timezone.utc)
+        activity = normalized(
+            "Activity",
+            0,
+            id="activity",
+            e_tag=1,
+            start_time=start_time,
+            database_user_version=30,
+        )
+        operation = normalized(
+            "ActivityOperation",
+            0,
+            id="operation",
+            e_tag=2,
+            operation_order=-5,
+            start_time=start_time,
+            database_user_version=30,
+        )
+
+        result = merge_activity_cache_records((activity,), (operation,))
+
+        self.assertEqual(
+            [record.values["record_source"] for record in result.records],
+            ["activity", "activity_operation"],
+        )
+
+    def test_operation_without_order_sorts_after_activity(self):
+        start_time = datetime(2024, 3, 1, tzinfo=timezone.utc)
+        activity = normalized(
+            "Activity",
+            0,
+            id="z-activity",
+            e_tag=1,
+            start_time=start_time,
+            database_user_version=30,
+        )
+        operation = normalized(
+            "ActivityOperation",
+            0,
+            id="a-operation",
+            e_tag=2,
+            start_time=start_time,
+            database_user_version=30,
+        )
+
+        result = merge_activity_cache_records((activity,), (operation,))
+
+        self.assertEqual(
+            [record.values["record_source"] for record in result.records],
+            ["activity", "activity_operation"],
         )

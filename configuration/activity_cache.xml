@@ -3,11 +3,11 @@
   <mapping data_type="activity_cache">
     <description
     ><![CDATA[
-Extracts rows from the *Activity* SQLite table that records Windows 10 Timeline events. Each row represents a user‑initiated action, linking an application to a time span and optional payload data.
+Extracts normalized records from the *Activity* and *ActivityOperation* tables used by Windows Activities Cache across schema versions. Matching logical versions are combined without collapsing distinct queued operations, and each result records its table provenance.
 
-- Provides a chronological view of user activity across applications.
-- Captures start / end timestamps for precise temporal analysis.
-- Stores raw payload for deeper forensic investigation of the activity context.
+- Detects legacy, modern, and partial layouts from available table columns.
+- Uses the native start time when present and explicitly marks a last-modified fallback.
+- Preserves payload evidence while emitting stable typed fields for analysis and timelines.
 ]]>
     </description>
     <category>Services and Applications</category>

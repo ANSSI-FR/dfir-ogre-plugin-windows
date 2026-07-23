@@ -1,13 +1,19 @@
 import hashlib
 import json
 import os
+import shutil
 import sqlite3
 import tempfile
+import xml.etree.ElementTree as ET
 from pathlib import Path
 from unittest import TestCase
 
 from dfir_ogre_common import Metadata, OutputConfiguration, RunConfiguration
 from dfir_ogre_plugin_windows import ActivityCache
+from dfir_ogre_plugin_windows.activity_cache_model import (
+    ACTIVITY_COLUMNS,
+    ACTIVITY_OPERATION_COLUMNS,
+)
 
 from . import CONF_FOLDER, DATA_FOLDER
 
@@ -23,9 +29,50 @@ CREATE TABLE Activity(
 )
 """
 
+MINIMAL_OPERATION_SCHEMA = """
+CREATE TABLE ActivityOperation(
+    OperationOrder INTEGER PRIMARY KEY NOT NULL,
+    Id GUID NOT NULL,
+    OperationType INT NOT NULL,
+    AppId TEXT NOT NULL,
+    ActivityType INT NOT NULL,
+    LastModifiedTime DATETIME NOT NULL,
+    UploadAllowedByPolicy INT,
+    ETag INT NOT NULL
+)
+"""
+
 
 def digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def create_wal_artifact(root: Path) -> Path:
+    original = root / "original.db"
+    writer = sqlite3.connect(original)
+    try:
+        writer.execute("PRAGMA journal_mode=WAL")
+        writer.execute("PRAGMA wal_autocheckpoint=0")
+        writer.execute(MINIMAL_ACTIVITY_SCHEMA)
+        writer.execute(
+            """
+            INSERT INTO Activity(
+                Id, AppId, ActivityType, LastModifiedTime,
+                IsLocalOnly, ETag
+            ) VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            ("wal-artifact", "wal-app", 1, 200, 0, 6),
+        )
+        writer.commit()
+        database = root / "ActivitiesCache.db"
+        shutil.copy2(original, database)
+        shutil.copy2(
+            Path(f"{original}-wal"),
+            Path(f"{database}-wal"),
+        )
+    finally:
+        writer.close()
+    return database
 
 
 class ActivityCacheTest(TestCase):
@@ -106,6 +153,104 @@ class ActivityCacheTest(TestCase):
                 records[0]["record_source"],
                 "activity",
             )
+
+    def test_plugin_emits_merged_and_unmatched_operation_fields(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            database = root / "ActivitiesCache.db"
+            connection = sqlite3.connect(database)
+            connection.execute(MINIMAL_ACTIVITY_SCHEMA)
+            connection.execute(MINIMAL_OPERATION_SCHEMA)
+            connection.execute(
+                """
+                INSERT INTO Activity(
+                    Id, AppId, ActivityType, LastModifiedTime,
+                    IsLocalOnly, ETag
+                ) VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                ("shared", "persisted-app", 1, 100, 1, 1),
+            )
+            connection.executemany(
+                """
+                INSERT INTO ActivityOperation(
+                    OperationOrder, Id, OperationType, AppId,
+                    ActivityType, LastModifiedTime,
+                    UploadAllowedByPolicy, ETag
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    (10, "shared", 2, "queued-app", 1, 101, 1, 1),
+                    (11, "operation-only", 3, "op-app", 1, 200, 0, 2),
+                ),
+            )
+            connection.commit()
+            connection.close()
+            output_directory = root / "output"
+
+            report = self.parse(database, output_directory)
+
+            self.assertIsNone(report.last_error)
+            records = {
+                record["id"]: record
+                for record in self.read_output(output_directory)
+            }
+            self.assertEqual(set(records), {"shared", "operation-only"})
+            self.assertEqual(
+                records["shared"]["record_source"],
+                "activity+activity_operation",
+            )
+            self.assertEqual(records["shared"]["app_id"], "queued-app")
+            self.assertEqual(records["shared"]["operation_order"], 10)
+            self.assertEqual(records["shared"]["operation_type"], 2)
+            self.assertIs(
+                records["shared"]["upload_allowed_by_policy"],
+                True,
+            )
+            self.assertEqual(
+                records["operation-only"]["record_source"],
+                "activity_operation",
+            )
+            self.assertEqual(
+                records["operation-only"]["operation_order"],
+                11,
+            )
+            self.assertIs(
+                records["operation-only"]["upload_allowed_by_policy"],
+                False,
+            )
+
+    def test_xml_field_contract_matches_model(self):
+        configuration = ET.parse(
+            os.path.join(CONF_FOLDER, "activity_cache.xml")
+        ).getroot()
+        xml_fields = {
+            field.attrib["input"]: field.attrib["parser"]
+            for field in configuration.findall("./mapping/fields/field")
+        }
+        parser_by_kind = {
+            "string": "String",
+            "guid": "String",
+            "int": "Int",
+            "bool": "Bool",
+            "datetime": "DateTime",
+        }
+        expected_fields = {
+            "record_source": "String",
+            "database_user_version": "Int",
+            "start_time_source": "String",
+        }
+        for column in (
+            *ACTIVITY_COLUMNS.values(),
+            *ACTIVITY_OPERATION_COLUMNS.values(),
+        ):
+            expected_fields[column.output_name] = parser_by_kind[column.kind]
+
+        self.assertEqual(configuration.attrib["parser"], "ActivityCache")
+        self.assertEqual(
+            configuration.find("./mapping/default_parser").attrib["value"],
+            "Ignore",
+        )
+        self.assertEqual(xml_fields, expected_fields)
 
     def test_fallback_start_time_is_emitted_on_timeline(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -194,6 +339,158 @@ class ActivityCacheTest(TestCase):
                 )
             finally:
                 writer.close()
+
+    def test_reused_wal_with_stale_tail_is_accepted(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            database = root / "ActivitiesCache.db"
+            writer = sqlite3.connect(database)
+            try:
+                writer.execute("PRAGMA journal_mode=WAL")
+                writer.execute("PRAGMA wal_autocheckpoint=0")
+                writer.execute(MINIMAL_ACTIVITY_SCHEMA)
+                writer.executemany(
+                    """
+                    INSERT INTO Activity(
+                        Id, AppId, ActivityType, LastModifiedTime,
+                        IsLocalOnly, ETag
+                    ) VALUES (?, ?, 1, 100, 0, ?)
+                    """,
+                    (
+                        (f"bulk-{index}", "x" * 500, index)
+                        for index in range(200)
+                    ),
+                )
+                writer.commit()
+                wal = Path(f"{database}-wal")
+                initial_size = wal.stat().st_size
+                writer.execute("PRAGMA wal_checkpoint(RESTART)").fetchone()
+                writer.execute(
+                    """
+                    INSERT INTO Activity(
+                        Id, AppId, ActivityType, LastModifiedTime,
+                        IsLocalOnly, ETag
+                    ) VALUES (?, ?, 1, 200, 0, ?)
+                    """,
+                    ("after-restart", "small", 1000),
+                )
+                writer.commit()
+                self.assertEqual(wal.stat().st_size, initial_size)
+                source_files = {
+                    path.name: digest(path)
+                    for path in root.glob("ActivitiesCache.db*")
+                }
+                output_directory = root / "output"
+
+                report = self.parse(database, output_directory)
+
+                self.assertIsNone(report.last_error)
+                self.assertIn(
+                    "after-restart",
+                    {
+                        record["id"]
+                        for record in self.read_output(output_directory)
+                    },
+                )
+                self.assertEqual(
+                    {
+                        path.name: digest(path)
+                        for path in root.glob("ActivitiesCache.db*")
+                    },
+                    source_files,
+                )
+            finally:
+                writer.close()
+
+    def test_malformed_wal_is_rejected_without_modifying_source_artifacts(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            database = root / "ActivitiesCache.db"
+            connection = sqlite3.connect(database)
+            connection.execute(MINIMAL_ACTIVITY_SCHEMA)
+            connection.commit()
+            connection.close()
+            Path(f"{database}-wal").write_bytes(b"malformed-wal")
+            source_files = {
+                path.name: digest(path)
+                for path in root.glob("ActivitiesCache.db*")
+            }
+
+            report = self.parse(database, root / "output")
+
+            self.assertEqual(report.num_errors, 1)
+            self.assertIn("malformed SQLite WAL", report.last_error)
+            self.assertEqual(
+                {
+                    path.name: digest(path)
+                    for path in root.glob("ActivitiesCache.db*")
+                },
+                source_files,
+            )
+
+    def test_wal_with_invalid_header_checksum_is_rejected(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            database = create_wal_artifact(root)
+            wal = Path(f"{database}-wal")
+            wal_data = bytearray(wal.read_bytes())
+            wal_data[24] ^= 1
+            wal.write_bytes(wal_data)
+            source_files = {
+                path.name: digest(path)
+                for path in root.glob("ActivitiesCache.db*")
+            }
+
+            report = self.parse(database, root / "output")
+
+            self.assertEqual(report.num_errors, 1)
+            self.assertIn("invalid header checksum", report.last_error)
+            self.assertEqual(
+                {
+                    path.name: digest(path)
+                    for path in root.glob("ActivitiesCache.db*")
+                },
+                source_files,
+            )
+
+    def test_wal_with_incompatible_page_size_is_rejected(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            database = create_wal_artifact(root)
+            database_header = database.read_bytes()[:20]
+            encoded_page_size = int.from_bytes(
+                database_header[16:18],
+                "big",
+            )
+            database_page_size = (
+                65536 if encoded_page_size == 1 else encoded_page_size
+            )
+            incompatible_page_size = (
+                8192 if database_page_size != 8192 else 4096
+            )
+            wal = Path(f"{database}-wal")
+            wal_data = bytearray(wal.read_bytes())
+            wal_data[8:12] = incompatible_page_size.to_bytes(4, "big")
+            wal.write_bytes(wal_data)
+            source_files = {
+                path.name: digest(path)
+                for path in root.glob("ActivitiesCache.db*")
+            }
+
+            report = self.parse(database, root / "output")
+
+            self.assertEqual(report.num_errors, 1)
+            self.assertIn(
+                "does not match database page size",
+                report.last_error,
+            )
+            self.assertEqual(
+                {
+                    path.name: digest(path)
+                    for path in root.glob("ActivitiesCache.db*")
+                },
+                source_files,
+            )
 
     def test_database_without_activity_tables_returns_diagnostic(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -303,3 +600,11 @@ class ActivityCacheTest(TestCase):
         self.assertIs(type(first["is_local_only"]), bool)
         self.assertEqual(first["record_source"], "activity")
         self.assertEqual(first["start_time_source"], "start_time")
+        self.assertEqual(
+            records[3]["app_activity_id"],
+            "ecb32af3-1440-4086-94e3-5311f97f89c4",
+        )
+        self.assertIn(
+            "{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}",
+            records[21]["app_id"],
+        )

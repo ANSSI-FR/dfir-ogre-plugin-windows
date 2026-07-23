@@ -7,7 +7,7 @@ from typing import Literal
 from dfir_ogre_plugin_windows.common import normalize_guid
 
 
-ColumnKind = Literal["string", "int", "bool", "datetime"]
+ColumnKind = Literal["string", "guid", "int", "bool", "datetime"]
 ActivityValue = str | int | bool | datetime | None
 
 
@@ -46,24 +46,24 @@ class TableReadResult:
 
 
 ACTIVITY_COLUMNS = {
-    "Id": ColumnSpec("id", "string"),
+    "Id": ColumnSpec("id", "guid"),
     "AppId": ColumnSpec("app_id", "string"),
     "PackageIdHash": ColumnSpec("package_id_hash", "string"),
-    "AppActivityId": ColumnSpec("app_activity_id", "string"),
+    "AppActivityId": ColumnSpec("app_activity_id", "guid"),
     "ActivityType": ColumnSpec("activity_type", "int"),
     "ActivityStatus": ColumnSpec("activity_status", "int"),
-    "ParentActivityId": ColumnSpec("parent_activity_id", "string"),
+    "ParentActivityId": ColumnSpec("parent_activity_id", "guid"),
     "Tag": ColumnSpec("tag", "string"),
     "Group": ColumnSpec("group", "string"),
-    "MatchId": ColumnSpec("match_id", "string"),
+    "MatchId": ColumnSpec("match_id", "guid"),
     "LastModifiedTime": ColumnSpec("last_modified_time", "datetime"),
     "ExpirationTime": ColumnSpec("expiration_time", "datetime"),
     "Payload": ColumnSpec("payload", "string"),
     "Priority": ColumnSpec("priority", "int"),
     "OriginatingDevice": ColumnSpec("originating_device", "string"),
     "IsLocalOnly": ColumnSpec("is_local_only", "bool"),
-    "PlatformDeviceId": ColumnSpec("platform_device_id", "string"),
-    "DdsDeviceId": ColumnSpec("dds_device_id", "string"),
+    "PlatformDeviceId": ColumnSpec("platform_device_id", "guid"),
+    "DdsDeviceId": ColumnSpec("dds_device_id", "guid"),
     "CreatedInCloud": ColumnSpec("created_in_cloud", "datetime"),
     "StartTime": ColumnSpec("start_time", "datetime"),
     "EndTime": ColumnSpec("end_time", "datetime"),
@@ -71,9 +71,9 @@ ACTIVITY_COLUMNS = {
         "last_modified_on_client",
         "datetime",
     ),
-    "GroupAppActivityId": ColumnSpec("group_app_activity_id", "string"),
+    "GroupAppActivityId": ColumnSpec("group_app_activity_id", "guid"),
     "ClipboardPayload": ColumnSpec("clipboard_payload", "string"),
-    "EnterpriseId": ColumnSpec("enterprise_id", "string"),
+    "EnterpriseId": ColumnSpec("enterprise_id", "guid"),
     "OriginalPayload": ColumnSpec("original_payload", "string"),
     "UserActionState": ColumnSpec("user_action_state", "int"),
     "IsRead": ColumnSpec("is_read", "bool"),
@@ -88,16 +88,16 @@ ACTIVITY_COLUMNS = {
 
 ACTIVITY_OPERATION_COLUMNS = {
     "OperationOrder": ColumnSpec("operation_order", "int"),
-    "Id": ColumnSpec("id", "string"),
+    "Id": ColumnSpec("id", "guid"),
     "OperationType": ColumnSpec("operation_type", "int"),
     "AppId": ColumnSpec("app_id", "string"),
     "PackageIdHash": ColumnSpec("package_id_hash", "string"),
-    "AppActivityId": ColumnSpec("app_activity_id", "string"),
+    "AppActivityId": ColumnSpec("app_activity_id", "guid"),
     "ActivityType": ColumnSpec("activity_type", "int"),
-    "ParentActivityId": ColumnSpec("parent_activity_id", "string"),
+    "ParentActivityId": ColumnSpec("parent_activity_id", "guid"),
     "Tag": ColumnSpec("tag", "string"),
     "Group": ColumnSpec("group", "string"),
-    "MatchId": ColumnSpec("match_id", "string"),
+    "MatchId": ColumnSpec("match_id", "guid"),
     "LastModifiedTime": ColumnSpec("last_modified_time", "datetime"),
     "ExpirationTime": ColumnSpec("expiration_time", "datetime"),
     "Payload": ColumnSpec("payload", "string"),
@@ -109,8 +109,8 @@ ACTIVITY_OPERATION_COLUMNS = {
         "operation_expiration_time",
         "datetime",
     ),
-    "PlatformDeviceId": ColumnSpec("platform_device_id", "string"),
-    "DdsDeviceId": ColumnSpec("dds_device_id", "string"),
+    "PlatformDeviceId": ColumnSpec("platform_device_id", "guid"),
+    "DdsDeviceId": ColumnSpec("dds_device_id", "guid"),
     "CreatedInCloud": ColumnSpec("created_in_cloud", "datetime"),
     "StartTime": ColumnSpec("start_time", "datetime"),
     "EndTime": ColumnSpec("end_time", "datetime"),
@@ -119,9 +119,9 @@ ACTIVITY_OPERATION_COLUMNS = {
         "datetime",
     ),
     "CorrelationVector": ColumnSpec("correlation_vector", "string"),
-    "GroupAppActivityId": ColumnSpec("group_app_activity_id", "string"),
+    "GroupAppActivityId": ColumnSpec("group_app_activity_id", "guid"),
     "ClipboardPayload": ColumnSpec("clipboard_payload", "string"),
-    "EnterpriseId": ColumnSpec("enterprise_id", "string"),
+    "EnterpriseId": ColumnSpec("enterprise_id", "guid"),
     "UserActionState": ColumnSpec("user_action_state", "int"),
     "IsRead": ColumnSpec("is_read", "bool"),
     "OriginalPayload": ColumnSpec("original_payload", "string"),
@@ -176,19 +176,46 @@ def _normalize_value(value: object, spec: ColumnSpec) -> ActivityValue:
     if value is None:
         return None
     if isinstance(value, (bytes, bytearray)):
-        return _encode_binary(value)
+        if spec.kind in ("string", "guid"):
+            return _encode_binary(value)
+        expected = {
+            "int": "an integer",
+            "bool": "0 or 1",
+            "datetime": "a datetime",
+        }[spec.kind]
+        raise ValueError(
+            f"{spec.output_name} expects {expected}, "
+            f"found binary value"
+        )
     if spec.kind == "datetime":
         return _normalize_datetime(value)
     if spec.kind == "bool":
-        numeric = int(value)
+        try:
+            if isinstance(value, float) and not value.is_integer():
+                raise ValueError
+            numeric = int(value)
+        except (OverflowError, TypeError, ValueError) as exception:
+            raise ValueError(
+                f"{spec.output_name} expects 0 or 1, found {value!r}"
+            ) from exception
         if numeric not in (0, 1):
             raise ValueError(
                 f"{spec.output_name} expects 0 or 1, found {value!r}"
             )
         return bool(numeric)
     if spec.kind == "int":
-        return int(value)
-    return normalize_guid(str(value))
+        try:
+            if isinstance(value, float) and not value.is_integer():
+                raise ValueError
+            return int(value)
+        except (OverflowError, TypeError, ValueError) as exception:
+            raise ValueError(
+                f"{spec.output_name} expects an integer, "
+                f"found {value!r}"
+            ) from exception
+    if spec.kind == "guid":
+        return normalize_guid(str(value))
+    return str(value)
 
 
 def inspect_activity_cache_schema(
@@ -214,20 +241,22 @@ def inspect_activity_cache_schema(
         recognized = tuple(
             name for name in actual_columns if name.lower() in known_lower
         )
-        if not recognized:
-            raise UnsupportedActivityCacheSchema(
-                f"{canonical_table} has no recognized columns"
-            )
         for name in actual_columns:
             if name.lower() not in known_lower:
                 warnings.append(
                     f"{canonical_table}: ignoring unknown column {name}"
                 )
+        if not recognized:
+            warnings.append(
+                f"{canonical_table}: no recognized columns; ignoring table"
+            )
+            continue
         table_columns[canonical_table] = actual_columns
 
     if not table_columns:
         raise UnsupportedActivityCacheSchema(
-            "database contains neither Activity nor ActivityOperation"
+            "database contains neither Activity nor ActivityOperation "
+            "with recognized columns"
         )
 
     return ActivityCacheSchema(
@@ -260,6 +289,10 @@ def read_normalized_table(
     diagnostics: list[str] = []
     for row_number, row in enumerate(connection.execute(sql)):
         raw = dict(row)
+        raw_lower = {
+            str(name).lower(): raw_value
+            for name, raw_value in raw.items()
+        }
         try:
             values = {
                 spec.output_name: _normalize_value(raw[actual], spec)
@@ -271,7 +304,8 @@ def read_normalized_table(
             )
         except (OverflowError, TypeError, ValueError) as exception:
             identity = (
-                f"Id={raw.get('Id')!r}, ETag={raw.get('ETag')!r}"
+                f"Id={raw_lower.get('id')!r}, "
+                f"ETag={raw_lower.get('etag')!r}"
             )
             diagnostics.append(
                 f"{table_name} row {row_number} ({identity}): {exception}"
@@ -321,27 +355,54 @@ def _finalize_record(record: NormalizedActivity) -> NormalizedActivity:
     return NormalizedActivity(values, record.source_table, record.source_row)
 
 
+def _activity_value_sort_key(value: ActivityValue) -> tuple[str, str]:
+    if isinstance(value, datetime):
+        return "datetime", value.isoformat(timespec="microseconds")
+    if value is None:
+        return "none", ""
+    if isinstance(value, bool):
+        return "bool", "1" if value else "0"
+    if isinstance(value, int):
+        return "int", str(value)
+    return "string", value
+
+
 def _record_sort_key(
     record: NormalizedActivity,
-) -> tuple[datetime, int, str, int, str]:
+) -> tuple[
+    datetime,
+    int,
+    int,
+    str,
+    int,
+    str,
+    tuple[tuple[str, str, str], ...],
+]:
     start_time = record.values.get("start_time")
     if not isinstance(start_time, datetime):
         start_time = datetime.max.replace(tzinfo=timezone.utc)
     operation_order = record.values.get("operation_order")
+    operation_rank = 0 if record.source_table == "Activity" else 1
     if not isinstance(operation_order, int):
-        operation_order = -1
+        operation_order = 0
     identifier = record.values.get("id")
     if not isinstance(identifier, str):
         identifier = ""
     e_tag = record.values.get("e_tag")
     if not isinstance(e_tag, int):
         e_tag = -1
+    stable_values = tuple(
+        (name, *_activity_value_sort_key(value))
+        for name, value in sorted(record.values.items())
+    )
     return (
         start_time,
+        operation_rank,
         operation_order,
         identifier,
         e_tag,
         record.source_table,
+        stable_values,
     )
 
 
