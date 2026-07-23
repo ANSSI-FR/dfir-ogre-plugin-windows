@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<plugin parser="SQLite" file_encoding="UTF_8">
+<plugin parser="ActivityCache" file_encoding="UTF_8">
   <mapping data_type="activity_cache">
     <description
     ><![CDATA[
@@ -11,14 +11,8 @@ Extracts rows from the *Activity* SQLite table that records Windows 10 Timelin
 ]]>
     </description>
     <category>Services and Applications</category>
-    <default_date_pattern value='timestamp' />
-    <default_parser value="String" />
-    <!-- sqlite specific parameters -->
-    <query>
-      <![CDATA[
-      select * from Activity order by StartTime
-      ]]>
-    </query>
+    <default_date_pattern value="iso" />
+    <default_parser value="Ignore" />
 
     <!-- Timeline definition -->
     <timeline>
@@ -33,77 +27,53 @@ Extracts rows from the *Activity* SQLite table that records Windows 10 Timelin
       </additional_description>
     </timeline>
 
-    <!-- field mapping that match the query result -->
+    <!-- Explicit normalized Activity and ActivityOperation contract -->
     <fields>
-      <field
-        input="AppId"
-        output="app_id"
-        parser="String"
-        description="identifier of the application that generated the activity"
-      />
-
-      <field
-        input="AppActivityId"
-        output="app_activity_id"
-        parser="Python"
-        description="unique identifier for the specific activity event"
-      />
-
-      <field
-        input="Group"
-        output="group"
-        parser="String"
-        description="grouping value used to categorize related activities"
-      />
-
-      <field
-        input="Tag"
-        output="tag"
-        parser="String"
-        description="optional tag associated with the activity"
-      />
-
-      <field
-        input="Payload"
-        output="payload"
-        parser="String"
-        description="raw payload data (e.g., JSON) containing additional activity details"
-      />
-
-      <field
-        input="CreatedInCloud"
-        output="created_in_cloud"
-        parser="DateTime"
-        description="timestamp when the activity was created or synced in the cloud"
-      />
-
-      <field
-        input="StartTime"
-        output="start_time"
-        parser="DateTime"
-        description="timestamp marking the start of the activity"
-      />
-
-      <field
-        input="EndTime"
-        output="end_time"
-        parser="DateTime"
-        description="timestamp marking the end of the activity"
-      />
-
-      <field
-        input="LastModifiedOnClient"
-        output="last_modified_on_client"
-        parser="DateTime"
-        description="local client timestamp of the last modification to the activity record"
-      />
-
-      <field
-        input="OriginalLastModifiedOnClient"
-        output="original_last_modified_on_client"
-        parser="DateTime"
-        description="original client timestamp before any subsequent modifications"
-      />
+      <field input="record_source" output="record_source" parser="String" description="source table or merged source tables for this logical version" />
+      <field input="database_user_version" output="database_user_version" parser="Int" description="SQLite PRAGMA user_version recorded for schema provenance" />
+      <field input="start_time_source" output="start_time_source" parser="String" description="native start_time, last_modified_time fallback, or unavailable" />
+      <field input="id" output="id" parser="String" description="binary-safe activity identifier" />
+      <field input="app_id" output="app_id" parser="String" description="application identity definitions associated with the activity" />
+      <field input="package_id_hash" output="package_id_hash" parser="String" description="package identity hash" />
+      <field input="app_activity_id" output="app_activity_id" parser="String" description="application-defined activity identifier" />
+      <field input="activity_type" output="activity_type" parser="Int" description="numeric activity type" />
+      <field input="activity_status" output="activity_status" parser="Int" description="persisted activity status" />
+      <field input="parent_activity_id" output="parent_activity_id" parser="String" description="identifier of the parent activity" />
+      <field input="tag" output="tag" parser="String" description="application-defined activity tag" />
+      <field input="group" output="group" parser="String" description="activity grouping value" />
+      <field input="match_id" output="match_id" parser="String" description="activity matching identifier" />
+      <field input="last_modified_time" output="last_modified_time" parser="DateTime" description="last modification time stored by the service" />
+      <field input="expiration_time" output="expiration_time" parser="DateTime" description="activity expiration time" />
+      <field input="payload" output="payload" parser="String" description="encoded activity payload" />
+      <field input="priority" output="priority" parser="Int" description="activity priority" />
+      <field input="originating_device" output="originating_device" parser="String" description="legacy originating device value" />
+      <field input="is_local_only" output="is_local_only" parser="Bool" description="whether the activity is restricted to the local device" />
+      <field input="platform_device_id" output="platform_device_id" parser="String" description="platform device identifier" />
+      <field input="dds_device_id" output="dds_device_id" parser="String" description="Connected Devices Platform device identifier" />
+      <field input="created_in_cloud" output="created_in_cloud" parser="DateTime" description="cloud creation time" />
+      <field input="start_time" output="start_time" parser="DateTime" qualifier="DATE_START" display_name="Activity start" description="native or explicitly identified fallback start time" />
+      <field input="end_time" output="end_time" parser="DateTime" description="activity end time" />
+      <field input="last_modified_on_client" output="last_modified_on_client" parser="DateTime" description="last client modification time" />
+      <field input="group_app_activity_id" output="group_app_activity_id" parser="String" description="application activity identifier for the group" />
+      <field input="clipboard_payload" output="clipboard_payload" parser="String" description="encoded clipboard payload" />
+      <field input="enterprise_id" output="enterprise_id" parser="String" description="enterprise scope identifier" />
+      <field input="original_payload" output="original_payload" parser="String" description="encoded original activity payload" />
+      <field input="user_action_state" output="user_action_state" parser="Int" description="numeric user action state" />
+      <field input="is_read" output="is_read" parser="Bool" description="whether the activity has been read" />
+      <field input="original_last_modified_on_client" output="original_last_modified_on_client" parser="DateTime" description="original client modification time" />
+      <field input="group_items" output="group_items" parser="String" description="serialized activity group items" />
+      <field input="local_expiration_time" output="local_expiration_time" parser="DateTime" description="local activity expiration time" />
+      <field input="e_tag" output="e_tag" parser="Int" description="logical activity version tag" />
+      <field input="operation_order" output="operation_order" parser="Int" description="ordered ActivityOperation sequence number" />
+      <field input="operation_type" output="operation_type" parser="Int" description="numeric queued operation type" />
+      <field input="created_time" output="created_time" parser="DateTime" description="queued operation creation time" />
+      <field input="attachments" output="attachments" parser="String" description="legacy serialized operation attachments" />
+      <field input="operation_expiration_time" output="operation_expiration_time" parser="DateTime" description="queued operation expiration time" />
+      <field input="correlation_vector" output="correlation_vector" parser="String" description="operation correlation vector" />
+      <field input="upload_allowed_by_policy" output="upload_allowed_by_policy" parser="Bool" description="whether policy permits uploading the operation" />
+      <field input="patch_fields" output="patch_fields" parser="String" description="encoded operation patch fields" />
+      <field input="throttle_release_time" output="throttle_release_time" parser="DateTime" description="time at which operation throttling is released" />
+      <field input="publish_process_status" output="publish_process_status" parser="Int" description="numeric operation publishing status" />
     </fields>
   </mapping>
 </plugin>

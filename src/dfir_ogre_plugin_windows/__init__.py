@@ -15,6 +15,7 @@ from dfir_ogre_common import (
 )
 from tabulate import tabulate
 
+from .activity_cache import ActivityCache as ActivityCache
 from .autoruns import Autoruns as Autoruns
 from .chrome_extension import ChromeExtension as ChromeExtension
 from .csv import Csv as Csv
