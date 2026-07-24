@@ -128,6 +128,7 @@ WER_MARKER_KEYS = frozenset(
         "ReportIdentifier",
         "IntegratorReportIdentifier",
         "AppSessionGuid",
+        "ReportDescription",
     }
 )
 WER_MARKER_PREFIXES = (

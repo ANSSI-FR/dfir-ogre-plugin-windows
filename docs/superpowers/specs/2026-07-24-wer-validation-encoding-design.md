@@ -89,8 +89,8 @@ A decoded report is structurally valid when:
 - it contains a `Version=<decimal integer>` field; and
 - it contains at least one additional WER marker:
   `EventType`, `ReportIdentifier`, `IntegratorReportIdentifier`,
-  `AppSessionGuid`, or a `Sig`, `DynamicSig`, `OsInfo`, `State`, `File`, or
-  `LoadedModule` field.
+  `AppSessionGuid`, `ReportDescription`, or a `Sig`, `DynamicSig`, `OsInfo`,
+  `State`, `File`, or `LoadedModule` field.
 
 Blank lines and unknown `key=value` fields remain tolerated. The existing
 parser's behavior of ignoring non-key lines is preserved after the report has

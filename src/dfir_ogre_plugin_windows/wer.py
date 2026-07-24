@@ -1,6 +1,7 @@
 from typing import Dict, List, Optional
 
 from dfir_ogre_common import (
+    FieldMapping,
     Metadata,
     OgrePlugin,
     Output,
@@ -25,6 +26,7 @@ WER_MARKER_KEYS = frozenset(
         "ReportIdentifier",
         "IntegratorReportIdentifier",
         "AppSessionGuid",
+        "ReportDescription",
     }
 )
 WER_MARKER_PREFIXES = (
@@ -140,77 +142,113 @@ class Wer(OgrePlugin):
         metadata: Metadata,
     ) -> RunReport:
         report = RunReport()
-        plugin_config = PluginConfiguration.load(
-            plugin_file,
-            python={
-                "AppSessionGuid": GuidParser.build("app_session_guid"),
-                "IntegratorReportIdentifier": GuidParser.build(
-                    "integrator_report_identifier"
-                ),
-                "ReportIdentifier": GuidParser.build("report_identifier"),
-            },
-        )
-        config = plugin_config.data_type_configs[0]
-        field_mapping = config.field_mapping
-        if not field_mapping:
-            report.add_error("invalid mapping configuration")
+        try:
+            plugin_config = PluginConfiguration.load(
+                plugin_file,
+                python={
+                    "AppSessionGuid": GuidParser.build(
+                        "app_session_guid"
+                    ),
+                    "IntegratorReportIdentifier": GuidParser.build(
+                        "integrator_report_identifier"
+                    ),
+                    "ReportIdentifier": GuidParser.build(
+                        "report_identifier"
+                    ),
+                },
+            )
+            config = plugin_config.data_type_configs[0]
+            field_mapping = config.field_mapping
+            if not field_mapping:
+                raise ValueError("invalid mapping configuration")
+        except Exception as exception:
+            report.add_error(f"WER configuration: {exception}")
             return report
 
-        # parse file
-        with open(input_file, "r", encoding="utf-16-le") as input:
-            with Output(run_config, plugin_config, metadata) as output:
-                record = Record()
-                tables: Dict[str, ObjectBuilder] = {}
-                loaded_module: List[Value] = []
-                files: List[Value] = []
-                current_file: Optional[Record] = None
+        try:
+            with open(input_file, "rb") as input_stream:
+                payload = input_stream.read()
+        except Exception as exception:
+            report.add_error(f"WER input: {exception}")
+            return report
 
-                for line_number, line in enumerate(input):
-                    if line_number == 0:
-                        line = line.removeprefix("\ufeff")
-                    fields = line.split("=", 1)
-                    if len(fields) != 2:
-                        continue
-                    key = fields[0]
-                    value = fields[1].strip()
+        try:
+            text = decode_wer_report(payload)
+        except InvalidWerReportError as exception:
+            report.add_error(f"Invalid WER report: {exception}")
+            return report
+        except Exception as exception:
+            report.add_error(f"WER parsing failed: {exception}")
+            return report
 
-                    if key.startswith("Sig"):
-                        build_object(tables, key, value, "Sig")
-                    elif key.startswith("DynamicSig"):
-                        build_object(tables, key, value, "DynamicSig")
-                    elif key.startswith("OsInfo"):
-                        build_object(tables, key, value, "OsInfo")
-                    elif key.startswith("State"):
-                        build_object(tables, key, value, "State")
-                    elif key.startswith("File"):
-                        key_type = key.split(".")[1]
-                        if key_type == "CabName" and current_file:
-                            files.append(Value.Object(current_file))
-                            current_file = Record()
-                        if not current_file:
-                            current_file = Record()
-                        current_file.add(key_type, Value.String(value))
-                    elif key.startswith("LoadedModule"):
-                        loaded_module.append(Value.String(value))
-                    else:
-                        parser = field_mapping.get_parser(key)
-                        if parser:
-                            parser.parse(value, record)
+        try:
+            record = build_wer_record(text, field_mapping)
+        except Exception as exception:
+            report.add_error(f"WER parsing failed: {exception}")
+            return report
 
-                if current_file:
-                    files.append(Value.Object(current_file))
-
-                # write every collected objects
-                for key, value in tables.items():
-                    record.add(key, Value.Object(value.object))
-
-                record.add("loaded_module", Value.Array(loaded_module))
-                record.add("files", Value.Array(files))
-
+        try:
+            with Output(
+                run_config,
+                plugin_config,
+                metadata,
+            ) as output:
                 output.write(record)
-
-        report.add_output_report(output.get_report())
+            report.add_output_report(output.get_report())
+        except Exception as exception:
+            report.add_error(f"WER output: {exception}")
         return report
+
+
+def build_wer_record(
+    text: str,
+    field_mapping: FieldMapping,
+) -> Record:
+    record = Record()
+    tables: Dict[str, ObjectBuilder] = {}
+    loaded_module: List[Value] = []
+    files: List[Value] = []
+    current_file: Optional[Record] = None
+
+    for line in text.splitlines():
+        fields = line.split("=", 1)
+        if len(fields) != 2:
+            continue
+        key = fields[0]
+        value = fields[1].strip()
+
+        if key.startswith("Sig"):
+            build_object(tables, key, value, "Sig")
+        elif key.startswith("DynamicSig"):
+            build_object(tables, key, value, "DynamicSig")
+        elif key.startswith("OsInfo"):
+            build_object(tables, key, value, "OsInfo")
+        elif key.startswith("State"):
+            build_object(tables, key, value, "State")
+        elif key.startswith("File"):
+            key_type = key.split(".")[1]
+            if key_type == "CabName" and current_file:
+                files.append(Value.Object(current_file))
+                current_file = Record()
+            if not current_file:
+                current_file = Record()
+            current_file.add(key_type, Value.String(value))
+        elif key.startswith("LoadedModule"):
+            loaded_module.append(Value.String(value))
+        else:
+            parser = field_mapping.get_parser(key)
+            if parser:
+                parser.parse(value, record)
+
+    if current_file:
+        files.append(Value.Object(current_file))
+
+    for key, value in tables.items():
+        record.add(key, Value.Object(value.object))
+
+    record.add("loaded_module", Value.Array(loaded_module))
+    record.add("files", Value.Array(files))
+    return record
 
 
 def build_object(tables: dict, key: str, value: str, pattern: str):

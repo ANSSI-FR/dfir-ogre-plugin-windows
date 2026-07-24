@@ -1,6 +1,7 @@
 import json
 import os
 from unittest import TestCase
+from unittest.mock import patch
 
 from dfir_ogre_common import Metadata, OutputConfiguration, RunConfiguration
 
@@ -46,6 +47,14 @@ class WerDecoderTest(TestCase):
         ):
             decode_wer_report(payload)
 
+    def test_decode_wer_report_accepts_report_description_marker(self):
+        text = "Version=1\nReportDescription=alpha=beta=gamma\n"
+
+        self.assertEqual(
+            decode_wer_report(text.encode("utf-16-le")),
+            text,
+        )
+
     def test_decode_wer_report_rejects_non_wer_payloads(self):
         payloads = {
             "text_without_wer_marker": (
@@ -64,6 +73,154 @@ class WerDecoderTest(TestCase):
 
 
 class WerTest(TestCase):
+    def parse_file(self, input_file: str, base_output_name: str):
+        output_file = os.path.join(
+            TEMP_FOLDER,
+            base_output_name + ".wer.jsonl",
+        )
+        if os.path.exists(output_file):
+            os.remove(output_file)
+        run_config = RunConfiguration(
+            [
+                OutputConfiguration(
+                    base_output_name,
+                    TEMP_FOLDER,
+                    with_timeline=False,
+                    include_empty=False,
+                )
+            ]
+        )
+        report = Wer().parse(
+            input_file,
+            os.path.join(CONF_FOLDER, "wer.xml"),
+            run_config,
+            Metadata("test"),
+        )
+        return report, output_file
+
+    def parse_payload(
+        self,
+        payload: bytes,
+        base_output_name: str,
+    ):
+        input_file = os.path.join(
+            TEMP_FOLDER,
+            base_output_name + ".input.wer",
+        )
+        with open(input_file, "wb") as fp:
+            fp.write(payload)
+        return self.parse_file(input_file, base_output_name)
+
+    def test_wer_parses_utf8_with_and_without_bom(self):
+        text = (
+            "Version=1\n"
+            "EventType=Utf8Report\n"
+            "ReportDescription=café\n"
+        )
+        encodings = {
+            "utf8_bom": b"\xef\xbb\xbf" + text.encode("utf-8"),
+            "utf8_without_bom": text.encode("utf-8"),
+        }
+
+        for label, payload in encodings.items():
+            with self.subTest(label=label):
+                report, output_file = self.parse_payload(payload, label)
+                self.assertEqual(
+                    report.num_errors,
+                    0,
+                    report.last_error,
+                )
+                self.assertIsNone(report.last_error)
+                self.assertEqual(len(report.output_reports), 1)
+                with open(output_file, encoding="utf-8") as fp:
+                    record = json.loads(fp.readline())
+                self.assertEqual(record["version"], 1)
+                self.assertEqual(record["event_type"], "Utf8Report")
+                self.assertEqual(record["report_description"], "café")
+
+    def test_wer_rejects_non_reports_before_output(self):
+        payloads = {
+            "invalid_binary_1": b"\xbe\xc6\x97\x00\xff\x81",
+            "invalid_binary_2": (
+                b"FarmId\tRequestUsage\n" + b"\x00\x00\xff\x81"
+            ),
+            "valid_utf8_without_wer_structure": (
+                b"Version=1\nProduct=SharePoint\n"
+            ),
+            "utf16be": (
+                b"\xfe\xff"
+                + "Version=1\nEventType=WrongEndian\n".encode(
+                    "utf-16-be"
+                )
+            ),
+        }
+
+        for label, payload in payloads.items():
+            with self.subTest(label=label):
+                report, output_file = self.parse_payload(payload, label)
+                self.assertEqual(report.num_errors, 1)
+                self.assertTrue(
+                    report.last_error.startswith(
+                        "Invalid WER report:"
+                    )
+                )
+                self.assertEqual(len(report.output_reports), 0)
+                self.assertFalse(os.path.exists(output_file))
+
+    def test_wer_counts_input_errors(self):
+        missing_input = os.path.join(
+            TEMP_FOLDER,
+            "missing_wer_input.data",
+        )
+        if os.path.exists(missing_input):
+            os.remove(missing_input)
+        report, output_file = self.parse_file(
+            missing_input,
+            "missing_wer_input",
+        )
+
+        self.assertEqual(report.num_errors, 1)
+        self.assertTrue(report.last_error.startswith("WER input:"))
+        self.assertEqual(len(report.output_reports), 0)
+        self.assertFalse(os.path.exists(output_file))
+
+    def test_wer_counts_other_phase_exceptions(self):
+        payload = b"Version=1\nEventType=ExceptionTest\n"
+        failures = (
+            (
+                "configuration",
+                "dfir_ogre_plugin_windows.wer.PluginConfiguration.load",
+                "WER configuration:",
+            ),
+            (
+                "record_construction",
+                "dfir_ogre_plugin_windows.wer.build_wer_record",
+                "WER parsing failed:",
+            ),
+            (
+                "output",
+                "dfir_ogre_plugin_windows.wer.Output",
+                "WER output:",
+            ),
+        )
+
+        for label, target, expected_prefix in failures:
+            with self.subTest(label=label):
+                with patch(
+                    target,
+                    side_effect=RuntimeError(f"forced {label} failure"),
+                ):
+                    report, output_file = self.parse_payload(
+                        payload,
+                        "wer_exception_" + label,
+                    )
+                self.assertEqual(report.num_errors, 1)
+                self.assertTrue(
+                    report.last_error.startswith(expected_prefix)
+                )
+                self.assertEqual(len(report.output_reports), 0)
+                self.assertFalse(os.path.exists(output_file))
+
     def test_wer_normalizes_guid_fields_without_rewriting_embedded_text(self):
         plugin_file = os.path.join(CONF_FOLDER, "wer.xml")
         input_file = os.path.join(TEMP_FOLDER, "report_uppercase_guids.wer")
