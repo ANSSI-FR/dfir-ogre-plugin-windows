@@ -5,12 +5,62 @@ from unittest import TestCase
 from dfir_ogre_common import Metadata, OutputConfiguration, RunConfiguration
 
 from dfir_ogre_plugin_windows import Wer
+from dfir_ogre_plugin_windows.wer import (
+    InvalidWerReportError,
+    decode_wer_report,
+)
 
 from . import BASE_TEMP_FOLDER, CONF_FOLDER
 
 DATA_FOLDER = os.path.join("tests", "data")
 TEMP_FOLDER = os.path.join(BASE_TEMP_FOLDER, "wer")
 os.makedirs(TEMP_FOLDER, exist_ok=True)
+
+
+class WerDecoderTest(TestCase):
+    valid_text = "Version=1\nEventType=EncodingTest\n"
+
+    def test_decode_wer_report_supports_declared_encodings(self):
+        encoded_reports = {
+            "utf16le_bom": (
+                b"\xff\xfe" + self.valid_text.encode("utf-16-le")
+            ),
+            "utf16le_without_bom": self.valid_text.encode("utf-16-le"),
+            "utf8_bom": b"\xef\xbb\xbf" + self.valid_text.encode("utf-8"),
+            "utf8_without_bom": self.valid_text.encode("utf-8"),
+        }
+
+        for label, payload in encoded_reports.items():
+            with self.subTest(label=label):
+                self.assertEqual(
+                    decode_wer_report(payload),
+                    self.valid_text,
+                )
+
+    def test_decode_wer_report_rejects_utf16be(self):
+        payload = b"\xfe\xff" + self.valid_text.encode("utf-16-be")
+
+        with self.assertRaisesRegex(
+            InvalidWerReportError,
+            "unsupported UTF-16BE",
+        ):
+            decode_wer_report(payload)
+
+    def test_decode_wer_report_rejects_non_wer_payloads(self):
+        payloads = {
+            "text_without_wer_marker": (
+                b"Version=1\nProduct=SharePoint\n"
+            ),
+            "binary_like_wer_utf8_1": b"\xbe\xc6\x97\x00\xff\x81",
+            "text_and_binary_like_wer_utf8_2": (
+                b"FarmId\tRequestUsage\n" + b"\x00\x00\xff\x81"
+            ),
+        }
+
+        for label, payload in payloads.items():
+            with self.subTest(label=label):
+                with self.assertRaises(InvalidWerReportError):
+                    decode_wer_report(payload)
 
 
 class WerTest(TestCase):

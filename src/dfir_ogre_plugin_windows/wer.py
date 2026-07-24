@@ -15,6 +15,116 @@ from dfir_ogre_common import (
 from dfir_ogre_plugin_windows.common import GuidParser
 
 
+UTF16_LE_BOM = b"\xff\xfe"
+UTF16_BE_BOM = b"\xfe\xff"
+UTF8_BOM = b"\xef\xbb\xbf"
+
+WER_MARKER_KEYS = frozenset(
+    {
+        "EventType",
+        "ReportIdentifier",
+        "IntegratorReportIdentifier",
+        "AppSessionGuid",
+    }
+)
+WER_MARKER_PREFIXES = (
+    "Sig[",
+    "DynamicSig[",
+    "OsInfo[",
+    "State[",
+    "File[",
+    "LoadedModule[",
+)
+
+
+class InvalidWerReportError(ValueError):
+    """Raised when bytes cannot be decoded as a recognizable WER report."""
+
+
+def _validate_wer_structure(text: str) -> None:
+    has_version = False
+    has_marker = False
+
+    for line in text.splitlines():
+        fields = line.split("=", 1)
+        if len(fields) != 2:
+            continue
+        key, value = fields
+        if key == "Version":
+            version = value.strip()
+            if not (version.isascii() and version.isdecimal()):
+                raise InvalidWerReportError(
+                    "Version must be an ASCII decimal integer"
+                )
+            has_version = True
+        elif (
+            key in WER_MARKER_KEYS
+            or key.startswith(WER_MARKER_PREFIXES)
+        ):
+            has_marker = True
+
+    if not has_version:
+        raise InvalidWerReportError("missing Version field")
+    if not has_marker:
+        raise InvalidWerReportError("missing independent WER marker")
+
+
+def _decode_wer_candidate(
+    payload: bytes,
+    encoding: str,
+    label: str,
+) -> str:
+    try:
+        text = payload.decode(encoding)
+    except UnicodeDecodeError as exception:
+        raise InvalidWerReportError(
+            f"invalid {label} encoding"
+        ) from exception
+    _validate_wer_structure(text)
+    return text
+
+
+def decode_wer_report(payload: bytes) -> str:
+    if payload.startswith(UTF16_LE_BOM):
+        return _decode_wer_candidate(
+            payload[len(UTF16_LE_BOM):],
+            "utf-16-le",
+            "UTF-16LE",
+        )
+    if payload.startswith(UTF8_BOM):
+        return _decode_wer_candidate(
+            payload[len(UTF8_BOM):],
+            "utf-8",
+            "UTF-8",
+        )
+    if payload.startswith(UTF16_BE_BOM):
+        raise InvalidWerReportError("unsupported UTF-16BE encoding")
+
+    candidates: Dict[str, str] = {}
+    for encoding, label in (
+        ("utf-16-le", "UTF-16LE"),
+        ("utf-8", "UTF-8"),
+    ):
+        try:
+            candidates[encoding] = _decode_wer_candidate(
+                payload,
+                encoding,
+                label,
+            )
+        except InvalidWerReportError:
+            continue
+
+    if not candidates:
+        raise InvalidWerReportError(
+            "not a WER report in UTF-8 or UTF-16LE"
+        )
+    if len(candidates) == 1:
+        return next(iter(candidates.values()))
+    if all(byte < 0x80 for byte in payload):
+        return candidates["utf-8"]
+    return candidates["utf-16-le"]
+
+
 class Wer(OgrePlugin):
     def description(self) -> PluginDescription:
         return PluginDescription(
