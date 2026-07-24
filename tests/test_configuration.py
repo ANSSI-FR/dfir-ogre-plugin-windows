@@ -115,7 +115,7 @@ class ConfigurationTest(TestCase):
                             f"array fields {sorted(missing_array_fields)}"
                         )
 
-        self.assertEqual(28, mapping_count)
+        self.assertEqual(29, mapping_count)
         self.assertEqual([], errors)
 
 
