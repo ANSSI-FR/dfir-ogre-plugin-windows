@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<plugin parser="RegWordWheelQuery" file_encoding="UTF_8">
-  <mapping data_type="word_wheel_query">
+<plugin parser="RegExplorerSearchHistory" file_encoding="UTF_8">
+  <mapping data_type="explorer_search_history">
     <description
     ><![CDATA[
 Extracts Windows 7 and later Explorer search history from WordWheelQuery in

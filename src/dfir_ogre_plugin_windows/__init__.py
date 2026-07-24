@@ -68,7 +68,9 @@ from .registry.subject_interface_package import RegSIPP as RegSIPP
 from .registry.system_info import RegSystemInfo as RegSystemInfo
 from .registry.user_assist import RegUserAssist as RegUserAssist
 from .registry.user_profile import RegUserProfile as RegUserProfile
-from .registry.word_wheel_query import RegWordWheelQuery as RegWordWheelQuery
+from .registry.explorer_search_history import (
+    RegExplorerSearchHistory as RegExplorerSearchHistory,
+)
 from .tcp_connection import TCPConn as TCPConn
 from .sqlite import SQLite as SQLite
 from .srum import Srum as Srum

@@ -44,12 +44,12 @@ def decode_word_wheel_value(data: bytes) -> str:
         raise ValueError("value is not valid UTF-16LE") from error
 
 
-class RegWordWheelQuery(OgrePlugin):
+class RegExplorerSearchHistory(OgrePlugin):
     def description(self) -> PluginDescription:
         return PluginDescription(
-            "RegWordWheelQuery",
-            "Get Windows 7 and later Explorer WordWheelQuery history "
-            "from NTUSER.DAT",
+            "RegExplorerSearchHistory",
+            "Get Windows 7 and later Explorer search history from "
+            "WordWheelQuery in NTUSER.DAT",
         )
 
     def parse(

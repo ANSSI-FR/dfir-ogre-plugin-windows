@@ -14,8 +14,8 @@ from dfir_ogre_common import (
     Value,
 )
 
-from dfir_ogre_plugin_windows import RegWordWheelQuery
-from dfir_ogre_plugin_windows.registry.word_wheel_query import (
+from dfir_ogre_plugin_windows import RegExplorerSearchHistory
+from dfir_ogre_plugin_windows.registry.explorer_search_history import (
     decode_word_wheel_value,
     parse_mru_list_ex,
 )
@@ -38,7 +38,7 @@ def word_wheel_key(values: dict[str, object]):
     return key
 
 
-class WordWheelQueryTest(TestCase):
+class ExplorerSearchHistoryTest(TestCase):
     def test_decoders_reject_non_binary_and_odd_length_values(self):
         with self.assertRaisesRegex(ValueError, "MRUListEx is not binary"):
             parse_mru_list_ex("not bytes")  # type: ignore[arg-type]
@@ -53,7 +53,7 @@ class WordWheelQueryTest(TestCase):
         self.assertEqual(decode_word_wheel_value(encoded), "query  ")
 
     def test_public_hive_is_emitted_in_mru_list_order(self):
-        plugin_file = os.path.join(CONF_FOLDER, "word_wheel_query.xml")
+        plugin_file = os.path.join(CONF_FOLDER, "explorer_search_history.xml")
         input_file = os.path.join(
             DATA_FOLDER,
             "hive",
@@ -61,7 +61,7 @@ class WordWheelQueryTest(TestCase):
         )
         output_file = os.path.join(
             TEMP_FOLDER,
-            "word_wheel_public.word_wheel_query.jsonl",
+            "word_wheel_public.explorer_search_history.jsonl",
         )
         if os.path.exists(output_file):
             os.remove(output_file)
@@ -72,7 +72,7 @@ class WordWheelQueryTest(TestCase):
             with_timeline=False,
             include_empty=True,
         )
-        report = RegWordWheelQuery().parse(
+        report = RegExplorerSearchHistory().parse(
             input_file,
             plugin_file,
             RunConfiguration([output_config]),
@@ -110,7 +110,7 @@ class WordWheelQueryTest(TestCase):
         output = Mock()
         report = RunReport()
 
-        RegWordWheelQuery().parse_key(key, output, report)
+        RegExplorerSearchHistory().parse_key(key, output, report)
 
         output.write.assert_not_called()
         self.assertIsNone(report.last_error)
@@ -120,7 +120,7 @@ class WordWheelQueryTest(TestCase):
         output = Mock()
         report = RunReport()
 
-        RegWordWheelQuery().parse_key(key, output, report)
+        RegExplorerSearchHistory().parse_key(key, output, report)
 
         output.write.assert_not_called()
         self.assertIsNotNone(report.last_error)
@@ -131,7 +131,7 @@ class WordWheelQueryTest(TestCase):
         output = Mock()
         report = RunReport()
 
-        RegWordWheelQuery().parse_key(key, output, report)
+        RegExplorerSearchHistory().parse_key(key, output, report)
 
         output.write.assert_not_called()
         self.assertIsNotNone(report.last_error)
@@ -147,7 +147,7 @@ class WordWheelQueryTest(TestCase):
         output = Mock()
         report = RunReport()
 
-        RegWordWheelQuery().parse_key(key, output, report)
+        RegExplorerSearchHistory().parse_key(key, output, report)
 
         records = [
             json.loads(call.args[0].to_string())
@@ -171,7 +171,7 @@ class WordWheelQueryTest(TestCase):
         output = Mock()
         report = RunReport()
 
-        RegWordWheelQuery().parse_key(key, output, report)
+        RegExplorerSearchHistory().parse_key(key, output, report)
 
         output.write.assert_not_called()
         self.assertIsNotNone(report.last_error)
