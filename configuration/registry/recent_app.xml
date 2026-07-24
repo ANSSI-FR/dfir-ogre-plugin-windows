@@ -7,7 +7,7 @@ Extracts information about applications and files recently accessed by a user fr
 
 - Provides per-application identifiers and launch statistics.
 - Captures timestamps of the last access for both the application and individual files.
-- Includes the full command line (path+arguments) used to launch each recent file.
+- Preserves each recent file path and its optional arguments as separate fields.
 ]]>
     </description>
     <category>Services and Applications</category>
@@ -45,6 +45,13 @@ Extracts information about applications and files recently accessed by a user fr
       />
 
       <field
+        input="app_path"
+        parser="String"
+        qualifier="PATH"
+        description="Path of the application executable"
+      />
+
+      <field
         input="launch_count"
         parser="Int"
         description="Number of times the application has been launched"
@@ -73,7 +80,13 @@ Extracts information about applications and files recently accessed by a user fr
       <field
         input="path"
         parser="String"
-        description="Full command line (file path plus arguments) used to launch the file"
+        description="Path of the recently accessed item"
+      />
+
+      <field
+        input="arguments"
+        parser="String"
+        description="Optional arguments associated with the recently accessed item"
       />
 
       <field

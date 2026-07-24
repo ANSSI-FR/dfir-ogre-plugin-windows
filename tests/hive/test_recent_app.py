@@ -43,7 +43,7 @@ class RecentApp(TestCase):
             {
                 "DisplayName": "First item",
                 "Path": r"C:\evidence\first.txt",
-                "Arguments": "--first",
+                "Arguments": "/open",
             },
         )
         second_item = registry_key(
@@ -52,7 +52,6 @@ class RecentApp(TestCase):
             {
                 "DisplayName": "Second item",
                 "Path": r"C:\evidence\second.txt",
-                "Arguments": "--second",
             },
         )
         recent_items = registry_key(
@@ -64,7 +63,11 @@ class RecentApp(TestCase):
         app_key = registry_key(
             "{11111111-1111-1111-1111-111111111111}",
             r"\HKCU\RecentApps\app",
-            {"AppId": "forensic-app", "LaunchCount": 7},
+            {
+                "AppId": "forensic-app",
+                "AppPath": r"C:\Program Files\Forensic\forensic.exe",
+                "LaunchCount": 7,
+            },
         )
         app_key.sub_key.return_value = recent_items
 
@@ -89,17 +92,36 @@ class RecentApp(TestCase):
             ["First item", "Second item"],
         )
         self.assertEqual(
+            [record["path"] for record in records],
+            [
+                r"C:\evidence\first.txt",
+                r"C:\evidence\second.txt",
+            ],
+        )
+        self.assertEqual(records[0]["arguments"], "/open")
+        self.assertIsNone(records[1].get("arguments"))
+        self.assertTrue(
+            all(
+                record["app_path"] == r"C:\Program Files\Forensic\forensic.exe"
+                for record in records
+            )
+        )
+        self.assertNotIn("None", json.dumps(records))
+        self.assertEqual(
             [record["key_path"] for record in records],
             [first_item.path, second_item.path],
         )
         self.assertTrue(all(record["app_id"] == "forensic-app" for record in records))
         self.assertTrue(all(record["launch_count"] == 7 for record in records))
 
-    # python -m unittest tests.hive.test_recent_app.RecentApp.test_recent_app -v
-    def test_recent_app(self):
+    def test_recent_app_public_hive_emits_application_record(self):
         plugin_file = os.path.join(CONF_FOLDER, "recent_app.xml")
 
-        input_file = os.path.join(DATA_FOLDER, "hive", "NTUSER.dat")
+        input_file = os.path.join(
+            DATA_FOLDER,
+            "hive",
+            "NTUSER_RECENT_APPS.dat",
+        )
 
         base_output_name = "recent_app"
 
@@ -122,22 +144,29 @@ class RecentApp(TestCase):
         report = parser.parse(input_file, plugin_file, configuration, metadata)
         self.assertEqual(None, report.last_error)
 
-        expected_lines = 0
-        lines = report.output_reports[0].file_reports[0].num_lines
-        self.assertEqual(lines, expected_lines)
+        self.assertEqual(
+            report.output_reports[0].file_reports[0].num_lines,
+            1,
+        )
 
         filename = report.output_reports[0].file_reports[0].file_name
         self.assertEqual(filename, output_file)
 
-        # with open(output_file) as fp:
-        #     i = 0
-        #     num_field = 0
-        #     line_number = 0
-        #     for line in fp:
-        #         js = json.loads(line)
-        #         if len(js) > num_field:
-        #             num_field = len(js)
-        #             line_number = i
-        #         i += 1
-        #     self.assertEqual(i, expected_lines)
-        #     print(f"largest line:{line_number + 1} num_field:{num_field}")
+        with open(output_file, encoding="utf-8") as output:
+            records = [json.loads(line) for line in output]
+
+        self.assertEqual(len(records), 1)
+        record = records[0]
+        self.assertEqual(
+            record["guid_app"],
+            "da8dc440-0faa-417d-8af4-8f4b2eb50409",
+        )
+        self.assertEqual(record["app_id"], r"D:\setup64.exe")
+        self.assertEqual(record["launch_count"], 1)
+        self.assertEqual(
+            record["app_last_accessed_time"],
+            "2017-07-12T07:34:32.178000+00:00",
+        )
+        self.assertIsNone(record["guid_file"])
+        self.assertIsNone(record["path"])
+        self.assertIsNone(record["arguments"])

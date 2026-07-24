@@ -24,7 +24,8 @@ class RegRecentApp(OgrePlugin):
     def description(self) -> PluginDescription:
         return PluginDescription(
             "RegRecentApp",
-            "(no test data) Get informations about applications and files accessed (windows >=10) from NTUser",
+            "Get applications and files recorded by Windows 10 RecentApps "
+            "(introduced in 1607 and removed in 1709) from NTUSER.DAT",
         )
 
     def parse(
@@ -86,6 +87,9 @@ def recent_app_record(key: RegKey, item: RegKey | None = None) -> Record:
     app_id = key.value_data("AppId")
     record.add("app_id", value(app_id))
 
+    app_path = key.value_data("AppPath")
+    record.add("app_path", value(app_path))
+
     launch_count = key.value_data("LaunchCount")
     record.add("launch_count", value(launch_count))
 
@@ -103,9 +107,10 @@ def recent_app_record(key: RegKey, item: RegKey | None = None) -> Record:
         record.add("display_name", value(display_name))
 
         path = item.value_data("Path")
-        arguments = item.value_data("Arguments")
-        path = f"{path} {arguments}"
         record.add("path", value(path))
+
+        arguments = item.value_data("Arguments")
+        record.add("arguments", value(arguments))
 
         file_last_accessed_time_int = item.value_data("LastAccessedTime")
         if file_last_accessed_time_int:
