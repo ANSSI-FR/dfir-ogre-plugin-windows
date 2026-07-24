@@ -1085,3 +1085,137 @@ git diff --stat HEAD~4..HEAD
 Expected: no uncommitted changes; the implementation consists of the fixture,
 RecentApps, ACMru, and Explorer Search History commits after the implementation-plan
 baseline.
+
+---
+
+### Task 6: Rename the Public Search-History Surface
+
+**Files:**
+- Move: `tests/hive/test_word_wheel_query.py` to `tests/hive/test_explorer_search_history.py`
+- Move: `src/dfir_ogre_plugin_windows/registry/word_wheel_query.py` to `src/dfir_ogre_plugin_windows/registry/explorer_search_history.py`
+- Move: `configuration/registry/word_wheel_query.xml` to `configuration/registry/explorer_search_history.xml`
+- Modify: `src/dfir_ogre_plugin_windows/__init__.py`
+
+**Interfaces:**
+- Consumes: the implemented `WordWheelQuery` registry-key and `MRUListEx` decoding behavior from Task 4
+- Produces: registered command `RegExplorerSearchHistory`, data type `explorer_search_history`, and configuration filename `explorer_search_history.xml`
+- Preserves: registry key `\HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\WordWheelQuery`, `parse_mru_list_ex(data: bytes) -> list[int]`, `decode_word_wheel_value(data: bytes) -> str`, fixture `NTUSER_WORD_WHEEL_QUERY.dat`, and contextual `WordWheelQuery` error text
+
+- [ ] **Step 1: Rename the test and express the new public API**
+
+Move the test module to `tests/hive/test_explorer_search_history.py`. Update
+its public imports and test class:
+
+```python
+from dfir_ogre_plugin_windows import RegExplorerSearchHistory
+from dfir_ogre_plugin_windows.registry.explorer_search_history import (
+    decode_word_wheel_value,
+    parse_mru_list_ex,
+)
+```
+
+Rename `class WordWheelQueryTest(TestCase)` to
+`class ExplorerSearchHistoryTest(TestCase)`. Use
+`RegExplorerSearchHistory()` in each test. Change the configuration path to
+`explorer_search_history.xml` and the expected output path to
+`word_wheel_public.explorer_search_history.jsonl`. Leave the registry key,
+fixture name, helper names, and `WordWheelQuery` diagnostic assertions
+unchanged.
+
+- [ ] **Step 2: Run the renamed test to verify RED**
+
+Run:
+
+```bash
+uv run python -m unittest tests.hive.test_explorer_search_history -v
+```
+
+Expected: import failure because `RegExplorerSearchHistory` and the
+`explorer_search_history` module do not exist yet.
+
+- [ ] **Step 3: Rename the implementation and configuration**
+
+Move the source module to
+`src/dfir_ogre_plugin_windows/registry/explorer_search_history.py`. Rename its
+plugin class and description:
+
+```python
+class RegExplorerSearchHistory(OgrePlugin):
+    def description(self) -> PluginDescription:
+        return PluginDescription(
+            "RegExplorerSearchHistory",
+            "Get Windows 7 and later Explorer search history from "
+            "WordWheelQuery in NTUSER.DAT",
+        )
+```
+
+Update the package export:
+
+```python
+from .registry.explorer_search_history import (
+    RegExplorerSearchHistory as RegExplorerSearchHistory,
+)
+```
+
+Move the XML configuration to
+`configuration/registry/explorer_search_history.xml` and update only its public
+identifiers:
+
+```xml
+<plugin parser="RegExplorerSearchHistory" file_encoding="UTF_8">
+  <mapping data_type="explorer_search_history">
+```
+
+Keep `WordWheelQuery` in the XML description because it identifies the
+underlying registry artifact.
+
+- [ ] **Step 4: Run focused and configuration tests to verify GREEN**
+
+Run:
+
+```bash
+uv run python -m unittest \
+  tests.hive.test_explorer_search_history \
+  tests.test_configuration \
+  -v
+```
+
+Expected: all tests pass with no failures or errors.
+
+- [ ] **Step 5: Verify old public identifiers are absent**
+
+Run:
+
+```bash
+rg -n \
+  'RegWordWheelQuery|data_type="word_wheel_query"|registry\.word_wheel_query' \
+  src configuration tests
+```
+
+Expected: no matches. Technical `WordWheelQuery` references remain for the
+registry path, fixture, decoder, and diagnostics.
+
+- [ ] **Step 6: Run the complete suite**
+
+Run:
+
+```bash
+uv run python -m unittest discover -v
+git diff --check
+```
+
+Expected: zero test failures, zero test errors, and no whitespace errors.
+
+- [ ] **Step 7: Commit the public rename**
+
+```bash
+git add \
+  tests/hive/test_word_wheel_query.py \
+  tests/hive/test_explorer_search_history.py \
+  src/dfir_ogre_plugin_windows/registry/word_wheel_query.py \
+  src/dfir_ogre_plugin_windows/registry/explorer_search_history.py \
+  configuration/registry/word_wheel_query.xml \
+  configuration/registry/explorer_search_history.xml \
+  src/dfir_ogre_plugin_windows/__init__.py
+git commit -m "Rename plugin to Explorer search history"
+```
