@@ -1,58 +1,87 @@
-import os
+import json
+from datetime import datetime, timezone
 from unittest import TestCase
+from unittest.mock import Mock
 
-from dfir_ogre_common import Metadata, OutputConfiguration, RunConfiguration
+from dfir_ogre_common import Record, RunReport, Value
 
 from dfir_ogre_plugin_windows import RegAcMru
 
-from . import CONF_FOLDER, TEMP_FOLDER
 
-DATA_FOLDER = os.path.join("tests", "data")
-os.makedirs(TEMP_FOLDER, exist_ok=True)
+def registry_value(name: str, data: str):
+    reg_value = Mock()
+    reg_value.name.return_value = name
+    reg_value.data.return_value = data
+    return reg_value
+
+
+def acmru_key(values):
+    key = Mock()
+    key.name = "5603"
+    key.path = r"HKCU\Software\Microsoft\Search Assistant\ACMru\5603"
+    key.mtime = datetime(2025, 1, 2, 3, 4, 5, tzinfo=timezone.utc)
+    key.values.return_value = values
+
+    security = Record()
+    security.add("owner_sid", Value.String("S-1-5-21-test"))
+    key.security_descriptor.to_record.return_value = security
+    return key
 
 
 class TestAcmru(TestCase):
-    # python -m unittest tests.hive.test_acmru.TestAcmru.test_acmru -v
-    def test_acmru(self):
-        plugin_file = os.path.join(CONF_FOLDER, "acmru.xml")
+    def test_values_are_sorted_and_only_newest_has_timestamp(self):
+        key = acmru_key(
+            [
+                registry_value("002", "third"),
+                registry_value("000", "newest"),
+                registry_value("001", "second"),
+            ]
+        )
+        output = Mock()
+        report = RunReport()
 
-        input_file = os.path.join(DATA_FOLDER, "hive", "NTUSER.dat")
+        RegAcMru().parse_key(key, output, report)
 
-        base_output_name = "acmru"
+        records = [
+            json.loads(call.args[0].to_string())
+            for call in output.write.call_args_list
+        ]
+        self.assertIsNone(report.last_error)
+        self.assertEqual(
+            [record["search_request"] for record in records],
+            ["newest", "second", "third"],
+        )
+        self.assertEqual(
+            [record["order_index"] for record in records],
+            [0, 1, 2],
+        )
+        self.assertTrue(all(record["category"] == "5603" for record in records))
+        self.assertEqual(
+            records[0]["key_modif_time"],
+            "2025-01-02T03:04:05.000000+00:00",
+        )
+        self.assertNotIn("key_modif_time", records[1])
+        self.assertNotIn("key_modif_time", records[2])
 
-        output_file = os.path.join(TEMP_FOLDER, base_output_name + ".acmru.jsonl")
-        if os.path.exists(output_file):
-            os.remove(output_file)
+    def test_invalid_value_name_is_reported_without_losing_valid_values(self):
+        key = acmru_key(
+            [
+                registry_value("invalid", "skip me"),
+                registry_value("000", "keep me"),
+            ]
+        )
+        output = Mock()
+        report = RunReport()
 
-        output_config = OutputConfiguration(
-            base_output_name,
-            TEMP_FOLDER,
-                    )
-        run_config = RunConfiguration([output_config])
+        RegAcMru().parse_key(key, output, report)
 
-        metadata = Metadata("test")
-        parser = RegAcMru()
-        self.assertEqual("RegAcMru", parser.description().command)  # type: ignore
-
-        report = parser.parse(input_file, plugin_file, run_config, metadata)
-        self.assertEqual(None, report.last_error)
-
-        expected_lines = 0
-        lines = report.output_reports[0].file_reports[0].num_lines
-        self.assertEqual(lines, expected_lines)
-
-        filename = report.output_reports[0].file_reports[0].file_name
-        self.assertEqual(filename, output_file)
-
-        # with open(output_file) as fp:
-        #     i = 0
-        #     num_field = 0
-        #     line_number = 0
-        #     for line in fp:
-        #         js = json.loads(line)
-        #         if len(js) > num_field:
-        #             num_field = len(js)
-        #             line_number = i
-        #         i += 1
-        #     self.assertEqual(i, expected_lines)
-        #     print(f"largest line:{line_number + 1} num_field:{num_field}")
+        records = [
+            json.loads(call.args[0].to_string())
+            for call in output.write.call_args_list
+        ]
+        self.assertEqual(
+            [record["search_request"] for record in records],
+            ["keep me"],
+        )
+        self.assertIn("invalid ACMru value name", report.last_error)
+        self.assertIn("invalid", report.last_error)

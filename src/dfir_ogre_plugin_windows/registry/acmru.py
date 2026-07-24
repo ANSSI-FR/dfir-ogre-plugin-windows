@@ -1,5 +1,4 @@
 import logging
-from datetime import datetime, timezone
 
 from dfir_ogre_common import (
     Metadata,
@@ -24,7 +23,7 @@ class RegAcMru(OgrePlugin):
     def description(self) -> PluginDescription:
         return PluginDescription(
             "RegAcMru",
-            "(no test data) Get search request from 'search assistant' for each user",
+            "Get Windows XP Search Assistant history from NTUSER.DAT",
         )
 
     def parse(
@@ -56,38 +55,31 @@ class RegAcMru(OgrePlugin):
         return report
 
     def parse_key(self, key: RegKey, output: Output, report: RunReport):
-        try:
-            for val in key.values():
-                tuple = Record()
-
-                tuple.add("search_request", value(val.data()))
-                tuple.add("order_index", value(val.name()))
-
-                tuple.add("key_path", value(key.path))
-                tuple.add("key_modif_time", value(key.mtime))
-                tuple.add(
-                    "key_security", Value.Object(key.security_descriptor.to_record())
+        indexed_values = []
+        for reg_value in key.values():
+            value_name = reg_value.name()
+            try:
+                order_index = int(value_name, 10)
+            except (TypeError, ValueError):
+                report.add_error(
+                    f"{key.path}: invalid ACMru value name {value_name!r}"
                 )
-                output.write(tuple)
-        except Exception as e:
-            # traceback.print_exception(e)
+                continue
+            indexed_values.append((order_index, reg_value))
 
-            report.add_error(f"{e}")
-
-
-def parse_date(date) -> datetime | None:
-    if date:
-        if isinstance(date, str):
-            f = "%m/%d/%Y %H:%M:%S"
-            dt = datetime.strptime(date, f)
-            return dt.replace(tzinfo=timezone.utc)
-        else:
-            return datetime.fromtimestamp(date, tz=timezone.utc)
-
-
-def parse_int(value) -> int | None:
-    if value:
-        if isinstance(value, str):
-            return int(value, base=16)
-        elif isinstance(value, int):
-            return value
+        for order_index, reg_value in sorted(
+            indexed_values,
+            key=lambda item: item[0],
+        ):
+            record = Record()
+            record.add("search_request", value(reg_value.data()))
+            record.add("order_index", value(order_index))
+            record.add("category", value(key.name))
+            record.add("key_path", value(key.path))
+            if order_index == 0:
+                record.add("key_modif_time", value(key.mtime))
+            record.add(
+                "key_security",
+                Value.Object(key.security_descriptor.to_record()),
+            )
+            output.write(record)

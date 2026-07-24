@@ -3,10 +3,11 @@
   <mapping data_type="acmru">
     <description
     ><![CDATA[
-Extracts Search Assistant  entries from `NTUser` hive. .
+Extracts Windows XP Search Assistant entries from the `NTUSER.DAT` hive.
 
-- Retrieves search queries entered in the Windows Search Assistant.
-- Provides the chronological order of the queries via `order_index`.
+- Retrieves search queries from category subkeys such as 5603 and 5604.
+- Emits entries in deterministic most-recent-first numeric order.
+- Associates the category key LastWrite time only with index 000.
 ]]>
     </description>
     <category>Application Specific</category>
@@ -36,8 +37,14 @@ Extracts Search Assistant  entries from `NTUser` hive. .
 
       <field
         input="order_index"
+        parser="Int"
+        description="Zero-based position of the query in the category MRU"
+      />
+
+      <field
+        input="category"
         parser="String"
-        description="position of the query in the MRU list (chronological order)"
+        description="Windows XP Search Assistant category identifier"
       />
 
       <!-- Registry Key data-->
