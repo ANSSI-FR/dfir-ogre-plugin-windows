@@ -3,7 +3,9 @@
   <mapping data_type="recent_app">
     <description
     ><![CDATA[
-Extracts information about applications and files recently accessed by a user from the `NtUser` hive. It parses each RecentApps key and its `RecentItems` sub‑key.
+Extracts the short-lived Windows 10 RecentApps artifact from the `NTUSER.DAT`
+hive. The key was introduced in version 1607 and removed in version 1709. It
+parses each RecentApps key and its `RecentItems` sub-key.
 
 - Provides per-application identifiers and launch statistics.
 - Captures timestamps of the last access for both the application and individual files.

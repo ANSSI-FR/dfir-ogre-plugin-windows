@@ -15,6 +15,10 @@ from dfir_ogre_common import (
 )
 
 from dfir_ogre_plugin_windows import RegWordWheelQuery
+from dfir_ogre_plugin_windows.registry.word_wheel_query import (
+    decode_word_wheel_value,
+    parse_mru_list_ex,
+)
 
 from . import CONF_FOLDER, DATA_FOLDER, TEMP_FOLDER
 
@@ -35,6 +39,19 @@ def word_wheel_key(values: dict[str, object]):
 
 
 class WordWheelQueryTest(TestCase):
+    def test_decoders_reject_non_binary_and_odd_length_values(self):
+        with self.assertRaisesRegex(ValueError, "MRUListEx is not binary"):
+            parse_mru_list_ex("not bytes")  # type: ignore[arg-type]
+        with self.assertRaisesRegex(ValueError, "value is not binary"):
+            decode_word_wheel_value("not bytes")  # type: ignore[arg-type]
+        with self.assertRaisesRegex(ValueError, "value length 1 is odd"):
+            decode_word_wheel_value(b"\x00")
+
+    def test_decoder_strips_nuls_without_stripping_whitespace(self):
+        encoded = "query  \x00".encode("utf-16-le")
+
+        self.assertEqual(decode_word_wheel_value(encoded), "query  ")
+
     def test_public_hive_is_emitted_in_mru_list_order(self):
         plugin_file = os.path.join(CONF_FOLDER, "word_wheel_query.xml")
         input_file = os.path.join(

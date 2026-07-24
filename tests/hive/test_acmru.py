@@ -29,6 +29,20 @@ def acmru_key(values):
 
 
 class TestAcmru(TestCase):
+    def test_only_ascii_decimal_value_names_are_accepted(self):
+        for value_name in ("+0", "-0", " 0", "0_0", "\u0660"):
+            with self.subTest(value_name=value_name):
+                key = acmru_key([registry_value(value_name, "skip me")])
+                output = Mock()
+                report = RunReport()
+
+                RegAcMru().parse_key(key, output, report)
+
+                output.write.assert_not_called()
+                self.assertIsNotNone(report.last_error)
+                self.assertIn("invalid ACMru value name", report.last_error)
+                self.assertIn(repr(value_name), report.last_error)
+
     def test_values_are_sorted_and_only_newest_has_timestamp(self):
         key = acmru_key(
             [
@@ -85,3 +99,32 @@ class TestAcmru(TestCase):
         )
         self.assertIn("invalid ACMru value name", report.last_error)
         self.assertIn("invalid", report.last_error)
+
+    def test_unexpected_category_error_does_not_suppress_later_category(self):
+        failing_key = acmru_key([])
+        failing_key.path = (
+            r"HKCU\Software\Microsoft\Search Assistant\ACMru\corrupt"
+        )
+        failing_key.values.side_effect = RuntimeError("corrupt category")
+        valid_key = acmru_key([registry_value("000", "keep me")])
+        output = Mock()
+        report = RunReport()
+        parser = RegAcMru()
+
+        try:
+            parser.parse_key(failing_key, output, report)
+        except RuntimeError as error:
+            self.fail(f"category error escaped parse_key: {error}")
+        parser.parse_key(valid_key, output, report)
+
+        records = [
+            json.loads(call.args[0].to_string())
+            for call in output.write.call_args_list
+        ]
+        self.assertEqual(
+            [record["search_request"] for record in records],
+            ["keep me"],
+        )
+        self.assertIsNotNone(report.last_error)
+        self.assertIn("corrupt category", report.last_error)
+        self.assertIn(failing_key.path, report.last_error)

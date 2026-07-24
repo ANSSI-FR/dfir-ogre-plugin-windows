@@ -43,7 +43,8 @@ a separate plugin.
   UTF-16LE decoding.
 - Replace zero-row end-to-end assertions with positive tests against two small
   public hives.
-- Preserve source URLs and SHA-256 hashes for all newly committed fixtures.
+- Preserve immutable source URLs, SHA-256 hashes, and complete redistribution
+  license texts for all newly committed fixtures.
 - Keep existing parser command names and data types compatible.
 
 ## Non-goals
@@ -137,7 +138,7 @@ Windows XP Search Assistant history.
 
 ### Output behavior
 
-For every decimal-named value below a category subkey, emit:
+For every non-empty ASCII decimal-named value below a category subkey, emit:
 
 - `search_request`: the registry value data;
 - `order_index`: the decimal value name converted to an integer;
@@ -146,8 +147,9 @@ For every decimal-named value below a category subkey, emit:
 - `key_path`; and
 - `key_security`.
 
-Values will be sorted by numeric `order_index` before output. A non-decimal
-value name will produce a contextual `RunReport` error and will be skipped
+Values will be sorted by numeric `order_index` before output. Signed,
+whitespace-padded, underscore-separated, non-ASCII, and otherwise non-decimal
+value names will produce contextual `RunReport` errors and will be skipped
 without suppressing valid sibling values.
 
 Only the record with `order_index == 0` will contain `key_modif_time`. Older
@@ -157,6 +159,10 @@ can therefore remain attached to `key_modif_time` without generating falsely
 timestamped events for older queries.
 
 The unused `parse_date` and `parse_int` helpers will be removed.
+
+Unexpected failures while enumerating or decoding one category will be reported
+with that category's path and will not escape `parse_key` or suppress later
+category keys.
 
 ## `RegWordWheelQuery`
 
@@ -239,9 +245,10 @@ hive so it can be consumed directly by `Registry.load`.
 - Stored-file SHA-256:
   `672abb15ae62fa8c002c5ee0a730cf83cd5f40706d5ffdec8f1179cf47a0bd03`
 
-Add `tests/data/hive/SOURCES.md` with source URLs, stored filenames, byte sizes,
-SHA-256 hashes, decompression information, and the upstream repository license
-links. Tests must not access the network.
+Add `tests/data/hive/SOURCES.md` with immutable commit-pinned source URLs,
+stored filenames, byte sizes, SHA-256 hashes, decompression information, and
+links to complete locally redistributed upstream license texts. Tests must not
+access the network.
 
 ## Test strategy
 
@@ -270,7 +277,9 @@ supplied out of order. Assert:
 - integer `order_index`;
 - `category == "5603"` on every record;
 - only index zero contains `key_modif_time`; and
-- a malformed value name is reported and skipped without losing valid values.
+- malformed and decorated value names are reported and skipped without losing
+  valid values; and
+- an unexpected failure in one category does not suppress a later category.
 
 ### WordWheelQuery
 

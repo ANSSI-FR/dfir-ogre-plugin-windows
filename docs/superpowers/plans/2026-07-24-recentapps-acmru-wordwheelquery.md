@@ -13,7 +13,8 @@
 - Keep `RegRecentApp` and `RegAcMru` command names and data types available.
 - Implement WordWheelQuery as the additive `RegWordWheelQuery` command with `data_type="word_wheel_query"`.
 - Store both downloaded fixtures locally; tests must not access the network.
-- Record each fixture's source URL, byte size, SHA-256, decompression status, and upstream license.
+- Record each fixture's immutable source URL, byte size, SHA-256,
+  decompression status, and complete locally redistributed upstream license.
 - Never stringify an absent registry value as `"None"`.
 - Emit the registry key LastWrite time only for the newest entry in ACMru and WordWheelQuery.
 - Do not infer timestamps for older MRU entries.
@@ -28,6 +29,8 @@
 - Create: `tests/data/hive/NTUSER_RECENT_APPS.dat`
 - Create: `tests/data/hive/NTUSER_WORD_WHEEL_QUERY.dat`
 - Create: `tests/data/hive/SOURCES.md`
+- Create: `tests/data/hive/licenses/regipy-MIT.txt`
+- Create: `tests/data/hive/licenses/plaso-Apache-2.0.txt`
 
 **Interfaces:**
 - Consumes: the already downloaded `/tmp/regipy-transactions-NTUSER.DAT` and `/tmp/plaso-NTUSER-WIN7.DAT` files
@@ -82,10 +85,11 @@ Create `tests/data/hive/SOURCES.md` with:
 ## `NTUSER_RECENT_APPS.dat`
 
 - Source:
-  <https://github.com/mkorman90/regipy/raw/master/regipy_tests/data/transactions_NTUSER.DAT.xz>
+  <https://raw.githubusercontent.com/mkorman90/regipy/f78c55ae67ad7672660a255569c20650de5564de/regipy_tests/data/transactions_NTUSER.DAT.xz>
 - Upstream project: <https://github.com/mkorman90/regipy>
-- Upstream license: MIT,
-  <https://github.com/mkorman90/regipy/blob/master/LICENSE>
+- Upstream commit: `f78c55ae67ad7672660a255569c20650de5564de`
+- Upstream license: MIT; the complete copyright and permission notice is
+  redistributed in [`licenses/regipy-MIT.txt`](licenses/regipy-MIT.txt).
 - Stored form: XZ source decompressed once; registry hive bytes are otherwise
   unmodified.
 - Size: 1,048,576 bytes
@@ -97,10 +101,13 @@ Create `tests/data/hive/SOURCES.md` with:
 ## `NTUSER_WORD_WHEEL_QUERY.dat`
 
 - Source:
-  <https://github.com/log2timeline/plaso/raw/main/test_data/NTUSER-WIN7.DAT>
+  <https://raw.githubusercontent.com/log2timeline/plaso/4ea03ef9a48dad5284c371ac9b537a184b3eea9c/test_data/NTUSER-WIN7.DAT>
 - Upstream project: <https://github.com/log2timeline/plaso>
-- Upstream license: Apache License 2.0,
-  <https://github.com/log2timeline/plaso/blob/main/LICENSE>
+- Upstream commit: `4ea03ef9a48dad5284c371ac9b537a184b3eea9c`
+- Upstream license: Apache License 2.0; the complete license is redistributed
+  in
+  [`licenses/plaso-Apache-2.0.txt`](licenses/plaso-Apache-2.0.txt).
+- Upstream `4ea03ef9a48dad5284c371ac9b537a184b3eea9c` contains no `NOTICE` file.
 - Stored form: raw upstream registry hive, unmodified.
 - Size: 1,310,720 bytes
 - SHA-256:
@@ -127,7 +134,9 @@ Expected: the hashes exactly match Step 1.
 git add \
   tests/data/hive/NTUSER_RECENT_APPS.dat \
   tests/data/hive/NTUSER_WORD_WHEEL_QUERY.dat \
-  tests/data/hive/SOURCES.md
+  tests/data/hive/SOURCES.md \
+  tests/data/hive/licenses/regipy-MIT.txt \
+  tests/data/hive/licenses/plaso-Apache-2.0.txt
 git commit -m "Add search history registry fixtures"
 ```
 
@@ -316,7 +325,8 @@ git commit -m "Correct RecentApps path extraction"
 - Modify: `configuration/registry/acmru.xml`
 
 **Interfaces:**
-- Consumes: decimal registry value names below an ACMru category key
+- Consumes: non-empty ASCII decimal registry value names below an ACMru
+  category key
 - Produces: deterministic records with `search_request: str`, `order_index: int`, `category: str`, and `key_modif_time` only for index zero
 
 - [ ] **Step 1: Replace the zero-row ACMru test with focused key behavior tests**
@@ -428,16 +438,26 @@ Replace `parse_key` with:
 
 ```python
 def parse_key(self, key: RegKey, output: Output, report: RunReport):
+    try:
+        self._parse_key(key, output, report)
+    except Exception as error:
+        report.add_error(f"{key.path}: {error}")
+
+def _parse_key(self, key: RegKey, output: Output, report: RunReport):
     indexed_values = []
     for reg_value in key.values():
         value_name = reg_value.name()
-        try:
-            order_index = int(value_name, 10)
-        except (TypeError, ValueError):
+        if (
+            not isinstance(value_name, str)
+            or not value_name
+            or not value_name.isascii()
+            or not value_name.isdecimal()
+        ):
             report.add_error(
                 f"{key.path}: invalid ACMru value name {value_name!r}"
             )
             continue
+        order_index = int(value_name, 10)
         indexed_values.append((order_index, reg_value))
 
     for order_index, reg_value in sorted(

@@ -3,10 +3,11 @@
 ## `NTUSER_RECENT_APPS.dat`
 
 - Source:
-  <https://github.com/mkorman90/regipy/raw/master/regipy_tests/data/transactions_NTUSER.DAT.xz>
+  <https://raw.githubusercontent.com/mkorman90/regipy/f78c55ae67ad7672660a255569c20650de5564de/regipy_tests/data/transactions_NTUSER.DAT.xz>
 - Upstream project: <https://github.com/mkorman90/regipy>
-- Upstream license: MIT,
-  <https://github.com/mkorman90/regipy/blob/master/LICENSE>
+- Upstream commit: `f78c55ae67ad7672660a255569c20650de5564de`
+- Upstream license: MIT; the complete copyright and permission notice is
+  redistributed in [`licenses/regipy-MIT.txt`](licenses/regipy-MIT.txt).
 - Stored form: XZ source decompressed once; registry hive bytes are otherwise
   unmodified.
 - Size: 1,048,576 bytes
@@ -18,10 +19,13 @@
 ## `NTUSER_WORD_WHEEL_QUERY.dat`
 
 - Source:
-  <https://github.com/log2timeline/plaso/raw/main/test_data/NTUSER-WIN7.DAT>
+  <https://raw.githubusercontent.com/log2timeline/plaso/4ea03ef9a48dad5284c371ac9b537a184b3eea9c/test_data/NTUSER-WIN7.DAT>
 - Upstream project: <https://github.com/log2timeline/plaso>
-- Upstream license: Apache License 2.0,
-  <https://github.com/log2timeline/plaso/blob/main/LICENSE>
+- Upstream commit: `4ea03ef9a48dad5284c371ac9b537a184b3eea9c`
+- Upstream license: Apache License 2.0; the complete license is redistributed
+  in
+  [`licenses/plaso-Apache-2.0.txt`](licenses/plaso-Apache-2.0.txt).
+- Upstream `4ea03ef9a48dad5284c371ac9b537a184b3eea9c` contains no `NOTICE` file.
 - Stored form: raw upstream registry hive, unmodified.
 - Size: 1,310,720 bytes
 - SHA-256:

@@ -55,16 +55,26 @@ class RegAcMru(OgrePlugin):
         return report
 
     def parse_key(self, key: RegKey, output: Output, report: RunReport):
+        try:
+            self._parse_key(key, output, report)
+        except Exception as error:
+            report.add_error(f"{key.path}: {error}")
+
+    def _parse_key(self, key: RegKey, output: Output, report: RunReport):
         indexed_values = []
         for reg_value in key.values():
             value_name = reg_value.name()
-            try:
-                order_index = int(value_name, 10)
-            except (TypeError, ValueError):
+            if (
+                not isinstance(value_name, str)
+                or not value_name
+                or not value_name.isascii()
+                or not value_name.isdecimal()
+            ):
                 report.add_error(
                     f"{key.path}: invalid ACMru value name {value_name!r}"
                 )
                 continue
+            order_index = int(value_name, 10)
             indexed_values.append((order_index, reg_value))
 
         for order_index, reg_value in sorted(
