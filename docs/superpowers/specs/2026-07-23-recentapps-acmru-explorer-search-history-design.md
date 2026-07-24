@@ -1,4 +1,4 @@
-# RecentApps, ACMru, and WordWheelQuery Design
+# RecentApps, ACMru, and Explorer Search History Design
 
 Date: 2026-07-23
 
@@ -39,13 +39,15 @@ a separate plugin.
 - Give ACMru records deterministic numeric ordering and explicit category
   provenance.
 - Associate registry LastWrite time only with the newest search in each MRU.
-- Add a dedicated WordWheelQuery parser with correct `MRUListEx` ordering and
-  UTF-16LE decoding.
+- Add a dedicated Explorer Search History parser for the `WordWheelQuery`
+  artifact with correct `MRUListEx` ordering and UTF-16LE decoding.
 - Replace zero-row end-to-end assertions with positive tests against two small
   public hives.
 - Preserve immutable source URLs, SHA-256 hashes, and complete redistribution
   license texts for all newly committed fixtures.
-- Keep existing parser command names and data types compatible.
+- Keep existing parser command names and data types compatible. The new,
+  previously unreleased search-history parser uses a descriptive public name
+  rather than exposing the registry key's internal name.
 
 ## Non-goals
 
@@ -64,7 +66,8 @@ Keep three artifact-specific plugins:
 
 1. `RegRecentApp` for the short-lived Windows 10 RecentApps artifact.
 2. `RegAcMru` for the Windows XP Search Assistant ACMru artifact.
-3. `RegWordWheelQuery` for Windows 7 and later Explorer search history.
+3. `RegExplorerSearchHistory` for Windows 7 and later Explorer search history
+   stored in `WordWheelQuery`.
 
 The search-history plugins will use similar output field names where their
 semantics match, but will retain separate configurations and data types. This
@@ -164,19 +167,21 @@ Unexpected failures while enumerating or decoding one category will be reported
 with that category's path and will not escape `parse_key` or suppress later
 category keys.
 
-## `RegWordWheelQuery`
+## `RegExplorerSearchHistory`
 
 ### Registration and discovery
 
 Add:
 
-- `src/dfir_ogre_plugin_windows/registry/word_wheel_query.py`;
-- `configuration/registry/word_wheel_query.xml`;
+- `src/dfir_ogre_plugin_windows/registry/explorer_search_history.py`;
+- `configuration/registry/explorer_search_history.xml`;
 - an export from `src/dfir_ogre_plugin_windows/__init__.py`; and
-- `tests/hive/test_word_wheel_query.py`.
+- `tests/hive/test_explorer_search_history.py`.
 
-The plugin command will be `RegWordWheelQuery`, and its output data type will be
-`word_wheel_query`. It will inspect:
+The plugin command will be `RegExplorerSearchHistory`, and its output data type
+will be `explorer_search_history`. The public name describes the evidence to a
+user; `WordWheelQuery` remains in the technical description and error messages
+because it is the literal registry key and format name. It will inspect:
 
 ```text
 \HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\WordWheelQuery
@@ -237,7 +242,7 @@ Add two raw, unmodified hive files under `tests/data/hive`:
 The source is XZ-compressed; the repository fixture will be the decompressed
 hive so it can be consumed directly by `Registry.load`.
 
-### WordWheelQuery
+### Explorer Search History (`WordWheelQuery`)
 
 - Repository source: `log2timeline/plaso/test_data/NTUSER-WIN7.DAT`
 - Stored filename: `NTUSER_WORD_WHEEL_QUERY.dat`
@@ -281,7 +286,7 @@ supplied out of order. Assert:
   valid values; and
 - an unexpected failure in one category does not suppress a later category.
 
-### WordWheelQuery
+### Explorer Search History (`WordWheelQuery`)
 
 Use `NTUSER_WORD_WHEEL_QUERY.dat` for a positive end-to-end test. Its
 `MRUListEx` is `[1, 0, 0xffffffff]`, so assert two clean records in this order:
@@ -302,7 +307,7 @@ Run:
 uv run python -m unittest \
   tests.hive.test_recent_app \
   tests.hive.test_acmru \
-  tests.hive.test_word_wheel_query -v
+  tests.hive.test_explorer_search_history -v
 ```
 
 Then run the repository's complete unit-test suite and any configured formatter,
@@ -318,5 +323,6 @@ lint, or type checks used by the project.
 - Existing ACMru consumers will receive `order_index` as an integer rather than
   a string and will gain `category`.
 - Older ACMru records will no longer carry an unsupported timestamp.
-- WordWheelQuery is additive and has its own command, configuration, and data
-  type.
+- Explorer Search History is additive and has its own command, configuration,
+  and data type. `WordWheelQuery` remains visible as the underlying registry
+  artifact name, not as the user-facing plugin name.
