@@ -1,17 +1,17 @@
-# RecentApps, ACMru, and WordWheelQuery Implementation Plan
+# RecentApps, ACMru, and Explorer Search History Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Correct RecentApps and Windows XP ACMru extraction, add a dedicated Windows 7+ WordWheelQuery plugin, and validate the supported formats with two small public registry hives.
+**Goal:** Correct RecentApps and Windows XP ACMru extraction, add a dedicated Windows 7+ Explorer Search History plugin for the `WordWheelQuery` artifact, and validate the supported formats with two small public registry hives.
 
-**Architecture:** Keep one plugin per registry artifact and preserve the existing `RegRecentApp` and `RegAcMru` commands. Add `RegWordWheelQuery` as a separate plugin because its registry path, binary encoding, ordering, and OS scope differ from ACMru; all three plugins continue to use `dfir_ogre_common.Registry`, `Record`, `Output`, and XML output mappings.
+**Architecture:** Keep one plugin per registry artifact and preserve the existing `RegRecentApp` and `RegAcMru` commands. Add `RegExplorerSearchHistory` as a separate plugin for the `WordWheelQuery` key because its registry path, binary encoding, ordering, and OS scope differ from ACMru; all three plugins continue to use `dfir_ogre_common.Registry`, `Record`, `Output`, and XML output mappings.
 
 **Tech Stack:** Python 3.10, `unittest`, `dfir_ogre_common` registry/output APIs, XML plugin configurations, binary Windows registry hives.
 
 ## Global Constraints
 
 - Keep `RegRecentApp` and `RegAcMru` command names and data types available.
-- Implement WordWheelQuery as the additive `RegWordWheelQuery` command with `data_type="word_wheel_query"`.
+- Implement Explorer Search History as the additive `RegExplorerSearchHistory` command with `data_type="explorer_search_history"`; retain `WordWheelQuery` as the underlying registry artifact name.
 - Store both downloaded fixtures locally; tests must not access the network.
 - Record each fixture's immutable source URL, byte size, SHA-256,
   decompression status, and complete locally redistributed upstream license.
@@ -34,7 +34,7 @@
 
 **Interfaces:**
 - Consumes: the already downloaded `/tmp/regipy-transactions-NTUSER.DAT` and `/tmp/plaso-NTUSER-WIN7.DAT` files
-- Produces: stable local paths consumed by `tests/hive/test_recent_app.py` and `tests/hive/test_word_wheel_query.py`
+- Produces: stable local paths consumed by `tests/hive/test_recent_app.py` and `tests/hive/test_explorer_search_history.py`
 
 - [ ] **Step 1: Verify the downloaded source artifacts before copying**
 
@@ -545,29 +545,29 @@ git commit -m "Correct ACMru ordering and timestamps"
 
 ---
 
-### Task 4: Add the Dedicated WordWheelQuery Plugin
+### Task 4: Add the Dedicated Explorer Search History Plugin
 
 **Files:**
-- Create: `src/dfir_ogre_plugin_windows/registry/word_wheel_query.py`
-- Create: `configuration/registry/word_wheel_query.xml`
-- Create: `tests/hive/test_word_wheel_query.py`
+- Create: `src/dfir_ogre_plugin_windows/registry/explorer_search_history.py`
+- Create: `configuration/registry/explorer_search_history.xml`
+- Create: `tests/hive/test_explorer_search_history.py`
 - Modify: `src/dfir_ogre_plugin_windows/__init__.py`
 - Modify: `tests/test_configuration.py`
 
 **Interfaces:**
 - Produces: `parse_mru_list_ex(data: bytes) -> list[int]`
 - Produces: `decode_word_wheel_value(data: bytes) -> str`
-- Produces: `RegWordWheelQuery.parse_key(key, output, report) -> None`
-- Produces: registered command `RegWordWheelQuery` and data type `word_wheel_query`
+- Produces: `RegExplorerSearchHistory.parse_key(key, output, report) -> None`
+- Produces: registered command `RegExplorerSearchHistory` and data type `explorer_search_history`
 
-- [ ] **Step 1: Add the WordWheelQuery XML configuration first**
+- [ ] **Step 1: Add the Explorer Search History XML configuration first**
 
 Copy `configuration/registry/acmru.xml` to
-`configuration/registry/word_wheel_query.xml`, then make these exact changes:
+`configuration/registry/explorer_search_history.xml`, then make these exact changes:
 
 ```xml
-<plugin parser="RegWordWheelQuery" file_encoding="UTF_8">
-  <mapping data_type="word_wheel_query">
+<plugin parser="RegExplorerSearchHistory" file_encoding="UTF_8">
+  <mapping data_type="explorer_search_history">
 ```
 
 Use this description:
@@ -616,11 +616,11 @@ uv run python -m unittest \
 ```
 
 Expected: `FAIL` listing
-`configuration/registry/word_wheel_query.xml: RegWordWheelQuery`.
+`configuration/registry/explorer_search_history.xml: RegExplorerSearchHistory`.
 
 - [ ] **Step 3: Add the minimal registered plugin scaffold**
 
-Create `word_wheel_query.py` with:
+Create `explorer_search_history.py` with:
 
 ```python
 from dfir_ogre_common import (
@@ -640,12 +640,12 @@ from dfir_ogre_common import (
 from dfir_ogre_plugin_windows.common import value
 
 
-class RegWordWheelQuery(OgrePlugin):
+class RegExplorerSearchHistory(OgrePlugin):
     def description(self) -> PluginDescription:
         return PluginDescription(
-            "RegWordWheelQuery",
-            "Get Windows 7 and later Explorer WordWheelQuery history "
-            "from NTUSER.DAT",
+            "RegExplorerSearchHistory",
+            "Get Windows 7 and later Explorer search history from "
+            "WordWheelQuery in NTUSER.DAT",
         )
 
     def parse(
@@ -684,7 +684,9 @@ class RegWordWheelQuery(OgrePlugin):
 Export it from `src/dfir_ogre_plugin_windows/__init__.py`:
 
 ```python
-from .registry.word_wheel_query import RegWordWheelQuery as RegWordWheelQuery
+from .registry.explorer_search_history import (
+    RegExplorerSearchHistory as RegExplorerSearchHistory,
+)
 ```
 
 The additional XML security descriptor mapping is intentional. Update the
@@ -710,7 +712,7 @@ Expected: `OK`.
 
 - [ ] **Step 5: Add positive real-hive and focused error tests**
 
-Create `tests/hive/test_word_wheel_query.py` with:
+Create `tests/hive/test_explorer_search_history.py` with:
 
 ```python
 import json
@@ -729,7 +731,7 @@ from dfir_ogre_common import (
     Value,
 )
 
-from dfir_ogre_plugin_windows import RegWordWheelQuery
+from dfir_ogre_plugin_windows import RegExplorerSearchHistory
 
 from . import CONF_FOLDER, DATA_FOLDER, TEMP_FOLDER
 
@@ -749,9 +751,12 @@ def word_wheel_key(values: dict[str, object]):
     return key
 
 
-class WordWheelQueryTest(TestCase):
+class ExplorerSearchHistoryTest(TestCase):
     def test_public_hive_is_emitted_in_mru_list_order(self):
-        plugin_file = os.path.join(CONF_FOLDER, "word_wheel_query.xml")
+        plugin_file = os.path.join(
+            CONF_FOLDER,
+            "explorer_search_history.xml",
+        )
         input_file = os.path.join(
             DATA_FOLDER,
             "hive",
@@ -759,7 +764,7 @@ class WordWheelQueryTest(TestCase):
         )
         output_file = os.path.join(
             TEMP_FOLDER,
-            "word_wheel_public.word_wheel_query.jsonl",
+            "word_wheel_public.explorer_search_history.jsonl",
         )
         if os.path.exists(output_file):
             os.remove(output_file)
@@ -770,7 +775,7 @@ class WordWheelQueryTest(TestCase):
             with_timeline=False,
             include_empty=True,
         )
-        report = RegWordWheelQuery().parse(
+        report = RegExplorerSearchHistory().parse(
             input_file,
             plugin_file,
             RunConfiguration([output_config]),
@@ -808,7 +813,7 @@ class WordWheelQueryTest(TestCase):
         output = Mock()
         report = RunReport()
 
-        RegWordWheelQuery().parse_key(key, output, report)
+        RegExplorerSearchHistory().parse_key(key, output, report)
 
         output.write.assert_not_called()
         self.assertIsNone(report.last_error)
@@ -818,7 +823,7 @@ class WordWheelQueryTest(TestCase):
         output = Mock()
         report = RunReport()
 
-        RegWordWheelQuery().parse_key(key, output, report)
+        RegExplorerSearchHistory().parse_key(key, output, report)
 
         output.write.assert_not_called()
         self.assertIn("MRUListEx length", report.last_error)
@@ -828,7 +833,7 @@ class WordWheelQueryTest(TestCase):
         output = Mock()
         report = RunReport()
 
-        RegWordWheelQuery().parse_key(key, output, report)
+        RegExplorerSearchHistory().parse_key(key, output, report)
 
         output.write.assert_not_called()
         self.assertIn("MRUListEx has no terminator", report.last_error)
@@ -843,7 +848,7 @@ class WordWheelQueryTest(TestCase):
         output = Mock()
         report = RunReport()
 
-        RegWordWheelQuery().parse_key(key, output, report)
+        RegExplorerSearchHistory().parse_key(key, output, report)
 
         records = [
             json.loads(call.args[0].to_string())
@@ -864,18 +869,18 @@ class WordWheelQueryTest(TestCase):
         output = Mock()
         report = RunReport()
 
-        RegWordWheelQuery().parse_key(key, output, report)
+        RegExplorerSearchHistory().parse_key(key, output, report)
 
         output.write.assert_not_called()
         self.assertIn("invalid UTF-16LE value 0", report.last_error)
 ```
 
-- [ ] **Step 6: Run WordWheelQuery behavior tests and verify RED**
+- [ ] **Step 6: Run Explorer Search History behavior tests and verify RED**
 
 Run:
 
 ```bash
-uv run python -m unittest tests.hive.test_word_wheel_query -v
+uv run python -m unittest tests.hive.test_explorer_search_history -v
 ```
 
 Expected: the public-hive test and four diagnostic tests fail because
@@ -968,29 +973,29 @@ def parse_key(self, key: RegKey, output: Output, report: RunReport):
         output.write(record)
 ```
 
-- [ ] **Step 8: Run WordWheelQuery and configuration tests and verify GREEN**
+- [ ] **Step 8: Run Explorer Search History and configuration tests and verify GREEN**
 
 Run:
 
 ```bash
 uv run python -m unittest \
-  tests.hive.test_word_wheel_query \
+  tests.hive.test_explorer_search_history \
   tests.test_configuration \
   -v
 ```
 
 Expected: all tests pass with no failures or errors.
 
-- [ ] **Step 9: Commit the WordWheelQuery plugin**
+- [ ] **Step 9: Commit the Explorer Search History plugin**
 
 ```bash
 git add \
-  src/dfir_ogre_plugin_windows/registry/word_wheel_query.py \
+  src/dfir_ogre_plugin_windows/registry/explorer_search_history.py \
   src/dfir_ogre_plugin_windows/__init__.py \
-  configuration/registry/word_wheel_query.xml \
-  tests/hive/test_word_wheel_query.py \
+  configuration/registry/explorer_search_history.xml \
+  tests/hive/test_explorer_search_history.py \
   tests/test_configuration.py
-git commit -m "Add WordWheelQuery registry plugin"
+git commit -m "Add Explorer search history registry plugin"
 ```
 
 ---
@@ -1012,7 +1017,7 @@ Run:
 uv run python -m unittest \
   tests.hive.test_recent_app \
   tests.hive.test_acmru \
-  tests.hive.test_word_wheel_query \
+  tests.hive.test_explorer_search_history \
   -v
 ```
 
@@ -1078,5 +1083,5 @@ git diff --stat HEAD~4..HEAD
 ```
 
 Expected: no uncommitted changes; the implementation consists of the fixture,
-RecentApps, ACMru, and WordWheelQuery commits after the implementation-plan
+RecentApps, ACMru, and Explorer Search History commits after the implementation-plan
 baseline.
