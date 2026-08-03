@@ -16,6 +16,17 @@ Parses files produced by the GetObjInfo utility, extracting Windows object infor
     <default_date_pattern value='%Y-%m-%d %H:%M:%S.%3f' />
     <csv_delimiter value="," />
 
+    <!-- Timeline definition -->
+    <timeline>
+      <timeline_type value="Standard" />
+      <description>
+        <output_name value="object_name" />
+      </description>
+      <additional_description >
+        <output_name value="object_path" />
+      </additional_description>
+    </timeline>
+
     <fields>
       <field
         input="ComputerName"
