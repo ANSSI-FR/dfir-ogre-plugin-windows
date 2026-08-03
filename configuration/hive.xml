@@ -2,7 +2,7 @@
 <plugin parser="HiveKey" file_encoding="UTF_8">
   <mapping data_type="hive">
     <description>Parse Windows Registry hive values</description>
-
+    <category>Windows Artefacts</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='%Y-%m-%d %H:%M:%S.%3f' />
     <truncate_values_after value="512" />
