@@ -3,13 +3,7 @@
   <mapping data_type="volstats">
     <description
     ><![CDATA[
-Parses a Windows volume‑statistics csv file. Each line describes:.
-
-- Computer name identifies the host that exported the volume list.
-- Volume ID and mount point uniquely reference the volume on the system.
-- Volume type indicates whether the volume is fixed, removable, etc.
-- Shadow‑copy ID links the entry to a specific VSS snapshot when present.
-- etc.
+Each row describes a volume observed by ORC, with host, volume identifier, mount point or device location, volume type, shadow-copy identifier, and indicators of which artifact sets were collected. Use it to map paths and records to the correct live volume or snapshot. It is collection metadata and does not itself represent file or user activity.
 ]]>
 </description>
     <short_description>Shows Windows volumes with identifiers, mount points, types, locations, shadow-copy IDs, and collected artefact sets.</short_description>

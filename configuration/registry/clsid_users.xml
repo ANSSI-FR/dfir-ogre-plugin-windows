@@ -3,11 +3,7 @@
   <mapping data_type="clsid">
     <description
     ><![CDATA[
-Enumerates every user‑specific COM class identifier (CLSID) stored in the `UsrClass` hive.
-
-- Provides a complete list of per‑user COM registrations.
-- Captures the executable that implements the COM object.
-- Records any alternate CLSID mapping via “TreatAs”.
+Each row is a per-user COM class registration, with CLSID, description, implementing executable or DLL, TreatAs redirection, and registry provenance. Use it to find user-scoped COM hijacking or persistence and attribute the registration to a profile. Registration alone does not prove that the COM object was instantiated or its code loaded.
 ]]>
     </description>
     <short_description>Shows per-user COM registrations with CLSIDs, descriptions, executables, redirects, and registry metadata.</short_description>

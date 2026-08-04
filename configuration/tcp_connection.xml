@@ -3,8 +3,8 @@
   <mapping data_type="tcpvcon">
     <description>
     <![CDATA[
-Parse a TCPView “Tcpvcon.txt” export.
-    ]]>
+Each row is a TCP or UDP endpoint from a Sysinternals Tcpvcon snapshot, with owning process and identifier, protocol and state, and local or remote addresses and ports. Use it to correlate collection-time network exposure with processes and other telemetry. It contains no payload or connection history, and process attribution can become stale as identifiers are reused.
+]]>
     </description>
     <short_description>Shows captured Windows TCP and UDP endpoints with owning processes, connection state, and local or remote addresses.</short_description>
     <category>Network</category>

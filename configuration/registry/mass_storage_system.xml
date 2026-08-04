@@ -3,10 +3,7 @@
   <mapping data_type="mass_storage">
     <description
     ><![CDATA[
-Extracts information about every USB (or other) mass‑storage device ever connected to a Windows system, using data from the `System` hive. It parses several registry locations (USBSTOR, DeviceClasses, USB, MountedDevices) and consolidates the results into a unified device view.
-
-- Provides device identification (class ID, instance ID, vendor/product IDs).
-- Lists registry paths, friendly names, and owning users
+Each row consolidates registry evidence for a mass-storage device, with device and instance identifiers, serial or volume labels, drive mapping, user context, and setup or arrival/removal times where available. Use it to correlate removable media across registry sources and file activity. Timestamps have source-specific meanings and should be corroborated before inferring an exact physical connection.
 ]]>
     </description>
     <short_description>Shows connected mass-storage devices with USB identifiers, serials, volume names, drive letters, users, and timestamps.</short_description>

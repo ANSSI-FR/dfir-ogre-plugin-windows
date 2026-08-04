@@ -3,12 +3,7 @@
   <mapping data_type="ntfsinfo">
     <description
     ><![CDATA[
-Extract NTFS's Master File Table (MFT) from an ORC‑generated CSV file.
-
-- Reconstructs exact file‑system hierarchy.
-- Provides creation, modification, access, and change timestamps.
-- Exposes NTFS attributes and USN information for change‑tracking.
-- Supplies cryptographic hashes (MD5, SHA‑1, SHA‑256) and PE‑specific metadata (version, company, compilation date).
+Each row represents an NTFS Master File Table record exported by ORC, with path, file and parent identifiers, standard and filename timestamps, attributes, size, hashes, and executable metadata. Use it to reconstruct filesystem state and correlate binaries or deleted records. NTFS timestamps can be altered or inherited and do not by themselves identify the actor or action.
 ]]>
 </description>
     <short_description>Shows MFT file records with paths, NTFS identifiers, timestamps, attributes, hashes, and executable metadata.</short_description>

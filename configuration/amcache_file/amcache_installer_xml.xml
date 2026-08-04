@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="XML" file_encoding="UTF_8">
   <mapping data_type="amcache_installer_xml">
-    <description>List installed software from various Xml files</description>
+    <description>Each row describes installed-software evidence from an Amcache XML report, including program identity, observed times, hash, publisher, and executable metadata. Use it to correlate software inventory with files and host activity. The report is a point-in-time inventory and does not by itself prove installation time or execution.</description>
     <short_description>Lists installed software, installation times, hashes, versions, vendors, and file metadata from Amcache XML reports.</short_description>
     <category>Services and Applications</category>
     <default_parser value="Ignore" />

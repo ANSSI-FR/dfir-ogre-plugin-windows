@@ -3,11 +3,7 @@
   <mapping data_type="scheduled_tasks">
     <description
     ><![CDATA[
-Extracts metadata for Windows scheduled tasks stored in the `Software` hive.
-
-- Retrieves task identifiers, authors, creation/registration dates and version.
-- Decodes action blocks (command, arguments, COM data) and links to boot, logon, maintenance and plain sub‑keys.
-- Extracts security information, including owner SID and ACLs.
+Each row reconstructs a Registry-backed scheduled task, with task identity, author, triggers, actions, command and arguments, registration or run metadata, exit code, and security information where available. Use it to hunt persistence and correlate task actions with binaries or accounts. Registration does not prove execution, and last-run fields may be absent or stale.
 ]]>
     </description>
     <short_description>Shows scheduled-task identity, triggers, actions, commands, arguments, authorship, timing, and registry security.</short_description>

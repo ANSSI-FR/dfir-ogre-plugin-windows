@@ -3,11 +3,7 @@
   <mapping data_type="user_assist">
     <description
     ><![CDATA[
-Extracts execution data stored in the `NTUser` hive.
-
-- Reveals which programs a user has launched and how often.
-- Provides the precise last‑run time for each entry.
-- Handles both legacy (16‑byte) and newer (72‑byte) UserAssist formats, including known‑folder GUID translation.
+Each row is a per-user UserAssist record for a GUI-launched item, with decoded path or name, run count, focus metrics, launch type, last-run time, and registry provenance. Use it as execution evidence and correlate user-attributed launches with files and other timelines. Counter semantics vary by format and Windows version, and absence does not exclude execution by other mechanisms.
 ]]>
     </description>
     <short_description>Shows per-user program execution counts, focus metrics, launch types, last-run times, and registry provenance.</short_description>

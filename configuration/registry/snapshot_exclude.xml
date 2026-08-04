@@ -3,11 +3,7 @@
   <mapping data_type="backup_exclude">
     <description
     ><![CDATA[
-Extracts entries that Windows marks as excluded from Volume Shadow Copy Service (VSS) and backup operations, from the `System` hive.
-
-- Provides a list of files/folders purposely omitted from snapshots.
-- Includes the registry key location, modification time and security owner.
-- Outputs data in a timeline‑compatible JSON‑L format for further analysis.
+Each row is a path configured for exclusion from Volume Shadow Copy or backup processing, with exclusion type, path, key LastWrite time, owner, and permissions. Use it to identify data omitted from recovery sources or suspicious attempts to reduce backup coverage. The setting records configuration intent and does not prove that a backup ran or exclusion occurred.
 ]]>
     </description>
     <short_description>Shows files and folders excluded from VSS or backups with exclusion type, path, owner, and registry timestamp.</short_description>

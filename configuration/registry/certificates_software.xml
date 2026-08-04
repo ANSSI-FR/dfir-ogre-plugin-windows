@@ -3,9 +3,7 @@
   <mapping data_type="x509_cert">
     <description
     ><![CDATA[
-Parses the Windows `Software` registry hive to collect system‑wide X509 certificates stored in the `Software` hive. It reads the binary certificate blobs, decodes them, and extracts key certificate attributes.
-
-- Provides complete certificate details (subject, issuer, validity period, public‑key algorithm, fingerprint).
+Each row is a machine-wide X.509 certificate decoded from the SOFTWARE hive, with subject, issuer, validity, public-key algorithm, fingerprint, and registry provenance. Use it to inventory trust material and identify unexpected issuers, subjects, or expired certificates. Store presence does not prove the certificate was trusted for a specific purpose or used in an observed connection.
 ]]>
     </description>
     <short_description>Shows machine-wide X.509 certificates with subjects, issuers, validity, keys, fingerprints, and registry provenance.</short_description>

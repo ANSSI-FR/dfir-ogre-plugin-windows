@@ -3,11 +3,7 @@
   <mapping data_type="usninfo">
     <description
     ><![CDATA[
-Parses the CSV export of the Windows USN Journal. It extracts metadata for every change to a file or directory. Each entry provides identifiers, timestamps, attribute flags and the reason for the change.
-
-- Reveals the exact moment a file was created, modified, deleted or renamed.
-- Supplies the unique FRN (File Reference Number) split into sequence / record numbers, enabling correlation of multiple events for the same object.
-- Lists granular attribute flags (archive, hidden, system, etc.) and change reasons (e.g., data write, security change).
+Each row is an NTFS USN Change Journal record, with file and parent identifiers, path, timestamp, reason flags, attributes, volume, and snapshot context. Use it to reconstruct sequences of filesystem changes and correlate renamed or deleted objects. Reason flags describe recorded changes rather than user intent, multiple changes can be combined, and journal retention is finite.
 ]]>
     </description>
     <short_description>Shows USN Journal file changes with paths, NTFS identifiers, timestamps, reasons, attributes, and source snapshots.</short_description>

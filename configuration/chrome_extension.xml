@@ -3,13 +3,7 @@
   <mapping data_type="chrome_extension">
     <description>
 <![CDATA[
-Extracts identity, provenance, security policy and execution metadata from Manifest V2 and
-Manifest V3 Chrome-based browser extensions.
-
-- Identifies the extension, installed version directory and source manifest.
-- Captures declared API, host and optional permissions.
-- Records content-script targets, background code and externally accessible resources.
-- Preserves both Manifest V2 string and Manifest V3 object content-security policies.
+Each row describes an installed Chrome extension manifest, including identity, version, source, update URL, declared permissions, content scripts, background code, accessible resources, and security policy. Use it to assess extension capability and provenance or hunt risky permissions and injected origins. Declared capability is not proof that code ran, and the snapshot can miss removed versions.
 ]]>
     </description>
     <short_description>Shows Chrome extension identity, version, source, permissions, scripts, resources, and security policy.</short_description>

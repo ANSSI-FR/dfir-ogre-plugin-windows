@@ -3,13 +3,7 @@
   <mapping data_type="recent_app">
     <description
     ><![CDATA[
-Extracts the short-lived Windows 10 RecentApps artifact from the `NTUSER.DAT`
-hive. The key was introduced in version 1607 and removed in version 1709. It
-parses each RecentApps key and its `RecentItems` sub-key.
-
-- Provides per-application identifiers and launch statistics.
-- Captures timestamps of the last access for both the application and individual files.
-- Preserves each recent file path and its optional arguments as separate fields.
+Each row describes an application or recent item from the short-lived Windows 10 RecentApps artifact, with program identity, launch count, last access time, file path, and arguments where available. Use it to associate applications with recently accessed files. The artifact is limited to Windows 10 versions 1607 through 1709, has finite retention, and absence does not exclude use.
 ]]>
     </description>
     <short_description>Shows Windows RecentApps launch counts and access times plus recently used file paths and arguments.</short_description>

@@ -3,11 +3,7 @@
   <mapping data_type="activity_cache">
     <description
     ><![CDATA[
-Extracts normalized records from the *Activity* and *ActivityOperation* tables used by Windows Activities Cache across schema versions. Matching logical versions are combined without collapsing distinct queued operations, and each result records its table provenance.
-
-- Detects legacy, modern, and partial layouts from available table columns.
-- Uses the native start time when present and explicitly marks a last-modified fallback.
-- Preserves payload evidence while emitting stable typed fields for analysis and timelines.
+Windows Activities Cache records application activities and queued operations across schema versions, with application identifiers, activity type and status, timing, payload, and device context. Use it to reconstruct user activity and correlate application events across devices. The start-time source distinguishes native activity times from last-modified fallbacks.
 ]]>
     </description>
     <short_description>Shows Windows Activities Cache application activity, operation times, status, payloads, and provenance.</short_description>

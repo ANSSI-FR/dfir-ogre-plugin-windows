@@ -3,13 +3,7 @@
   <mapping data_type="browser_download_history">
     <description
     ><![CDATA[
-Extracts records from the `places` sqlite database that Firefox uses to store download
-metadata. Each row contains the path of the saved file, the source URL, file size and
-timestamps for the start and end of the download.
-
-- Reveals which URLs were downloaded and where they were saved.
-- Provides the total byte count of each download.
-- Indicates whether a download entry has been removed (deleted flag).
+Each row represents Firefox download metadata recovered from the Places database, linking a source URL to a saved path, byte count, start and end times, state, and deletion flag where available. Use it to trace acquisition and correlate files with later activity. A history row does not guarantee the transfer completed or that the file was opened.
 ]]>
     </description>
     <short_description>Shows Firefox downloads with source URLs, saved paths, timestamps, sizes, and deletion state.</short_description>

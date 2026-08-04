@@ -3,10 +3,7 @@
   <mapping data_type="app_compat_cache">
     <description
     ><![CDATA[
-Extracts entries from the `AppCompatCache` value stored in the Windows `System` hive. It parses binary cache data, emitting each cached executable’s path, last‑write time, and associated registry metadata.
-
-- Provides the original file path used by the system for compatibility checks.
-- Shows when the cache entry was last updated, helping to infer program execution timelines.
+Each row is an executable path cached by Windows Application Compatibility, with file modification time, cache flags, index, and registry provenance. Use it to establish that Windows knew of a path and correlate it with stronger execution artifacts. AppCompatCache presence alone is not definitive execution evidence, and formats and flag meaning vary by Windows version.
 ]]>
     </description>
     <short_description>Shows AppCompatCache executable paths, file modification times, cache flags, and registry metadata.</short_description>

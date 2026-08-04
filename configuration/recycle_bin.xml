@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="RecycleBin" file_encoding="UTF_8">
   <mapping data_type="recycle_bin">
-    <description>Extracts metadata from Windows recycle‑bin files.</description>
+    <description>Each row represents Recycle Bin metadata for a deleted item, with original path, item size, deletion time, and format header. Use it to place a file or directory in a deletion timeline and correlate its former location with filesystem records. It does not identify the actor or prove permanent deletion, and metadata may be absent after cleanup or bypassing the Recycle Bin.</description>
     <short_description>Shows Recycle Bin entries with original paths, deletion times, sizes, and format headers.</short_description>
     <category>File System</category>
     <default_parser value="Ignore" />

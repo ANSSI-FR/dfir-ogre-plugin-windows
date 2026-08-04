@@ -3,9 +3,7 @@
   <mapping data_type="pending_rename">
     <description
     ><![CDATA[
-Extracts entries from the `PendingFileRenameOperations` value in the `System` hive. It lists file rename operations that Windows will perform on the next reboot, capturing the original and target paths.
-
-- Shows which files are scheduled for rename at startup.
+Each row is a file rename or deletion operation queued in PendingFileRenameOperations for the next reboot, with source and target paths plus registry provenance. Use it to identify delayed replacement, cleanup, or persistence actions and correlate affected files. The value records intent; it does not prove that a reboot occurred or the operation completed.
 ]]>
     </description>
     <short_description>Shows file rename or deletion operations queued for reboot with source and target paths plus registry metadata.</short_description>

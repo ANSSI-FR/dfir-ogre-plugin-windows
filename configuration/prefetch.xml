@@ -3,12 +3,7 @@
   <mapping data_type="prefetch">
     <description
     ><![CDATA[
-Parses Windows Prefetch files to extract execution metadata. It shows when and how often an executable ran, which supporting files were loaded, and storage details of the volumes involved.
-
-- Identifies the executable name and version.
-- Records the number of executions and the most recent run timestamp.
-- Lists files and volumes referenced by the executable.
-- Captures path hints that may point to additional artefacts.
+Each row describes a Windows Prefetch file for an executable, with executable name, prefetch version and hash, run count, recorded run times, referenced files, and source volumes. Use it as strong execution evidence and to correlate paths, devices, and supporting files. Creation depends on Windows configuration and workload, retention is limited, and absence does not prove non-execution.
 ]]>
     </description>
     <short_description>Shows Windows Prefetch execution evidence with executable names, run counts, last-run times, loaded files, and volumes.</short_description>

@@ -3,11 +3,7 @@
   <mapping data_type="reg_autoruns">
     <description>
       <![CDATA[
-Extracts persistence‑related registry data from the USER hive (HKCU).
-- Enumerates well‑known keys that Windows and third‑party software use for
-  automatic execution (autoruns) in the current user hive.
-- Groups the results by a *persistence type* (e.g. “Startup Run”, “Shell Load and Run”)
-  and returns the values found under each key.
+Each row is a per-user auto-start value found in a known user-hive persistence location, with persistence type, key and value, command data, LastWrite time, owner, and permissions. Use it to attribute configured persistence to a profile and correlate commands with files. Configuration does not prove execution, and LastWrite applies to the key rather than an individual value.
 ]]>
     </description>
     <short_description>Shows per-user autorun locations, persistence types, values, timestamps, owners, and permissions.</short_description>

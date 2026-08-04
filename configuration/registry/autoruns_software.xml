@@ -3,11 +3,7 @@
   <mapping data_type="reg_autoruns">
     <description>
       <![CDATA[
-Extracts persistence‑related registry data from the SOFTWARE hive.
-- Enumerates well‑known keys that Windows and third‑party software use for
-  automatic execution (autoruns).
-- Groups the results by a *persistence type* (e.g. “AppInit DLLs”, “Startup Run”)
-  and returns the values found under each key.
+Each row is a machine-wide auto-start value found in a known SOFTWARE-hive persistence location, with persistence type, key and value, command data, LastWrite time, owner, and permissions. Use it to identify configured persistence and correlate commands with files or accounts. Registry configuration does not prove the entry executed, and LastWrite applies to the key rather than an individual value.
 ]]>
     </description>
     <short_description>Shows machine-wide SOFTWARE-hive autorun locations, persistence types, values, timestamps, owners, and permissions.</short_description>

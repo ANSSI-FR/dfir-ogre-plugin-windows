@@ -3,10 +3,7 @@
   <mapping data_type="amcache_file">
     <description
         ><![CDATA[
-Retrieves cached executable file metadata from the Windows `AmCache` hive.
-
-- Expose what the OS stores for quick access to recently used files.
-- Extracts file name, path, size, raw Amcache file ID, normalized SHA‑1 hash, program identifiers, version info, timestamps, and security descriptors for forensic examination.
+Each row is a file inventory record from the Amcache hive, with path, normalized hash, size, program identifiers, version or publisher data, timestamps, and registry provenance. Use it to identify binaries and correlate software across files, programs, and hosts. Amcache presence is contextual inventory evidence, not standalone proof of execution, and schema semantics vary by Windows version.
 ]]>
     </description>
     <short_description>Shows Amcache executable file paths, hashes, sizes, versions, vendors, timestamps, programs, and registry metadata.</short_description>

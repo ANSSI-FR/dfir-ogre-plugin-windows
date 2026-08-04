@@ -3,12 +3,7 @@
   <mapping data_type="shellbags">
     <description
     ><![CDATA[
-Extracts the contents of Shell Bag structures stored in the `UsrClass` hive. These structures record directories and items that a user has browsed with Windows Explorer.
-
-It reconstructs the hierarchical path of each bag entry, exposing the folder path, item type, name and associated registry metadata such as modification timestamps and security descriptors. Each UsrClass hive is paired with the SYSTEM hive from the same VSS snapshot so DOS/FAT local timestamps can be normalized to UTC.
-
-- Retrieves browsed folder paths from the registry.
-- Identifies the item type (root folder, file entry, network location, etc.).
+Each row reconstructs a folder or item recorded in a user's Shellbag hierarchy, with browsed path, item type and name, embedded timestamps, and registry provenance. Use it to infer Explorer awareness of folders, including removable or network locations, and correlate paths with other user artifacts. Times belong to item or Registry structures rather than a guaranteed visit event; local DOS or FAT times are normalized with the matching SYSTEM hive.
 ]]>
     </description>
     <short_description>Shows folders browsed in Explorer with reconstructed paths, item metadata, timestamps, users, and registry provenance.</short_description>

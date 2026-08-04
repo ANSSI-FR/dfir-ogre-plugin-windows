@@ -3,15 +3,7 @@
   <mapping data_type="lnk">
     <description
     ><![CDATA[
-Extracts every pieces of metadata that is stored in a Windows Shell Link file.
-From a digital‑forensic perspective a shortcut can reveal:
-
-- the **target path** that a user intended to open (file, folder, network share, or special folder).
-- timestamps of the **target file** (creation, modification, access) and of the shortcut itself.
-- **command‑line arguments, working directory, icon information, hot‑key, window style** – all useful for reconstructing the user’s workflow.
-- **Link‑flags, file‑attributes, and extra data blocks** (e.g., Distributed Link Tracker, Shim layer, console properties) that can indicate the presence of shims, virtualisation, or relocation attempts.
-
-Each LNK or Jump List is paired with the SYSTEM hive from the same VSS snapshot. DOS/FAT timestamps embedded in target ID lists are local wall-clock values and are converted to UTC using that hive; FILETIME values in the LNK header remain unchanged.
+Each row describes a Windows Shell Link or Jump List shortcut, preserving target paths, arguments, working directory, target metadata, volume and tracker identifiers, link flags, and extra data. Use it to infer access or launch context and correlate files, devices, shares, and hosts, but shortcut creation alone does not prove the target was opened. Local DOS or FAT times are normalized with the matching SYSTEM hive; header FILETIME values remain unchanged.
 ]]>
  </description>
     <short_description>Shows Windows shortcut and Jump List targets, arguments, timestamps, volume data, link flags, and extra metadata.</short_description>

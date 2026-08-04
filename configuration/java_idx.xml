@@ -3,17 +3,7 @@
   <mapping data_type="java_idx">
     <description
     ><![CDATA[
-Extracts metadata about each downloaded artifact, including its URL, server IP, size,
-timestamps and signing status.
-
-The parser interprets version‑specific structures, handling incomplete or busy downloads, and
-converts dates to UTC where possible. All extracted fields are emitted as a structured tuple
-for downstream analysis.
-
-- Provides the original download URL and originating IP address.
-- Indicates whether the entry is a shortcut or an incomplete download.
-- Reports file size, last‑modified, expiration and optional signing flag.
-- Normalises timestamps to UTC for reliable chronology.
+Each row describes an artifact recorded in a Java deployment cache index, with source URL, server IP, size, cache state, signing flag, request data, and modification or expiry times. Use it to trace Java-delivered content and correlate cached files with network or execution evidence. Cache presence and a signing flag do not prove successful execution or trustworthiness.
 ]]>
       </description>
     <short_description>Shows Java cache downloads with URLs, server IPs, sizes, timestamps, completion state, and signing status.</short_description>

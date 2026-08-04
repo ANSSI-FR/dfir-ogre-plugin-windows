@@ -3,12 +3,7 @@
   <mapping data_type="pca_general_record">
     <description
     ><![CDATA[
-Extracts each line of a PCA log. It captures when a program was launched, its status, executable location and associated metadata such as description, vendor, version, and exit code.
-
-- Reveals the exact time a program was started.
-- Provides the executable’s full path for correlation with other artefacts.
-- Includes human‑readable file description, vendor and version for context.
-- Records the run status and exit code, useful for success/failure determination.
+Each row is a Program Compatibility Assistant general record, with run time, executable path, status, vendor, version, program identifier, and exit code where available. Use it to support execution analysis and correlate compatibility handling with binaries and other timelines. Status and exit code describe the recorded PCA interaction and should not alone be treated as the program's full outcome.
 ]]>
     </description>
     <short_description>Shows Program Compatibility Assistant execution records with paths, times, status, vendor, version, and exit code.</short_description>

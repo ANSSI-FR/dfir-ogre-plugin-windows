@@ -3,7 +3,7 @@
   <mapping data_type="i30info">
     <description
     ><![CDATA[
-Extract NTFS's $i30 informations from an ORC‑generated CSV file.
+Each row represents a current or carved NTFS directory-index entry, with name, reconstructed path, file and parent record identifiers, timestamps, size, attributes, volume, and snapshot. Use it to recover directory membership and possible deleted-name remnants. Carved records and embedded timestamps require corroboration, and a directory entry alone does not prove user interaction.
 ]]>
 </description>
     <short_description>Shows NTFS directory-index entries with paths, record identifiers, timestamps, sizes, attributes, and carving status.</short_description>

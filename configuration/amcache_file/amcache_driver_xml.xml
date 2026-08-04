@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="XML" file_encoding="UTF_8">
   <mapping data_type="amcache_driver_xml">
-    <description>List drivers from various xml report files</description>
+    <description>Each row is a driver inventory entry extracted from an Amcache XML report, with hash, name, version, vendor, size, and compilation metadata. Use these attributes to identify unusual or vulnerable drivers and correlate binaries across hosts. Inventory presence does not establish that the driver loaded or executed.</description>
     <short_description>Lists driver hashes, names, versions, vendors, sizes, and compilation metadata from Amcache XML reports.</short_description>
     <category>Services and Applications</category>
     <default_parser value="Ignore" />

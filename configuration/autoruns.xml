@@ -3,12 +3,7 @@
   <mapping data_type="autoruns">
     <description
     ><![CDATA[
-Parses CSV files produced by the Windows Autoruns utility, extracting entries that define programs or scripts that start automatically. It reads registry locations, file paths and related metadata to enumerate persistence mechanisms.
-
-- Reveals what programs are set to execute on boot or login.
-- Shows whether each autorun entry is active or disabled.
-- Identifies the exact file or command that will be launched.
-- Links each entry to its user profile, aiding attribution.
+Each row is an auto-start entry from a Sysinternals Autoruns CSV snapshot, with persistence location, entry name, enabled state, launch command, image path, profile, signer, and hashes. Use it to identify persistence candidates and correlate configured commands with files and users. Configuration at collection time does not prove the entry executed, and signature metadata is not a trust verdict.
 ]]>
 </description>
     <short_description>Shows autorun entries, launch commands, registry locations, users, signatures, hashes, and enabled state.</short_description>

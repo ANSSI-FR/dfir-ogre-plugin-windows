@@ -3,9 +3,7 @@
   <mapping data_type="x509_cert">
     <description
     ><![CDATA[
-Extracts X509 certificates stored in a user’s `NTUser` hive. It parses certificate blobs, decodes DER data, and outputs detailed certificate fields together with the originating registry key information.
-
-- Retrieves certificate subject, issuer, validity dates, public key algorithm and fingerprint, etc.
+Each row is a per-user X.509 certificate decoded from an NTUSER hive, with subject, issuer, validity, public-key algorithm, fingerprint, and registry provenance. Use it to attribute trust material to a profile and identify unexpected issuers or subjects. Store presence does not prove the certificate was trusted for a specific purpose or used in an observed connection.
 ]]>
     </description>
     <short_description>Shows per-user X.509 certificates with subjects, issuers, validity, keys, fingerprints, and registry provenance.</short_description>

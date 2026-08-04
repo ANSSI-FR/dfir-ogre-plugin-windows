@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="Evtx" file_encoding="UTF_8">
   <mapping data_type="windows_events">
-    <description>Parses windows evtx logs.</description>
+    <description>Each row represents a Windows EVTX event, preserving system metadata and structured event, user, and message data with its timestamp, provider, event identifier, host, user, and process context. Use event-specific semantics and cross-log correlation to build timelines. Log retention, clearing, collection filters, and missing provider resources can limit interpretation.</description>
     <short_description>Shows Windows EVTX events with timestamps, providers, event IDs, users, hosts, processes, and event data.</short_description>
     <category>Logs</category>
     <default_parser value="String" />

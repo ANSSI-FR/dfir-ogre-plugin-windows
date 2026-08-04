@@ -61,6 +61,33 @@ class ConfigurationTest(TestCase):
 
         self.assertEqual([], errors)
 
+    def test_all_artifact_mappings_define_bounded_description(self):
+        errors = []
+
+        for plugin_file in sorted(Path(CONF_FOLDER).rglob("*.xml")):
+            root = ET.parse(plugin_file).getroot()
+            for mapping in root.findall("mapping"):
+                data_type = mapping.attrib.get("data_type", "<unknown>")
+                location = f"{plugin_file}: {data_type}"
+                descriptions = mapping.findall("description")
+
+                if len(descriptions) != 1:
+                    errors.append(
+                        f"{location}: expected exactly one description, "
+                        f"found {len(descriptions)}"
+                    )
+                    continue
+
+                normalized = " ".join((descriptions[0].text or "").split())
+                if not normalized:
+                    errors.append(f"{location}: description is empty")
+                elif len(normalized) > 600:
+                    errors.append(
+                        f"{location}: description has {len(normalized)} characters"
+                    )
+
+        self.assertEqual([], errors)
+
     def test_all_artifact_mappings_define_a_timeline(self):
         missing = []
         for plugin_file in sorted(Path(CONF_FOLDER).rglob("*.xml")):

@@ -2,8 +2,7 @@
 <plugin parser="Srum" file_encoding="UTF_8">
   <mapping data_type="srum_app_timeline">
     <description
-        >Srum table that tracks statistics about inputs (focus, keyboard, mouse, etc.)
-      recieved by each application</description>
+        >Each row is a Windows SRUM application-timeline interval associated with an application and user, with focus duration, input, audio, network, disk, and CPU activity counters. Use it to compare application engagement and correlate resource activity over time. Counters are aggregated telemetry rather than individual actions, and coverage depends on SRUM retention.</description>
     <short_description>Shows per-application focus, input, audio, network, and duration statistics recorded by Windows SRUM.</short_description>
     <category>Services and Applications</category>
     <default_date_pattern value='iso' />
@@ -119,9 +118,7 @@
   </mapping>
   <mapping data_type="srum_application_resources">
     <description
-        >Srum table that tracks ressource usage for every exe that’s executed on the system
-      whether it still exists on disk or not. If it executed, it should be logged.
-    </description>
+        >Each row is a Windows SRUM resource-usage interval for an application and user, with foreground or background CPU cycles, context switches, and read, write, or flush counts. Use it to identify resource-intensive or previously observed applications and correlate usage over time. Aggregated counters do not reveal individual operations, and absence does not prove non-execution.</description>
     <short_description>Shows per-application CPU, I/O, foreground, and background resource usage over time from Windows SRUM.</short_description>
     <category>Services and Applications</category>
     <default_date_pattern value='iso' />
@@ -232,7 +229,7 @@
     </fields>
   </mapping>
   <mapping data_type="srum_energy_estimation">
-    <description>Parse data from srum</description>
+    <description>Each row preserves an SRUM energy-estimation record with timestamp, application and user identifiers, and an opaque binary payload. Use the identifiers and time for correlation or future schema-aware decoding. Because the payload is not interpreted by this mapping, it should not support claims about specific energy components or quantities.</description>
     <short_description>Preserves opaque per-application SRUM energy-estimation records with application, user, and timestamp context.</short_description>
     <category>Services and Applications</category>
     <default_date_pattern value='iso' />
@@ -262,9 +259,7 @@
   </mapping>
   <mapping data_type="srum_energy_usage">
     <description
-        >Srum table that tracks stores the per‑process estimates of how much electrical
-      energy Windows thinks each component has consumed over time.
-    </description>
+        >Each row is an SRUM battery or power-state event, with timestamp, state transition, designed or full capacity, charge level, cycle count, and configuration hash. Use it to reconstruct device power conditions around user or system activity. These are system energy-state records, not per-process consumption measurements.</description>
     <short_description>Shows SRUM battery energy events with state transitions, capacity, charge level, cycle count, and timestamps.</short_description>
     <category>Windows Artefacts</category>
     <category>Services and Applications</category>
@@ -309,8 +304,7 @@
   </mapping>
   <mapping data_type="srum_energy_usage_long_term">
     <description
-        >Srum table that tracks long term, per‑process estimates of how much electrical
-      energy Windows thinks each component has consumed over time.</description>
+        >Each row is an SRUM long-term power summary, with active or connected-standby time on AC or DC power, discharge duration and energy, battery capacity, cycle count, and configuration hash. Use it to establish broader power and uptime context. Values are aggregated system totals rather than discrete events or per-process measurements.</description>
     <short_description>Shows long-term SRUM energy estimates by application, user, power source, activity state, and capacity.</short_description>
     <category>Windows Artefacts</category>
     <default_date_pattern value='iso' />
@@ -363,7 +357,7 @@
   </mapping>
   <mapping data_type="srum_network_connectivity_usage">
     <description
-        >Srum table that tracks network connection time statistics per interface</description>
+        >Each row is an SRUM network-connectivity interval associated with an application, user, interface, and layer-2 profile, with connection start time and duration. Use it to place application network availability on a timeline and correlate profiles or interfaces. It records connectivity duration, not remote endpoints, payloads, or proof of a specific communication.</description>
     <short_description>Shows SRUM network connection sessions with application, user, interface, profile, start time, and duration.</short_description>
     <category>Network</category>
     <default_date_pattern value='iso' />
@@ -405,7 +399,7 @@
   </mapping>
   <mapping data_type="srum_network_data_usage">
     <description
-        >SRUM table that tracks how much network traffic each installed app consumes</description>
+        >Each row is an SRUM network-usage interval associated with an application, user, interface, and profile, with bytes sent and received. Use it to identify applications with network activity and correlate volume changes with other events. It provides aggregate byte counts, not remote endpoints, protocols, payloads, or individual connections.</description>
     <short_description>Shows per-application SRUM network traffic with users, interfaces, profiles, timestamps, and byte counts.</short_description>
     <category>Network</category>
     <default_date_pattern value='iso' />
@@ -444,7 +438,7 @@
   <!-- sdp tables referenced here https://github.com/EricZimmerman/Srum/issues/15 -->
   <mapping data_type="srum_sdp_volume">
     <description
-        >Srum table for windows server 2022 that tracks storage volumes information</description>
+        >Each row is Windows Server SRUM SDP volume telemetry with timestamp and total or used storage values plus application and user identifiers where recorded. Use it to track aggregate capacity changes or correlate resource context. It is summary telemetry, not evidence of which files caused the change.</description>
     <short_description>Shows Windows Server SRUM storage-volume capacity and usage with application, user, and timestamp context.</short_description>
     <category>File System</category>
     <default_date_pattern value='iso' />
@@ -476,7 +470,7 @@
   </mapping>
   <mapping data_type="srum_sdp_physical_disk">
     <description
-        >Srum table for windows server 2022 that tracks physical drive information</description>
+        >Each row is Windows Server SRUM SDP physical-disk telemetry with timestamp and disk-size value plus application and user identifiers where recorded. Use it to establish storage-resource context across observations. The mapping exposes aggregate size only and cannot identify partitions, files, or individual disk operations.</description>
     <short_description>Shows Windows Server SRUM physical-disk sizes with application, user, and timestamp context.</short_description>
     <category>File System</category>
     <default_date_pattern value='iso' />
@@ -506,7 +500,7 @@
   </mapping>
   <mapping data_type="srum_sdp_cpu">
     <description
-        >Srum table for windows server 2022 that tracks cpu time</description>
+        >Each row is Windows Server SRUM SDP processor telemetry with timestamp and accumulated processor time plus application and user identifiers where recorded. Use it to compare CPU usage context across intervals. The counter is aggregate telemetry and does not reveal individual instructions, threads, or actions.</description>
     <short_description>Shows Windows Server SRUM processor time with application, user, and timestamp context.</short_description>
     <category>Services and Applications</category>
     <default_date_pattern value='iso' />
@@ -536,7 +530,7 @@
   </mapping>
   <mapping data_type="srum_sdp_network">
     <description
-        >Srum table for windows server 2022 that tracks network activity</description>
+        >Each row is Windows Server SRUM SDP network telemetry with timestamp and inbound, outbound, and total byte counters plus application and user identifiers where recorded. Use it to identify changes in aggregate network use. The counters do not expose endpoints, protocols, payloads, or individual connections.</description>
     <short_description>Shows Windows Server SRUM inbound, outbound, and total network bytes by application, user, and time.</short_description>
     <category>Network</category>
     <default_date_pattern value='iso' />
@@ -567,9 +561,7 @@
     </fields>
   </mapping>
   <mapping data_type="srum_tagged_energy">
-    <description>Parse data from Srum `tagged_energy` table
-      ```{B6D82AF1-F780-4E17-8077-6CB9AD8A6FC4}```
-      ()</description>
+    <description>Each row preserves an SRUM tagged-energy table record with timestamp, application identifier, user identifier, and database identity fields. Use these keys to correlate otherwise opaque records with other SRUM tables. This mapping does not decode energy metrics, so the row should not support claims about consumption or activity type.</description>
     <short_description>Shows SRUM tagged-energy records with application, user, and timestamp identifiers for correlation.</short_description>
     <category>Windows Artefacts</category>
     <default_date_pattern value='iso' />
@@ -598,8 +590,7 @@
   </mapping>
   <mapping data_type="srum_vfuprov">
     <description
-        >Parse data from Srum `vfuprov` table ```{7ACBBAA3-D029-4BE4-9A7A-0885927F1D8F}```
-    </description>
+        >Each row preserves an SRUM VFU provider table record with timestamp, application identifier, user identifier, and database identity fields. Use these keys to correlate otherwise opaque provider records with other SRUM tables. Because no provider-specific payload is decoded, interpretation should remain limited to presence and temporal association.</description>
     <short_description>Shows SRUM VFU provider records with application, user, and timestamp identifiers for correlation.</short_description>
     <category>Windows Artefacts</category>
     <default_date_pattern value='iso' />
@@ -628,9 +619,7 @@
   </mapping>
   <mapping data_type="srum_wpn_provider">
     <description
-        >Srum table that tracks telemetry that Windows collects about the Windows Push
-      Notification (WPN) service – i.e., the background “push‑notification” system that delivers
-      toast, badge, tile, and raw notifications to modern (UWP/Store) apps.</description>
+        >Each row is Windows Push Notification telemetry from SRUM, associated with an application and user and including notification type, payload size, network type, and timestamp. Use it to correlate application notification activity with network and user timelines. It records notification metadata, not payload content or proof that a user viewed or acted on the notification.</description>
     <short_description>Shows SRUM push-notification activity with application, user, notification type, payload size, and network type.</short_description>
     <category>Windows Artefacts</category>
     <default_date_pattern value='iso' />
