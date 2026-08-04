@@ -5,6 +5,15 @@
     <category>Fast Find</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='%Y-%m-%d %H:%M:%S.%f' />
+
+    <!-- Timeline definition -->
+    <timeline>
+      <timeline_type value="Standard" />
+      <description>
+        <output_name value="description" />
+      </description>
+    </timeline>
+
     <xpath_tuple value="/fast_find/object/object_match" />
     <fields>
       <field input="@description" output="description" parser="String" />

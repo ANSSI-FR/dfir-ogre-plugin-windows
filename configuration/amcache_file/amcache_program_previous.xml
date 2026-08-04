@@ -7,6 +7,19 @@
     <default_parser value="Ignore" />
     <default_date_pattern value='%m/%d/%Y %H:%M:%S' />
 
+    <!-- Timeline definition -->
+    <timeline>
+      <timeline_type value="Standard" />
+      <description>
+        <output_name value="name" />
+      </description>
+      <additional_description>
+        <output_name value="version" />
+        <output_name value="publisher" />
+        <output_name value="source" />
+      </additional_description>
+    </timeline>
+
     <xpath_tuple value="//ProgramList/Program" />
     <fields>
         <field

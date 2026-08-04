@@ -27,6 +27,19 @@ class ConfigurationTest(TestCase):
 
         self.assertEqual([], unknown)
 
+    def test_all_artifact_mappings_define_a_timeline(self):
+        missing = []
+        for plugin_file in sorted(Path(CONF_FOLDER).rglob("*.xml")):
+            if plugin_file == Path(CONF_FOLDER, "merge_file.xml"):
+                continue
+            root = ET.parse(plugin_file).getroot()
+            for mapping in root.findall("mapping"):
+                if mapping.find("timeline") is None:
+                    data_type = mapping.attrib.get("data_type", "<unknown>")
+                    missing.append(f"{plugin_file}: {data_type}")
+
+        self.assertEqual([], missing)
+
     def test_timeline_output_names_reference_declared_fields(self):
         unresolved = []
         for plugin_file in sorted(Path(CONF_FOLDER).rglob("*.xml")):

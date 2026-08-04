@@ -10,6 +10,20 @@ Parse a TCPView “Tcpvcon.txt” export.
     <default_parser value="Ignore" />
     <default_date_pattern value='%Y-%m-%d %H:%M:%S.%3f' />
 
+    <!-- Timeline definition -->
+    <timeline>
+      <timeline_type value="Standard" />
+      <description>
+        <output_name value="process_name" />
+        <output_name value="protocol" />
+      </description>
+      <additional_description>
+        <output_name value="state" />
+        <output_name value="local_adress" />
+        <output_name value="remote_adress" />
+      </additional_description>
+    </timeline>
+
     <fields>
       <field input="process_name" parser="String" description="Process name" />
       <field input="pid" parser="String" description="PID" />

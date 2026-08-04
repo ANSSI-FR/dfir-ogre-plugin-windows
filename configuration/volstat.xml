@@ -17,6 +17,20 @@ Parses a Windows volume‑statistics csv file. Each line describes:.
     <default_date_pattern value='%Y-%m-%d %H:%M:%S.%3f' />
     <csv_delimiter value="," />
 
+    <!-- Timeline definition -->
+    <timeline>
+      <timeline_type value="Standard" />
+      <description>
+        <output_name value="mount_point" />
+        <output_name value="volumeid" />
+      </description>
+      <additional_description>
+        <output_name value="volume_type" />
+        <output_name value="location" />
+        <output_name value="shadow_copy" />
+      </additional_description>
+    </timeline>
+
     <fields>
       <field
         input="ComputerName"
