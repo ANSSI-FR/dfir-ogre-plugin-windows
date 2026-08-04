@@ -185,7 +185,7 @@ dependencies = [
 [[package]]
 name = "dfir-ogre-common"
 version = "2.0.0b2"
-source = { git = "https://github.com/ANSSI-FR/dfir-ogre-common.git?tag=2.0.0-beta2#34313390be5c566c87544f07fd0949d2186d705e" }
+source = { git = "https://github.com/ANSSI-FR/dfir-ogre-common.git#34313390be5c566c87544f07fd0949d2186d705e" }
 
 [[package]]
 name = "dfir-ogre-plugin-windows"
@@ -213,7 +213,7 @@ requires-dist = [
     { name = "cryptography", specifier = "==46.0.2" },
     { name = "dateutils", specifier = ">=0.6.12" },
     { name = "dfir-jumplist-parser", git = "https://github.com/ANSSI-FR/dfir-jumplist-parser.git" },
-    { name = "dfir-ogre-common", git = "https://github.com/ANSSI-FR/dfir-ogre-common.git?tag=2.0.0-beta2" },
+    { name = "dfir-ogre-common", git = "https://github.com/ANSSI-FR/dfir-ogre-common.git" },
     { name = "libesedb-python", specifier = "==20240420" },
     { name = "libevt-python", specifier = "==20240421" },
     { name = "libfwsi-python", specifier = ">=20240423" },
