@@ -11,6 +11,7 @@ Extract NTFS's Master File Table (MFT) from an ORC‑generated CSV file.
 - Supplies cryptographic hashes (MD5, SHA‑1, SHA‑256) and PE‑specific metadata (version, company, compilation date).
 ]]>
 </description>
+    <short_description>Shows MFT file records with paths, NTFS identifiers, timestamps, attributes, hashes, and executable metadata.</short_description>
     <category>File System</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='%Y-%m-%d %H:%M:%S.%3f' />

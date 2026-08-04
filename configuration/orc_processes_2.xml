@@ -12,6 +12,7 @@ Parses CSV files produced by ORC that enumerate running processes. It extracts e
 - Execution context: user‑mode/kernel‑mode time, responding state, privileged flag.
 ]]>
     </description>
+    <short_description>Shows ORC process records with identity, ancestry, command lines, users, timestamps, resource use, and status.</short_description>
     <category>Services and Applications</category>
     <default_date_pattern value='%d/%m/%Y %H:%M:%S' />
     <default_parser value="Ignore" />

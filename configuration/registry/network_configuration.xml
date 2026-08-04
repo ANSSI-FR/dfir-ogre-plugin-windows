@@ -9,6 +9,7 @@ Extracts network settings from the Windows `System` hive.
 - Provides DHCP‑derived addresses and DNS when enabled.
 ]]>
     </description>
+    <short_description>Shows Windows IP, mask, gateway, DHCP, DNS, interface, registry ownership, and configuration timestamps.</short_description>
     <category>System Information</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='iso' />

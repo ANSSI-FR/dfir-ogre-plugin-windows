@@ -13,6 +13,7 @@ permissions.
 - Includes installation and update timestamps.
 ]]>
     </description>
+    <short_description>Shows Firefox add-on identity, version, source, permissions, origins, and installation or update times.</short_description>
     <category>Browser Artefacts</category>
     <default_date_pattern value='iso' />
     <default_parser value="String" />

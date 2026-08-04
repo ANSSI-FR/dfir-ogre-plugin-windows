@@ -11,6 +11,7 @@ Parses PCA application launch data.
 - Helps identify usage of older or compatibility‑mode applications.
 ]]>
     </description>
+    <short_description>Shows Program Compatibility Assistant application launches with executable paths and precise timestamps.</short_description>
     <category>Logs</category>
     <default_date_pattern value='%Y-%m-%d %H:%M:%S.%f' />
     <!-- regexp specific parameters -->

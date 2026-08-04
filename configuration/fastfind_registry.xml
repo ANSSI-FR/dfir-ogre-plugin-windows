@@ -2,6 +2,7 @@
 <plugin parser="XML" file_encoding="UTF_8">
   <mapping data_type="fastfind_reg">
     <description>Parse the registry results of the fastfind tool</description>
+    <short_description>Shows FastFind registry matches with hive and key paths, values, data, timestamps, and snapshot context.</short_description>
     <category>Fast Find</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='%Y-%m-%d %H:%M:%S.%f' />

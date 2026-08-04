@@ -16,6 +16,7 @@ for downstream analysis.
 - Normalises timestamps to UTC for reliable chronology.
 ]]>
       </description>
+    <short_description>Shows Java cache downloads with URLs, server IPs, sizes, timestamps, completion state, and signing status.</short_description>
     <category>Application Specific</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='iso' />

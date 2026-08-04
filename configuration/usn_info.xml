@@ -10,6 +10,7 @@ Parses the CSV export of the Windows USN Journal. It extracts metadata for eve
 - Lists granular attribute flags (archive, hidden, system, etc.) and change reasons (e.g., data write, security change).
 ]]>
     </description>
+    <short_description>Shows USN Journal file changes with paths, NTFS identifiers, timestamps, reasons, attributes, and source snapshots.</short_description>
     <category>File System</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='%Y-%m-%d %H:%M:%S.%3f' />

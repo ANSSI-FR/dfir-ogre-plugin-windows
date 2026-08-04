@@ -14,6 +14,7 @@ From a digital‑forensic perspective a shortcut can reveal:
 Each LNK or Jump List is paired with the SYSTEM hive from the same VSS snapshot. DOS/FAT timestamps embedded in target ID lists are local wall-clock values and are converted to UTC using that hive; FILETIME values in the LNK header remain unchanged.
 ]]>
  </description>
+    <short_description>Shows Windows shortcut and Jump List targets, arguments, timestamps, volume data, link flags, and extra metadata.</short_description>
     <category>Windows Artefacts</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='iso' />

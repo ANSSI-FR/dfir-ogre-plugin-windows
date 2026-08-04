@@ -4,6 +4,7 @@
     <description
     ><![CDATA[Parse output from Sysinternals **ListDLL** tool that lists loaded DLLs for running processes on Windows.]]>
     </description>
+    <short_description>Shows DLLs loaded by running processes with process IDs, command lines, module paths, base addresses, and sizes.</short_description>
     <category>Services and Applications</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='%Y-%m-%d %H:%M:%S.%3f' />

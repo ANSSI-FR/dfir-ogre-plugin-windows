@@ -11,6 +11,7 @@ Extracts each line of a PCA log. It captures when a program was launched, its st
 - Records the run status and exit code, useful for success/failure determination.
 ]]>
     </description>
+    <short_description>Shows Program Compatibility Assistant execution records with paths, times, status, vendor, version, and exit code.</short_description>
     <category>Logs</category>
     <default_date_pattern value='%Y-%m-%d %H:%M:%S.%f' />
     <!-- regexp specific parameters -->

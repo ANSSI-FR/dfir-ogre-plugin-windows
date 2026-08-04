@@ -2,6 +2,7 @@
 <plugin parser="RecycleBin" file_encoding="UTF_8">
   <mapping data_type="recycle_bin">
     <description>Extracts metadata from Windows recycle‑bin files.</description>
+    <short_description>Shows Recycle Bin entries with original paths, deletion times, sizes, and format headers.</short_description>
     <category>File System</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='iso' />

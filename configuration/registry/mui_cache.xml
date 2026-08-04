@@ -8,6 +8,7 @@ Extracts entries from the per‑user MUI cache stored in the `Registry` hive.
 - Provides executable name and its human‑readable description.
 ]]>
     </description>
+    <short_description>Shows per-user MUI cache executable paths and display descriptions with registry ownership and timestamps.</short_description>
     <category>Services and Applications</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='iso' />

@@ -11,6 +11,7 @@ It reconstructs the hierarchical path of each bag entry, exposing the folder pat
 - Identifies the item type (root folder, file entry, network location, etc.).
 ]]>
     </description>
+    <short_description>Shows folders browsed in Explorer with reconstructed paths, item metadata, timestamps, users, and registry provenance.</short_description>
     <category>File System</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='iso' />

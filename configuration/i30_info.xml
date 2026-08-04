@@ -6,6 +6,7 @@
 Extract NTFS's $i30 informations from an ORC‑generated CSV file.
 ]]>
 </description>
+    <short_description>Shows NTFS directory-index entries with paths, record identifiers, timestamps, sizes, attributes, and carving status.</short_description>
     <category>File System</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='%Y-%m-%d %H:%M:%S.%3f' />

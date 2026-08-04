@@ -3,6 +3,7 @@
   <mapping data_type="amcache_ie_addon_xml">
     <description
     >List internet explorer addons from different xml report files</description>
+    <short_description>Lists Internet Explorer add-on identifiers, names, types, and publishers from Amcache XML reports.</short_description>
     <category>Services and Applications</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='%m/%d/%Y %H:%M:%S' />

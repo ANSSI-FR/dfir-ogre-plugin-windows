@@ -10,6 +10,7 @@ Enumerates every user‑specific COM class identifier (CLSID) stored in the `Usr
 - Records any alternate CLSID mapping via “TreatAs”.
 ]]>
     </description>
+    <short_description>Shows per-user COM registrations with CLSIDs, descriptions, executables, redirects, and registry metadata.</short_description>
     <category>Windows Artefacts</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='iso' />

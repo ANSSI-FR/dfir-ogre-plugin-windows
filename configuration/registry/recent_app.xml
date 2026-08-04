@@ -12,6 +12,7 @@ parses each RecentApps key and its `RecentItems` sub-key.
 - Preserves each recent file path and its optional arguments as separate fields.
 ]]>
     </description>
+    <short_description>Shows Windows RecentApps launch counts and access times plus recently used file paths and arguments.</short_description>
     <category>Services and Applications</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='iso' />

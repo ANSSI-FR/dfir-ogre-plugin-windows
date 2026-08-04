@@ -10,6 +10,7 @@ Extracts persistence‑related registry data from the SOFTWARE hive.
   and returns the values found under each key.
 ]]>
     </description>
+    <short_description>Shows machine-wide SOFTWARE-hive autorun locations, persistence types, values, timestamps, owners, and permissions.</short_description>
 
     <category>Persistence</category>
     <default_parser value="Ignore" />

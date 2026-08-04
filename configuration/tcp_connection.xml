@@ -6,6 +6,7 @@
 Parse a TCPView “Tcpvcon.txt” export.
     ]]>
     </description>
+    <short_description>Shows captured Windows TCP and UDP endpoints with owning processes, connection state, and local or remote addresses.</short_description>
     <category>Network</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='%Y-%m-%d %H:%M:%S.%3f' />

@@ -6,6 +6,7 @@
 Parses CSV files that list Volume Shadow Copy (VSS) snapshots.
     ]]>
     </description>
+    <short_description>Shows Volume Shadow Copy snapshots with snapshot IDs, source volumes, device paths, creation times, and attributes.</short_description>
 
     <category>File System</category>
     <csv_delimiter value="," />

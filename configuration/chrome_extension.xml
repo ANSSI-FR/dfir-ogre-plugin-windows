@@ -12,6 +12,7 @@ Manifest V3 Chrome-based browser extensions.
 - Preserves both Manifest V2 string and Manifest V3 object content-security policies.
 ]]>
     </description>
+    <short_description>Shows Chrome extension identity, version, source, permissions, scripts, resources, and security policy.</short_description>
     <category>Browser Artefacts</category>
     <default_parser value="Ignore" />
     <default_date_pattern value="iso" />

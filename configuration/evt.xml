@@ -3,6 +3,7 @@
   <mapping data_type="evt">
     <description
     >Parse Windows EventLog (EVT) files and emit one record per event.</description>
+    <short_description>Shows legacy Windows EVT events with provider, ID, message data, user, host, timestamps, and recovery status.</short_description>
     <category>Logs</category>
 
     <default_parser value="String" />

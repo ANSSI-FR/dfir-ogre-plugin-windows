@@ -10,6 +10,7 @@ Extracts persistence‑related registry data from the USER hive (HKCU).
   and returns the values found under each key.
 ]]>
     </description>
+    <short_description>Shows per-user autorun locations, persistence types, values, timestamps, owners, and permissions.</short_description>
 
     <category>Persistence</category>
     <default_parser value="Ignore" />

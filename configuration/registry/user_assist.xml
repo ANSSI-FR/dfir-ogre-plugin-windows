@@ -10,6 +10,7 @@ Extracts execution data stored in the `NTUser` hive.
 - Handles both legacy (16‑byte) and newer (72‑byte) UserAssist formats, including known‑folder GUID translation.
 ]]>
     </description>
+    <short_description>Shows per-user program execution counts, focus metrics, launch types, last-run times, and registry provenance.</short_description>
     <category>Services and Applications</category>
 
     <default_parser value="Ignore" />

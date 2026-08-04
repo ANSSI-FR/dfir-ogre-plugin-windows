@@ -10,6 +10,7 @@ Extracts normalized records from the *Activity* and *ActivityOperation* tables u
 - Preserves payload evidence while emitting stable typed fields for analysis and timelines.
 ]]>
     </description>
+    <short_description>Shows Windows Activities Cache application activity, operation times, status, payloads, and provenance.</short_description>
     <category>Services and Applications</category>
     <default_date_pattern value="iso" />
     <default_parser value="Ignore" />

@@ -12,6 +12,7 @@ Extracts data about Windows user profiles from the `Software` hive.
 - Provides registry key modification times and ACL details.
 ]]>
     </description>
+    <short_description>Shows Windows user profiles with SIDs, paths, hidden or admin status, state, timestamps, and registry permissions.</short_description>
     <category>System Information</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='iso' />

@@ -10,6 +10,7 @@ Extracts metadata for Windows scheduled tasks stored in the `Software` hive.
 - Extracts security information, including owner SID and ACLs.
 ]]>
     </description>
+    <short_description>Shows scheduled-task identity, triggers, actions, commands, arguments, authorship, timing, and registry security.</short_description>
     <category>Persistence</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='iso' />

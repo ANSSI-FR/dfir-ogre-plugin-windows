@@ -11,6 +11,7 @@ Extracts all service definitions from a Windows `System` hive, in the related co
 - Supplies raw values useful for correlation with other artefacts.
 ]]>
     </description>
+    <short_description>Shows Windows service names, start modes, executable paths, accounts, dependencies, parameters, and registry metadata.</short_description>
     <category>Persistence</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='iso' />

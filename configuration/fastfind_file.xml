@@ -2,6 +2,7 @@
 <plugin parser="FastFind" file_encoding="UTF_8">
   <mapping data_type="fastfind_file">
     <description>Parse the filesystem results of the fastfind tool</description>
+    <short_description>Shows FastFind filesystem matches with paths, NTFS identifiers, timestamps, attributes, hashes, and match context.</short_description>
     <category>Fast Find</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='%Y-%m-%d %H:%M:%S.%f' />

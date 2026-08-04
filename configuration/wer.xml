@@ -4,6 +4,7 @@
     <description
     >ParsesWindows Error Reporting files (WER), extracting metadata about crashes,
       hangs, and other failure events reported by the operating system.</description>
+    <short_description>Shows Windows Error Reporting events with application, crash or hang metadata, timestamps, status, and report IDs.</short_description>
     <category>Logs</category>
     <default_parser value="String" />
     <default_date_pattern value='file_time' />

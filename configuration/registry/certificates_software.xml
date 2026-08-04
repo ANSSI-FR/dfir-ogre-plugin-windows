@@ -8,6 +8,7 @@ Parses the Windows `Software` registry hive to collect system‑wide X509 certif
 - Provides complete certificate details (subject, issuer, validity period, public‑key algorithm, fingerprint).
 ]]>
     </description>
+    <short_description>Shows machine-wide X.509 certificates with subjects, issuers, validity, keys, fingerprints, and registry provenance.</short_description>
     <category>System Information</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='iso' />

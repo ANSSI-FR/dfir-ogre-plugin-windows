@@ -10,6 +10,7 @@ Extracts every CLSID registration stored in the machine‑wide `Software` hive.
 - Lists “TreatAs” links that redirect one CLSID to another.
 ]]>
     </description>
+    <short_description>Shows machine-wide COM registrations with CLSIDs, descriptions, executables, redirects, and registry metadata.</short_description>
     <category>Windows Artefacts</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='iso' />

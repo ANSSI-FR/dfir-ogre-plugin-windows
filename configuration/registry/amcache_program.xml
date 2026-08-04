@@ -9,6 +9,7 @@ Extracts metadata about installed programs from the Windows `AmCache` hive.
 - Captures installation source, directory paths, and MSI product/package codes.
 ]]>
     </description>
+    <short_description>Shows Amcache installed programs with names, versions, publishers, install dates, paths, and MSI identifiers.</short_description>
     <category>Services and Applications</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='iso' />

@@ -6,6 +6,7 @@ Reads a text file and concatenates every line into a single output line. It is a
 pre‑processing step that normalises multi‑line artefacts for downstream analysis.
 ]]>     
     </description>
+    <short_description>Provides the complete text of a multiline artefact as one normalized record for downstream analysis.</short_description>
     <category>File System</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='iso' />

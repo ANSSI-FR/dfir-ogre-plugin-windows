@@ -11,6 +11,7 @@ Extracts Subject Interface Package (SIP) records from the Windows `Software` hiv
 - Includes the registry key owner SID for user association.
 ]]>
     </description>
+    <short_description>Shows Subject Interface Packages with GUIDs, names, DLL paths, entry points, owners, and registry timestamps.</short_description>
     <category>Services and Applications</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='iso' />

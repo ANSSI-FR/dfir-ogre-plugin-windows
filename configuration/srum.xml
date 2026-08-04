@@ -4,6 +4,7 @@
     <description
         >Srum table that tracks statistics about inputs (focus, keyboard, mouse, etc.)
       recieved by each application</description>
+    <short_description>Shows per-application focus, input, audio, network, and duration statistics recorded by Windows SRUM.</short_description>
     <category>Services and Applications</category>
     <default_date_pattern value='iso' />
     <default_parser value="String" />
@@ -121,6 +122,7 @@
         >Srum table that tracks ressource usage for every exe that’s executed on the system
       whether it still exists on disk or not. If it executed, it should be logged.
     </description>
+    <short_description>Shows per-application CPU, I/O, foreground, and background resource usage over time from Windows SRUM.</short_description>
     <category>Services and Applications</category>
     <default_date_pattern value='iso' />
     <default_parser value="String" />
@@ -231,6 +233,7 @@
   </mapping>
   <mapping data_type="srum_energy_estimation">
     <description>Parse data from srum</description>
+    <short_description>Preserves opaque per-application SRUM energy-estimation records with application, user, and timestamp context.</short_description>
     <category>Services and Applications</category>
     <default_date_pattern value='iso' />
     <default_parser value="String" />
@@ -262,6 +265,7 @@
         >Srum table that tracks stores the per‑process estimates of how much electrical
       energy Windows thinks each component has consumed over time.
     </description>
+    <short_description>Shows SRUM battery energy events with state transitions, capacity, charge level, cycle count, and timestamps.</short_description>
     <category>Windows Artefacts</category>
     <category>Services and Applications</category>
     <default_date_pattern value='iso' />
@@ -307,6 +311,7 @@
     <description
         >Srum table that tracks long term, per‑process estimates of how much electrical
       energy Windows thinks each component has consumed over time.</description>
+    <short_description>Shows long-term SRUM energy estimates by application, user, power source, activity state, and capacity.</short_description>
     <category>Windows Artefacts</category>
     <default_date_pattern value='iso' />
     <default_parser value="String" />
@@ -359,6 +364,7 @@
   <mapping data_type="srum_network_connectivity_usage">
     <description
         >Srum table that tracks network connection time statistics per interface</description>
+    <short_description>Shows SRUM network connection sessions with application, user, interface, profile, start time, and duration.</short_description>
     <category>Network</category>
     <default_date_pattern value='iso' />
     <default_parser value="String" />
@@ -400,6 +406,7 @@
   <mapping data_type="srum_network_data_usage">
     <description
         >SRUM table that tracks how much network traffic each installed app consumes</description>
+    <short_description>Shows per-application SRUM network traffic with users, interfaces, profiles, timestamps, and byte counts.</short_description>
     <category>Network</category>
     <default_date_pattern value='iso' />
     <default_parser value="String" />
@@ -438,6 +445,7 @@
   <mapping data_type="srum_sdp_volume">
     <description
         >Srum table for windows server 2022 that tracks storage volumes information</description>
+    <short_description>Shows Windows Server SRUM storage-volume capacity and usage with application, user, and timestamp context.</short_description>
     <category>File System</category>
     <default_date_pattern value='iso' />
     <default_parser value="String" />
@@ -469,6 +477,7 @@
   <mapping data_type="srum_sdp_physical_disk">
     <description
         >Srum table for windows server 2022 that tracks physical drive information</description>
+    <short_description>Shows Windows Server SRUM physical-disk sizes with application, user, and timestamp context.</short_description>
     <category>File System</category>
     <default_date_pattern value='iso' />
     <default_parser value="String" />
@@ -498,6 +507,7 @@
   <mapping data_type="srum_sdp_cpu">
     <description
         >Srum table for windows server 2022 that tracks cpu time</description>
+    <short_description>Shows Windows Server SRUM processor time with application, user, and timestamp context.</short_description>
     <category>Services and Applications</category>
     <default_date_pattern value='iso' />
     <default_parser value="String" />
@@ -527,6 +537,7 @@
   <mapping data_type="srum_sdp_network">
     <description
         >Srum table for windows server 2022 that tracks network activity</description>
+    <short_description>Shows Windows Server SRUM inbound, outbound, and total network bytes by application, user, and time.</short_description>
     <category>Network</category>
     <default_date_pattern value='iso' />
     <default_parser value="String" />
@@ -559,6 +570,7 @@
     <description>Parse data from Srum `tagged_energy` table
       ```{B6D82AF1-F780-4E17-8077-6CB9AD8A6FC4}```
       ()</description>
+    <short_description>Shows SRUM tagged-energy records with application, user, and timestamp identifiers for correlation.</short_description>
     <category>Windows Artefacts</category>
     <default_date_pattern value='iso' />
     <default_parser value="String" />
@@ -588,6 +600,7 @@
     <description
         >Parse data from Srum `vfuprov` table ```{7ACBBAA3-D029-4BE4-9A7A-0885927F1D8F}```
     </description>
+    <short_description>Shows SRUM VFU provider records with application, user, and timestamp identifiers for correlation.</short_description>
     <category>Windows Artefacts</category>
     <default_date_pattern value='iso' />
     <default_parser value="String" />
@@ -618,6 +631,7 @@
         >Srum table that tracks telemetry that Windows collects about the Windows Push
       Notification (WPN) service – i.e., the background “push‑notification” system that delivers
       toast, badge, tile, and raw notifications to modern (UWP/Store) apps.</description>
+    <short_description>Shows SRUM push-notification activity with application, user, notification type, payload size, and network type.</short_description>
     <category>Windows Artefacts</category>
     <default_date_pattern value='iso' />
     <default_parser value="String" />

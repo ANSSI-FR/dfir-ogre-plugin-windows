@@ -9,6 +9,7 @@ Extracts entries from the `AppCompatCache` value stored in the Windows `System` 
 - Shows when the cache entry was last updated, helping to infer program execution timelines.
 ]]>
     </description>
+    <short_description>Shows AppCompatCache executable paths, file modification times, cache flags, and registry metadata.</short_description>
     <category>Services and Applications</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='iso' />

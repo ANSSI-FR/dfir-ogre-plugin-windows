@@ -12,6 +12,7 @@ timestamps for the start and end of the download.
 - Indicates whether a download entry has been removed (deleted flag).
 ]]>
     </description>
+    <short_description>Shows Firefox downloads with source URLs, saved paths, timestamps, sizes, and deletion state.</short_description>
     <category>Browser Artefacts</category>
     <default_date_pattern value='timestamp_ms' />
     <default_parser value="String" />

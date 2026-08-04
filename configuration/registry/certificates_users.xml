@@ -8,6 +8,7 @@ Extracts X509 certificates stored in a user’s `NTUser` hive. It parses certifi
 - Retrieves certificate subject, issuer, validity dates, public key algorithm and fingerprint, etc.
 ]]>
     </description>
+    <short_description>Shows per-user X.509 certificates with subjects, issuers, validity, keys, fingerprints, and registry provenance.</short_description>
     <category>System Information</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='iso' />

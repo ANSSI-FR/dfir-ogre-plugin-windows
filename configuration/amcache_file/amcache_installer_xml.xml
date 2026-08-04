@@ -2,6 +2,7 @@
 <plugin parser="XML" file_encoding="UTF_8">
   <mapping data_type="amcache_installer_xml">
     <description>List installed software from various Xml files</description>
+    <short_description>Lists installed software, installation times, hashes, versions, vendors, and file metadata from Amcache XML reports.</short_description>
     <category>Services and Applications</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='%m/%d/%Y %H:%M:%S' />

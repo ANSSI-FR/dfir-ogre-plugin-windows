@@ -11,6 +11,7 @@ Parses Windows Prefetch files to extract execution metadata. It shows when and h
 - Captures path hints that may point to additional artefacts.
 ]]>
     </description>
+    <short_description>Shows Windows Prefetch execution evidence with executable names, run counts, last-run times, loaded files, and volumes.</short_description>
     <category>Services and Applications</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='iso' />

@@ -10,6 +10,7 @@ Extracts entries that Windows marks as excluded from Volume Shadow Copy Service 
 - Outputs data in a timeline‑compatible JSON‑L format for further analysis.
 ]]>
     </description>
+    <short_description>Shows files and folders excluded from VSS or backups with exclusion type, path, owner, and registry timestamp.</short_description>
     <category>File System</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='iso' />

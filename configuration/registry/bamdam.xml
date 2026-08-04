@@ -6,6 +6,7 @@
 Extracts Activity Moderator (BAM/DAM) records from the Windows `System` hive. It parses user‑specific settings to retrieve the executable path and execution time.
 ]]>
     </description>
+    <short_description>Shows BAM and DAM executable execution evidence with user SIDs, run times, paths, and registry metadata.</short_description>
     <category>Services and Applications</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='iso' />

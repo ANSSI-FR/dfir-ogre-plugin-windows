@@ -12,6 +12,7 @@ The plugin queries the Containers and Container_X tables to retrieve URL visits 
 - AccessCount and SyncCount reveal frequency and synchronization patterns.
 ]]>
     </description>
+    <short_description>Shows Internet Explorer WebCache visits with URLs, cached files, timestamps, access counts, headers, and redirects.</short_description>
     <category>Browser Artefacts</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='timestamp' />

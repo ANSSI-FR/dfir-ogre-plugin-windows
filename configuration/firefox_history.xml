@@ -14,6 +14,7 @@ time.
 - Referrer reveals navigation paths.
 ]]>
     </description>
+    <short_description>Shows Firefox URL visits with titles, timestamps, visit counts, referrers, and hidden status.</short_description>
     <category>Browser Artefacts</category>
     <default_date_pattern value='timestamp_ms' />
     <default_parser value="String" />

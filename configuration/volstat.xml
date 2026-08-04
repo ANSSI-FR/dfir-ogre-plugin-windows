@@ -12,6 +12,7 @@ Parses a Windows volume‑statistics csv file. Each line describes:.
 - etc.
 ]]>
 </description>
+    <short_description>Shows Windows volumes with identifiers, mount points, types, locations, shadow-copy IDs, and collected artefact sets.</short_description>
     <category>File System</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='%Y-%m-%d %H:%M:%S.%3f' />

@@ -10,6 +10,7 @@ Extracts Windows XP Search Assistant entries from the `NTUSER.DAT` hive.
 - Associates the category key LastWrite time only with index 000.
 ]]>
     </description>
+    <short_description>Shows Windows XP Search Assistant queries with category, recency order, user ownership, and registry timestamps.</short_description>
     <category>Application Specific</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='iso' />

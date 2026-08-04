@@ -8,6 +8,7 @@ Extracts entries from the `PendingFileRenameOperations` value in the `System` hi
 - Shows which files are scheduled for rename at startup.
 ]]>
     </description>
+    <short_description>Shows file rename or deletion operations queued for reboot with source and target paths plus registry metadata.</short_description>
     <category>File System</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='iso' />

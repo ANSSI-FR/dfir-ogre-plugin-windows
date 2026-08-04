@@ -2,6 +2,7 @@
 <plugin parser="XML" file_encoding="UTF_8">
   <mapping data_type="fastfind_obj">
     <description>Parse the object result of the fastfind tool</description>
+    <short_description>Shows FastFind Windows object matches with object type, name, path, and match description.</short_description>
     <category>Fast Find</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='%Y-%m-%d %H:%M:%S.%f' />

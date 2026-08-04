@@ -11,6 +11,7 @@ Parses files produced by the GetObjInfo utility, extracting Windows object infor
 - Creation time records when a link was established.
 ]]>
 </description>
+    <short_description>Shows Windows object-manager entries with types, namespace paths, symbolic-link targets, and creation times.</short_description>
     <category>Windows Artefacts</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='%Y-%m-%d %H:%M:%S.%3f' />

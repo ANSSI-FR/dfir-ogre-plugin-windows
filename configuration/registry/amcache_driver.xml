@@ -9,6 +9,7 @@ Extracts driver metadata stored in the `AmCache` hive.
 - Captures file‑system information (path, size, raw Amcache driver ID, normalized SHA‑1, compilation date).
 ]]>
     </description>
+    <short_description>Shows Amcache driver names, paths, hashes, versions, vendors, sizes, compilation times, and registry metadata.</short_description>
     <category>Services and Applications</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='iso' />

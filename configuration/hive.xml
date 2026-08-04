@@ -2,6 +2,7 @@
 <plugin parser="HiveKey" file_encoding="UTF_8">
   <mapping data_type="hive">
     <description>Parse Windows Registry hive values</description>
+    <short_description>Shows raw Windows Registry keys and values with modification times, data types, owners, and access controls.</short_description>
     <category>Windows Artefacts</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='%Y-%m-%d %H:%M:%S.%3f' />

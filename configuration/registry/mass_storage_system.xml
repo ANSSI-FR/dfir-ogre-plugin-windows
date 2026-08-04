@@ -9,6 +9,7 @@ Extracts information about every USB (or other) mass‑storage device ever conne
 - Lists registry paths, friendly names, and owning users
 ]]>
     </description>
+    <short_description>Shows connected mass-storage devices with USB identifiers, serials, volume names, drive letters, users, and timestamps.</short_description>
     <category>File System</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='iso' />

@@ -9,6 +9,7 @@ Extracts entries from the `RunMRU` in the `NTUser` hive, which stores commands t
 - Preserves the alphabetical index indicating the order of entry.
 ]]>
     </description>
+    <short_description>Shows commands entered in the Windows Run dialog with MRU order, user ownership, and registry timestamps.</short_description>
     <category>Services and Applications</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='iso' />

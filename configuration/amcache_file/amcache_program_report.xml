@@ -3,6 +3,7 @@
   <mapping data_type="amcache_program_xml">
     <description
     >Parse installed programs from `FullCompatReport` reports</description>
+    <short_description>Lists installed programs and executable hashes, paths, versions, vendors, and run evidence from FullCompatReport.</short_description>
     <category>Services and Applications</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='%m/%d/%Y %H:%M:%S' />

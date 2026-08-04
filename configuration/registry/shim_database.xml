@@ -9,6 +9,7 @@ Extracts information about the Windows Application Compatibility Shim database s
 - Provides the installation timestamp and the physical file path of the shim database.
 ]]>
     </description>
+    <short_description>Shows installed application-compatibility shim databases with GUIDs, target paths, install times, and registry metadata.</short_description>
     <category>Services and Applications</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='iso' />

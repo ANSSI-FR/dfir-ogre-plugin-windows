@@ -11,6 +11,7 @@ Extracts Windows processes data from an ORC‑generated CSV file. It captures ba
 - Supplies process IDs, parent IDs and session information for relationship mapping.
 ]]>
     </description>
+    <short_description>Shows ORC process records with names, paths, command lines, IDs, parent IDs, sessions, and timestamps.</short_description>
     <category>Services and Applications</category>
     <default_date_pattern value='%Y%m%d-%H%M%S' />
     <default_parser value="Ignore" />

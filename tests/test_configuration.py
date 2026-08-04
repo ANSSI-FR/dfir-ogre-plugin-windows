@@ -27,6 +27,40 @@ class ConfigurationTest(TestCase):
 
         self.assertEqual([], unknown)
 
+    def test_all_artifact_mappings_define_short_description(self):
+        errors = []
+
+        for plugin_file in sorted(Path(CONF_FOLDER).rglob("*.xml")):
+            root = ET.parse(plugin_file).getroot()
+            for mapping in root.findall("mapping"):
+                data_type = mapping.attrib.get("data_type", "<unknown>")
+                location = f"{plugin_file}: {data_type}"
+                short_descriptions = mapping.findall("short_description")
+
+                if len(short_descriptions) != 1:
+                    errors.append(
+                        f"{location}: expected exactly one short_description, "
+                        f"found {len(short_descriptions)}"
+                    )
+                    continue
+
+                value = short_descriptions[0].text
+                if value is None or not value.strip():
+                    errors.append(f"{location}: short_description is empty")
+                    continue
+                if value != value.strip():
+                    errors.append(
+                        f"{location}: short_description has surrounding whitespace"
+                    )
+                if "\n" in value or "\r" in value:
+                    errors.append(f"{location}: short_description is not one line")
+                if len(value) > 120:
+                    errors.append(
+                        f"{location}: short_description has {len(value)} characters"
+                    )
+
+        self.assertEqual([], errors)
+
     def test_all_artifact_mappings_define_a_timeline(self):
         missing = []
         for plugin_file in sorted(Path(CONF_FOLDER).rglob("*.xml")):

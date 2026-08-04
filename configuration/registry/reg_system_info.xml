@@ -6,6 +6,7 @@
 Extracts various system information from the SYSTEM and SOFTWARE hives
 ]]>
     </description>
+    <short_description>Shows Windows host identity, OS version, build, install and shutdown times, role, architecture, and timezone.</short_description>
     <category>System Information</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='iso' />

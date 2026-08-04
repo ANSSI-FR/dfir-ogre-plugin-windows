@@ -11,6 +11,7 @@ Parses the download history database of a Chrome profile (typically `*/Default/H
 - Start/end timestamps, download state, danger type, interruption reason and whether the file was opened.
 ]]>
     </description>
+    <short_description>Shows Chrome downloads with source URLs, saved paths, timestamps, sizes, states, and danger indicators.</short_description>
     <category>Browser Artefacts</category>
     <default_date_pattern value='timestamp_ms' />
     <default_parser value="String" />

@@ -11,6 +11,7 @@ Parses CSV files produced by the Windows Autoruns utility, extracting entries 
 - Links each entry to its user profile, aiding attribution.
 ]]>
 </description>
+    <short_description>Shows autorun entries, launch commands, registry locations, users, signatures, hashes, and enabled state.</short_description>
     <category>Persistence</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='%Y%m%d-%H%M%S' />

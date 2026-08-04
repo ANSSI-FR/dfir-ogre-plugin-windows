@@ -9,6 +9,7 @@ Retrieves cached executable file metadata from the Windows `AmCache` hive.
 - Extracts file name, path, size, raw Amcache file ID, normalized SHA‑1 hash, program identifiers, version info, timestamps, and security descriptors for forensic examination.
 ]]>
     </description>
+    <short_description>Shows Amcache executable file paths, hashes, sizes, versions, vendors, timestamps, programs, and registry metadata.</short_description>
     <category>Services and Applications</category>
     <default_parser value="Ignore" />
     <default_date_pattern value='iso' />
