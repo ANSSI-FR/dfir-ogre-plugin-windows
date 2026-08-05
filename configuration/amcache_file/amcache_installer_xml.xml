@@ -20,122 +20,122 @@
     </timeline>
     <xpath_tuple value="//Installer" />
     <fields>
-        <field input="InstallInfo/@Name" output="name" parser="String" />
-        <field input="@CompletionState" output="complete" parser="String" />
+        <field input="InstallInfo/@Name" description="Name of the installed executable" output="name" parser="String" />
+        <field input="@CompletionState" description="Completion state of the installer session" output="complete" parser="String" />
         <field
-        input="ProgramIds/ProgramId/@Id"
+        input="ProgramIds/ProgramId/@Id" description="Program ID associated with the install"
         output="program_id"
         parser="String"
       />
         <field
-        input="@CreatedArpEntries"
+        input="@CreatedArpEntries" description="Number of Add/Remove Programs entries created"
         output="created_arp_entries"
         parser="String"
       />
 
-        <field input="@StartTime" output="start_time" parser="DateTime" />
-        <field input="@StopTime" output="stop_time" parser="DateTime" />
+        <field input="@StartTime" description="Installer session start time" output="start_time" parser="DateTime" />
+        <field input="@StopTime" description="Installer session end time" output="stop_time" parser="DateTime" />
 
         <field
-        input="InstallInfo/@ShortName"
+        input="InstallInfo/@ShortName" description="Short (8.3) name of the installed executable"
         output="short_name"
         parser="String"
       />
         <field
-        input="InstallInfo/@OsComponent"
+        input="InstallInfo/@OsComponent" description="Whether the installer is an OS component"
         output="is_os_component"
         parser="String"
       />
         <field
-        input="InstallInfo/@Size"
+        input="InstallInfo/@Size" description="Size of the installed executable in bytes"
         output="size"
         parser="IntRadix"
         radix="16"
       />
         <field
-        input="InstallInfo/@PeHeaderHash"
+        input="InstallInfo/@PeHeaderHash" description="Hash of the PE header"
         output="pe_header_hash"
         parser="String"
       />
         <field
-        input="InstallInfo/@SizeOfImage"
+        input="InstallInfo/@SizeOfImage" description="Size of the executable image in memory"
         output="image_size"
         parser="IntRadix"
         radix="16"
       />
         <field
-        input="InstallInfo/@PeChecksum"
+        input="InstallInfo/@PeChecksum" description="PE image checksum"
         output="pe_checksum"
         parser="String"
       />
         <field
-        input="InstallInfo/@LinkDate"
+        input="InstallInfo/@LinkDate" description="PE link (compilation) date"
         output="link_date"
         parser="String"
       />
         <field
-        input="InstallInfo/@LinkerVersion"
+        input="InstallInfo/@LinkerVersion" description="PE linker version"
         output="linker_version"
         parser="String"
       />
         <field
-        input="InstallInfo/@BinFileVersion"
+        input="InstallInfo/@BinFileVersion" description="Binary file version"
         output="bin_file_version"
         parser="String"
       />
         <field
-        input="InstallInfo/@BinProductVersion"
+        input="InstallInfo/@BinProductVersion" description="Binary product version"
         output="bin_product_version"
         parser="String"
       />
         <field
-        input="InstallInfo/@BinaryType"
+        input="InstallInfo/@BinaryType" description="PE binary type (exe, dll, driver)"
         output="binary_type"
         parser="String"
       />
         <field
-        input="InstallInfo/@Created"
+        input="InstallInfo/@Created" description="Installed executable creation timestamp"
         output="created"
         parser="DateTime"
       />
         <field
-        input="InstallInfo/@Modified"
+        input="InstallInfo/@Modified" description="Installed executable modification timestamp"
         output="modified"
         parser="DateTime"
       />
         <field
-        input="InstallInfo/@VerLanguage"
+        input="InstallInfo/@VerLanguage" description="Language code of the installed executable"
         output="version_language"
         parser="String"
       />
-        <field input="InstallInfo/@Id" output="sha1" parser="String" />
+        <field input="InstallInfo/@Id" description="SHA-1 hash of the installed executable" output="sha1" parser="String" />
         <field
-        input="InstallInfo/@SigPublisherName"
+        input="InstallInfo/@SigPublisherName" description="Publisher name from the signature"
         output="sig_publisher_name"
         parser="String"
       />
         <field
-        input="InstallInfo/@FileVersion"
+        input="InstallInfo/@FileVersion" description="Installed executable file version"
         output="file_version"
         parser="String"
       />
         <field
-        input="InstallInfo/@CompanyName"
+        input="InstallInfo/@CompanyName" description="Company (vendor) name"
         output="company"
         parser="String"
       />
         <field
-        input="InstallInfo/@FileDescription"
+        input="InstallInfo/@FileDescription" description="File description string"
         output="file_description"
         parser="String"
       />
         <field
-        input="InstallInfo/@ProductName"
+        input="InstallInfo/@ProductName" description="Product name"
         output="product"
         parser="String"
       />
         <field
-        input="InstallInfo/@LongPathHash"
+        input="InstallInfo/@LongPathHash" description="Hash of the long path storing the executable"
         output="long_path_hash"
         parser="String"
       />

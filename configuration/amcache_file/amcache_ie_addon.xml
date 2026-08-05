@@ -37,14 +37,14 @@
         output="name"
         parser="String"
         qualifier="APP_NAME"
-        description="Program name"
+        description="Add-on name"
       />
 
         <field
         input="@Type"
         output="type"
         parser="String"
-        description="AddOn type"
+        description="IE add-on type (e.g., Toolbar, BrowserExtension)"
       />
 
         <field
@@ -52,7 +52,7 @@
         output="publisher"
         parser="String"
         qualifier="PUBLISHER"
-        description="Program publisher"
+        description="Add-on publisher name"
       />
 
     </fields>

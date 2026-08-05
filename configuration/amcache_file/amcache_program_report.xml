@@ -68,68 +68,68 @@
           input="Indicators/RegistryIndicators/Registry"
           output="indicators"
         >
-                <field input="@Name" output="name" parser="String" />
-                <field input="@File" output="file" parser="String" />
-                <field input="@RegistryRun" output="run" parser="String" />
+                <field input="@Name" description="File name" output="name" parser="String" />
+                <field input="@File" description="File path from the static property" output="file" parser="String" />
+                <field input="@RegistryRun" description="Registry key/value that launched the program" output="run" parser="String" />
             </object>
         </array>
         <array>
             <object input="StaticProperties/Files/File" output="files">
-                <field input="@Name" output="name" parser="String" />
-                <field input="@Id" output="sha1" parser="String" />
+                <field input="@Name" description="File name" output="name" parser="String" />
+                <field input="@Id" description="SHA-1 hash of the file" output="sha1" parser="String" />
                 <field
-            input="@Size"
+            input="@Size" description="File size in bytes"
             output="size"
             parser="IntRadix"
             radix="16"
           />
-                <field input="@ProductName" output="product" parser="String" />
-                <field input="@CompanyName" output="company" parser="String" />
+                <field input="@ProductName" description="Product name" output="product" parser="String" />
+                <field input="@CompanyName" description="Company (vendor) name" output="company" parser="String" />
                 <field
-            input="@ProductVersion"
+            input="@ProductVersion" description="Product version"
             output="product_version"
             parser="String"
           />
                 <field
-            input="@VerLanguage"
+            input="@VerLanguage" description="Language code of the file"
             output="version_language"
             parser="String"
           />
                 <field
-            input="@FileVersion"
+            input="@FileVersion" description="File version number"
             output="file_version"
             parser="String"
           />
                 <field
-            input="@SizeOfImage"
+            input="@SizeOfImage" description="Size of the executable image in bytes"
             output="image_size"
             parser="IntRadix"
             radix="16"
           />
                 <field
-            input="@FileDescription"
+            input="@FileDescription" description="File description string"
             output="file_description"
             parser="String"
           />
                 <field
-            input="@LinkerVersion"
+            input="@LinkerVersion" description="PE linker version"
             output="linker_version"
             parser="String"
           />
-                <field input="@LinkDate" output="link_date" parser="DateTime" />
+                <field input="@LinkDate" description="PE link (compilation) date" output="link_date" parser="DateTime" />
                 <field
-            input="@BinaryType"
+            input="@BinaryType" description="PE binary type (exe, dll, driver)"
             output="binary_type"
             parser="String"
           />
-                <field input="@Created" output="created" parser="DateTime" />
-                <field input="@Modified" output="modified" parser="DateTime" />
+                <field input="@Created" description="File creation timestamp" output="created" parser="DateTime" />
+                <field input="@Modified" description="File modification timestamp" output="modified" parser="DateTime" />
                 <field
-            input="@LongPathHash"
+            input="@LongPathHash" description="Hash of the long path storing the file"
             output="long_path_hash"
             parser="String"
           />
-                <field input="@UniqueId" output="unique_id" parser="String" />
+                <field input="@UniqueId" description="Unique identifier of the file entry" output="unique_id" parser="String" />
             </object>
         </array>
     </fields>

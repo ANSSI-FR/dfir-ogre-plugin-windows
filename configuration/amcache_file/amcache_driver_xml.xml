@@ -20,31 +20,31 @@
     </timeline>
     <xpath_tuple value="//Driver" />
     <fields>
-        <field input="@DriverId" output="sha1" parser="String" />
-        <field input="@Name" output="name" parser="String" />
-        <field input="@Type" output="type" parser="String" />
-        <field input="@Version" output="version" parser="String" />
+        <field input="@DriverId" description="SHA-1 hash of the driver binary" output="sha1" parser="String" />
+        <field input="@Name" description="Driver name" output="name" parser="String" />
+        <field input="@Type" description="Driver type (e.g. Kernel, File System)" output="type" parser="String" />
+        <field input="@Version" description="Driver version" output="version" parser="String" />
         <field
-        input="@TimeStamp"
+        input="@TimeStamp" description="Driver compilation/link timestamp"
         output="compilation_date"
         parser="DateTime"
         date_codec="timestamp_hex"
       />
-        <field input="@CheckSum" output="checksum" parser="String" />
+        <field input="@CheckSum" description="Driver image checksum" output="checksum" parser="String" />
         <field
-        input="@ImageSize"
+        input="@ImageSize" description="Driver binary size in bytes"
         output="image_size"
         parser="IntRadix"
         radix="16"
       />
-        <field input="@Company" output="company" parser="String" />
-        <field input="@Product" output="product" parser="String" />
+        <field input="@Company" description="Driver vendor/company name" output="company" parser="String" />
+        <field input="@Product" description="Driver product name" output="product" parser="String" />
         <field
-        input="@ProductVersion"
+        input="@ProductVersion" description="Driver product version"
         output="product_version"
         parser="String"
       />
-        <field input="@WdfVersion" output="wdf_version" parser="String" />
+        <field input="@WdfVersion" description="Windows Driver Framework version" output="wdf_version" parser="String" />
     </fields>
   </mapping>
 </plugin>
