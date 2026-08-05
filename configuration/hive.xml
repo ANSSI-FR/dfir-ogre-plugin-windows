@@ -23,54 +23,54 @@
     </timeline>
 
     <fields>
-      <field input="path" parser="String" qualifier="KEY_PATH" />
-      <field input="mtime" parser="DateTime" qualifier="DATE_MODIFICATION" />
+      <field input="path" description="Full path of the registry key" parser="String" qualifier="KEY_PATH" />
+      <field input="mtime" description="Last write (modification) time of the registry key" parser="DateTime" qualifier="DATE_MODIFICATION" />
       <object input="security_descriptor">
-        <field input="owner_sid" parser="String" qualifier="USER_SID" />
-        <field input="group_sid" parser="String" />
+        <field input="owner_sid" description="SID of the key owner" parser="String" qualifier="USER_SID" />
+        <field input="group_sid" description="SID of the primary group of the key" parser="String" />
         <array>
-          <field input="control_flags" parser="String" />
+          <field input="control_flags" description="Security descriptor control flags (e.g., SE_DACL_PRESENT)" parser="String" />
         </array>
         <array>
           <object input="sacl_aces" ignore="false">
-            <field input="ace_type" parser="String" />
+            <field input="ace_type" description="Type of ACE (e.g., ACCESS_ALLOWED, ACCESS_DENIED)" parser="String" />
             <array>
-              <field input="ace_flags" parser="String" />
+              <field input="ace_flags" description="ACE flags that modify inheritance or behavior" parser="String" />
             </array>
             <array>
-              <field input="rights" parser="String" />
+              <field input="rights" description="Access rights granted or denied by the ACE" parser="String" />
             </array>
-            <field input="account_sid" parser="String" />
-            <field input="ace_size" parser="Int" />
-            <field input="object_type_guid" parser="String" />
-            <field input="inherited_object_type_guid" parser="String" />
-            <field input="raw_hex" parser="String" />
+            <field input="account_sid" description="SID of the account the ACE applies to" parser="String" />
+            <field input="ace_size" description="Size of the ACE structure in bytes" parser="Int" />
+            <field input="object_type_guid" description="GUID identifying the ACE object type" parser="String" />
+            <field input="inherited_object_type_guid" description="GUID identifying the inherited object type" parser="String" />
+            <field input="raw_hex" description="Raw ACE bytes as hexadecimal" parser="String" />
           </object>
         </array>
         <array>
           <object input="dacl_aces" ignore="false">
-            <field input="ace_type" parser="String" />
+            <field input="ace_type" description="Type of ACE (e.g., ACCESS_ALLOWED, ACCESS_DENIED)" parser="String" />
             <array>
-              <field input="ace_flags" parser="String" />
+              <field input="ace_flags" description="ACE flags that modify inheritance or behavior" parser="String" />
             </array>
             <array>
-              <field input="rights" parser="String" />
+              <field input="rights" description="Access rights granted or denied by the ACE" parser="String" />
             </array>
-            <field input="account_sid" parser="String" />
-            <field input="ace_size" parser="Int" />
-            <field input="object_type_guid" parser="String" />
-            <field input="inherited_object_type_guid" parser="String" />
-            <field input="raw_hex" parser="String" />
+            <field input="account_sid" description="SID of the account the ACE applies to" parser="String" />
+            <field input="ace_size" description="Size of the ACE structure in bytes" parser="Int" />
+            <field input="object_type_guid" description="GUID identifying the ACE object type" parser="String" />
+            <field input="inherited_object_type_guid" description="GUID identifying the inherited object type" parser="String" />
+            <field input="raw_hex" description="Raw ACE bytes as hexadecimal" parser="String" />
           </object>
         </array>
       </object>
-      <field input="name" parser="String" qualifier="VALUE_NAME" />
-      <field input="data" parser="String" />
-      <field input="type" parser="String" />
-      <field input="size" parser="Int" />
-      <field input="is_placeholder" parser="Bool" />
-      <field input="invalid_signature" parser="Bool" />
-      <field input="error" parser="String" />
+      <field input="name" description="Name of the registry value" parser="String" qualifier="VALUE_NAME" />
+      <field input="data" description="Data stored in the registry value" parser="String" />
+      <field input="type" description="Registry value type (REG_*)" parser="String" />
+      <field input="size" description="Size of the value data in bytes" parser="Int" />
+      <field input="is_placeholder" description="Whether the value is a placeholder" parser="Bool" />
+      <field input="invalid_signature" description="Whether the value has an invalid signature" parser="Bool" />
+      <field input="error" description="Parse error message, if any" parser="String" />
     </fields>
   </mapping>
 </plugin>
