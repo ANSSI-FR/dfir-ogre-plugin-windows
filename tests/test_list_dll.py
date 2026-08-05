@@ -21,6 +21,45 @@ os.makedirs(TEMP_FOLDER, exist_ok=True)
 class ListDllTest(TestCase):
     """Tests for the ListDLLs text parser."""
 
+    def test_timeline_include_undated_emits_all_list_dll_rows(self):
+        plugin_file = os.path.join(CONF_FOLDER, "list_dll.xml")
+        input_file = os.path.join(DATA_FOLDER, "list_dll", "Listdlls.214.txt")
+
+        base_output_name = "Listdlls.214.timeline_undated"
+        output_file = os.path.join(
+            TEMP_FOLDER, base_output_name + ".listdlls.jsonl"
+        )
+        if os.path.exists(output_file):
+            os.remove(output_file)
+
+        output_config = OutputConfiguration(
+            base_output_name,
+            TEMP_FOLDER,
+            with_timeline=True,
+            include_empty=True,
+            timeline_include_undated=True,
+        )
+
+        report = ListDll().parse(
+            input_file,
+            plugin_file,
+            RunConfiguration([output_config]),
+            Metadata("test"),
+        )
+
+        self.assertIsNone(report.last_error)
+        file_report = report.output_reports[0].file_reports[0]
+        self.assertTrue(file_report.with_timeline)
+        self.assertTrue(file_report.timeline_include_undated)
+        self.assertEqual(file_report.num_lines, 188)
+        self.assertEqual(file_report.file_name, output_file)
+
+        with open(output_file, encoding="utf-8") as fp:
+            records = [json.loads(line) for line in fp]
+
+        self.assertEqual(len(records), 188)
+        self.assertTrue(all(record["timestamp"] is None for record in records))
+
     # python -m unittest tests.test_list_dll.ListDllTest.test_list_dll -v
     def test_list_dll(self):
         plugin_file = os.path.join(CONF_FOLDER, "list_dll.xml")
