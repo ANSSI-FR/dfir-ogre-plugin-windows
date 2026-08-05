@@ -39,10 +39,10 @@ Each row describes a Windows Shell Link or Jump List shortcut, preserving target
         qualifier="DATE_MODIFICATION"
         description="file modification date"
       />
-      <field input="type" parser="String" />
-      <field input="status" parser="String" />
-      <field input="size" parser="Int" />
-      <field input="modification_time" parser="DateTime" />
+      <field input="type" description="Type of the shell link record" parser="String" />
+      <field input="status" description="Parsing status of the .lnk record" parser="String" />
+      <field input="size" description="Size of the .lnk record in bytes" parser="Int" />
+      <field input="modification_time" description="Modification time of the .lnk file" parser="DateTime" />
 
       <!-- Header -->
       <object input="header">
@@ -204,7 +204,7 @@ Each row describes a Windows Shell Link or Jump List shortcut, preserving target
           description="ICON_LOCATION specifies the location of the icon to be used when displaying a shell link item in an icon view."
         />
 
-        <field input="string_encoding" parser="Ignore" />
+        <field input="string_encoding" description="Encoding of the string fields (ASCII or UTF-16)" parser="Ignore" />
         <!-- Doc MS: CountCharacters (2 bytes): A 16-bit, unsigned integer that specifies either the
           number of characters, defined by the system default code page, or the number of Unicode
           characters found in the String field -->
@@ -228,7 +228,7 @@ Each row describes a Windows Shell Link or Jump List shortcut, preserving target
           description="Specifies the path to an icon. The path is encoded using environment variables, which makes it possible to find the icon across machines where the locations vary but are expressed using environment variables."
         >
           <!-- rg: what does this correspond to? Ignore? -->
-          <field input="size" parser="Int" />
+          <field input="size" description="Size of the icon location data block" parser="Int" />
 
           <field
             input="target_ansi"
@@ -250,7 +250,7 @@ Each row describes a Windows Shell Link or Jump List shortcut, preserving target
           description="Specifies a path to environment variable information when the link target refers to a location that has a corresponding environment variable."
         >
           <!-- rg: what does this correspond to? Ignore? -->
-          <field input="size" parser="Int" />
+          <field input="size" description="Size of the environment variables data block" parser="Int" />
 
           <field
             input="target_ansi"
@@ -272,7 +272,7 @@ Each row describes a Windows Shell Link or Jump List shortcut, preserving target
           description="Specifies an application identifier that can be used instead of a link target IDList to install an application when a shell link is activated."
         >
 
-          <field input="size" parser="Ignore" />
+          <field input="size" description="Size of the darwin data block" parser="Ignore" />
 
           <field
             input="darwin_data_ansi"
@@ -370,7 +370,7 @@ Each row describes a Windows Shell Link or Jump List shortcut, preserving target
           description="PropertyStoreDataBlock specifies a set of properties that can be used by applications to store extra data in the shell link."
         >
           <!-- rg: Check if this field exists and likely ignore it if true -->
-          <field input="size" parser="Int" />
+          <field input="size" description="Size of the metadata properties data block" parser="Int" />
           <array>
 
             <!-- property_store -->
@@ -407,18 +407,18 @@ Each row describes a Windows Shell Link or Jump List shortcut, preserving target
               <array>
                 <object input="serialized_property_values">
                   <!-- ok legacy (LnkPropertyValue) mais vérifier si c'est complet -->
-                  <field input="value_size" parser="Ignore" />
-                  <field input="value_type" parser="String" />
+                  <field input="value_size" description="Size of the serialized property value in bytes" parser="Ignore" />
+                  <field input="value_type" description="Type identifier of the property value" parser="String" />
                   <!-- value = types.Union(types.String(), types.Int()) -->
-                  <field input="value" parser="Dynamic">
+                  <field input="value" description="Decoded serialized property value" parser="Dynamic">
                     <parser value="DateTime" />
                     <parser value="Int" />
                     <parser value="Float" />
                     <parser value="String" />
                   </field>
-                  <field input="id" parser="Int" />
-                  <field input="name" parser="String" />
-                  <field input="name_size" parser="Int" />
+                  <field input="id" description="Property identifier" parser="Int" />
+                  <field input="name" description="Property name" parser="String" />
+                  <field input="name_size" description="Length of the property name string" parser="Int" />
                 </object>
               </array>
             </object>
@@ -482,14 +482,14 @@ Each row describes a Windows Shell Link or Jump List shortcut, preserving target
 
 
           <!-- rg: Check origin of FRN -->
-          <field input="droid_file_mft_seq" parser="Int" />
+          <field input="droid_file_mft_seq" description="MFT sequence number of the target file" parser="Int" />
           <field
-            input="droid_file_mft_seq"
+            input="droid_file_mft_seq" description="Target file FRN (droid file identifier) as hexadecimal"
             output="droid_file_frn"
             parser="IntToHex"
             width="16"
           />
-          <field input="droid_file_mft_seq" parser="Extension">
+          <field input="droid_file_mft_seq" description="Target file FRN split into record and sequence number components" parser="Extension">
             <field output="droid_file_sequence_number" parser="Int" />
             <field output="droid_file_record_number" parser="Int" />
           </field>
@@ -500,17 +500,17 @@ Each row describes a Windows Shell Link or Jump List shortcut, preserving target
           <field
             input="droid_file_timestamp"
             parser="DateTime"
-            description="Information générée par le parseur grace à la résolution de droid_volume_identifier et droid_file_identifier ?"
+            description="Timestamp resolved by the parser from the droid volume and file identifiers"
           />
           <field
             input="droid_file_mac"
             parser="String"
-            description="Information générée par le parseur grace à la résolution de droid_volume_identifier et droid_file_identifier ?"
+            description="MAC address resolved by the parser from the droid volume and file identifiers"
           />
           <field
             input="droid_file_vendor"
             parser="String"
-            description="Information générée par le parseur grace à la résolution de droid_volume_identifier et droid_file_identifier ?"
+            description="Vendor resolved by the parser from the droid volume and file identifiers"
           />
           <field
             input="birth_droid_volume_identifier"
@@ -525,15 +525,15 @@ Each row describes a Windows Shell Link or Jump List shortcut, preserving target
           />
 
           <!-- rg: Check origin of FRN -->
-          <field input="birth_droid_file_mft_seq" parser="Int" />
+          <field input="birth_droid_file_mft_seq" description="MFT sequence number of the birth (original) file" parser="Int" />
 
           <field
-            input="birth_droid_file_mft_seq"
+            input="birth_droid_file_mft_seq" description="Birth (original) file FRN as hexadecimal"
             output="birth_droid_file_frn"
             parser="IntToHex"
             width="16"
           />
-          <field input="birth_droid_file_mft_seq" parser="Extension">
+          <field input="birth_droid_file_mft_seq" description="Birth (original) file FRN split into record and sequence components" parser="Extension">
             <field output="birth_droid_file_sequence_number" parser="Int" />
             <field output="birth_droid_file_record_number" parser="Int" />
           </field>
@@ -560,7 +560,7 @@ Each row describes a Windows Shell Link or Jump List shortcut, preserving target
           output="console_properties"
           description="Specifies the display settings to use when a link target specifies an application that is run in a console window."
         >
-          <field input="size" parser="Int" />
+          <field input="size" description="Size of the console properties data block" parser="Int" />
           <!--
           MS Doc: specifies the fill attributes that control the foreground and background
           text colors in the console window
@@ -632,7 +632,7 @@ Each row describes a Windows Shell Link or Jump List shortcut, preserving target
           <field
             input="font_family"
             parser="Int"
-            description="Specifies the family of the font used in the console window. This value MUST be comprised of a font family and a font pitch. Voir le tableau de la doc pour interpréter."
+            description="Specifies the family of the font used in the console window. This value MUST be comprised of a font family and a font pitch. See the documentation table for interpretation."
           />
 
           <field
@@ -719,7 +719,7 @@ Each row describes a Windows Shell Link or Jump List shortcut, preserving target
           output="terminal_properties"
           description="A structure that indicates the end of the extra data section."
         >
-          <field input="size" parser="Int" />
+          <field input="size" description="Size of the terminal block" parser="Int" />
           <field input="appended_data_sha256" parser="String" />
           <field input="appended_data_base64" parser="String" />
         </object>
@@ -727,8 +727,8 @@ Each row describes a Windows Shell Link or Jump List shortcut, preserving target
 
       <!-- target -->
       <object input="target">
-        <field input="size" parser="Ignore" />
-        <field input="index" parser="Ignore" />
+        <field input="size" description="Size of the link target IDList block" parser="Ignore" />
+        <field input="index" description="Index of the item in the link target IDList" parser="Ignore" />
 
         <!-- items (Doc MS: IDList): contains a list of ItemID and terminalID -->
         <array>
@@ -826,18 +826,18 @@ Each row describes a Windows Shell Link or Jump List shortcut, preserving target
           </object>
         </array>
 
-        <field input="target_path" parser="String" qualifier="FILE_PATH" />
+        <field input="target_path" description="Full path of the link target" parser="String" qualifier="FILE_PATH" />
       </object>
 
       <!-- link info -->
       <object input="link_info">
-        <field input="local_base_path" parser="String" qualifier="FILE_PATH" />
+        <field input="local_base_path" description="Local base path of the target from the LinkInfo" parser="String" qualifier="FILE_PATH" />
         <field
-          input="common_path_suffix"
+          input="common_path_suffix" description="Common path suffix appended to the base path"
           parser="String"
           qualifier="FILE_PATH"
         />
-        <field input="location" parser="String" />
+        <field input="location" description="Location of the link target (drive or UNC)" parser="String" />
         <!-- Champ ignorés (size, offsets, flags, etc.) -->
         <field input="link_info_size" parser="Ignore" />
         <field input="link_info_header_size" parser="Ignore" />
@@ -898,7 +898,7 @@ Each row describes a Windows Shell Link or Jump List shortcut, preserving target
 
       <!-- slack -->
       <object input="slack">
-        <field input="payload" parser="String" />
+        <field input="payload" description="Payload bytes recovered from slack or extra space" parser="String" />
       </object>
     </fields>
 
