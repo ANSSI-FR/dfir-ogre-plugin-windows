@@ -36,21 +36,21 @@ Each row is a driver inventory record from the Amcache hive, with driver name an
                 input="name"
                 parser="String"
                 qualifier="FILE_NAME"
-                description="file name"
+                description="Driver file name"
             />
 
       <field
                 input="path"
                 parser="String"
                 qualifier="FILE_PATH"
-                description="file path"
+                description="Driver file path on disk"
             />
 
       <field
                 input="size"
                 parser="Int"
                 qualifier="FILE_SIZE"
-                description="file size"
+                description="Driver file size in bytes"
             />
 
       <field
@@ -77,7 +77,7 @@ Each row is a driver inventory record from the Amcache hive, with driver name an
                 input="version"
                 parser="String"
                 qualifier="PE_VERSION"
-                description="driver's version"
+                description="Driver version"
             />
 
       <field
@@ -90,7 +90,7 @@ Each row is a driver inventory record from the Amcache hive, with driver name an
                 input="product_version"
                 parser="String"
                 qualifier="PE_VERSION"
-                description="product's version"
+                description="Product version"
             />
 
       <field
@@ -107,7 +107,7 @@ Each row is a driver inventory record from the Amcache hive, with driver name an
                 parser="DateTime"
                 qualifier="DATE_COMPILATION"
                 display_name="Compilation date"
-                description="compilation date"
+                description="Driver compilation date"
             />
 
       <field
@@ -116,7 +116,7 @@ Each row is a driver inventory record from the Amcache hive, with driver name an
                 description="equivalent to 'SizeOfImage' field of the PE header"
             />
 
-      <field input="checksum" parser="Int" description="driver's checksum" />
+      <field input="checksum" parser="Int" description="Driver image checksum" />
 
       <field
                 input="wdf_version"

@@ -78,7 +78,7 @@ Each row is a program inventory record from the Amcache hive, with program ident
                 parser="DateTime"
                 qualifier="DATE_UNINSTALL"
                 display_name="Uninstall date"
-                description="Uninstall date"
+                description="Date the program was uninstalled"
             />
 
       <field

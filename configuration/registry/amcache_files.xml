@@ -35,21 +35,21 @@ Each row is a file inventory record from the Amcache hive, with path, normalized
                 input="name"
                 parser="String"
                 qualifier="FILE_NAME"
-                description="filename"
+                description="File name"
             />
 
       <field
                 input="path"
                 parser="String"
                 qualifier="FILE_PATH"
-                description="file path"
+                description="Full file path"
             />
 
       <field
                 input="size"
                 parser="Int"
                 qualifier="FILE_SIZE"
-                description="size in bytes"
+                description="File size in bytes"
             />
 
       <field
@@ -128,7 +128,7 @@ Each row is a file inventory record from the Amcache hive, with path, normalized
       <field
                 input="file_description"
                 parser="String"
-                description="file description"
+                description="File description"
             />
 
       <field
@@ -143,20 +143,20 @@ Each row is a file inventory record from the Amcache hive, with path, normalized
                 parser="DateTime"
                 qualifier="DATE_COMPILATION"
                 display_name="Compilation date"
-                description="Compilation date"
+                description="PE link (compilation) date"
             />
 
-      <field input="binary_type" parser="String" description="32BIT or 64BIT" />
+      <field input="binary_type" parser="String" description="32BIT or 64BIT binary" />
 
       <field
-                input="creation_date"
+                input="creation_date" description="File creation timestamp"
                 parser="DateTime"
                 qualifier="DATE_CREATION"
                 display_name="File Creation date"
             />
 
       <field
-                input="modification_date"
+                input="modification_date" description="File modification timestamp"
                 parser="DateTime"
                 qualifier="DATE_MODIFICATION"
                 display_name="File Modification date"
@@ -182,9 +182,9 @@ Each row is a file inventory record from the Amcache hive, with path, normalized
                 description="identifier of the volume where the file is located"
             />
 
-      <field input="is_pe_file" parser="Bool" />
+      <field input="is_pe_file" description="Whether the file is a PE executable" parser="Bool" />
 
-      <field input="is_os_component" parser="Bool" />
+      <field input="is_os_component" description="Whether the file is a Windows OS component" parser="Bool" />
 
       <!-- Registry Key data-->
       <field
