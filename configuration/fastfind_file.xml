@@ -41,18 +41,18 @@
       <field input="@snapshot_id" description="Snapshot identifier of the collected file" output="snapshot_id" parser="String" />
 
       <field input="@frn" parser="Extension">
-        <field output="sequence_number" parser="Int" />
-        <field output="record_number" parser="Int" />
+        <field output="sequence_number" description="Sequence number of the file MFT record" parser="Int" />
+        <field output="record_number" description="Record number of the file MFT entry" parser="Int" />
       </field>
 
       <field input="filename/@parentfrn" parser="Extension">
-        <field output="fn_parent_sequence_number" parser="Int" />
-        <field output="fn_parent_record_number" parser="Int" />
+        <field output="fn_parent_sequence_number" description="Sequence number of the filename attribute parent record" parser="Int" />
+        <field output="fn_parent_record_number" description="Record number of the filename attribute parent entry" parser="Int" />
       </field>
 
       <field input="i30/@parentfrn" parser="Extension">
-        <field output="i30_parent_sequence_number" parser="Int" />
-        <field output="i30_parent_record_number" parser="Int" />
+        <field output="i30_parent_sequence_number" description="Sequence number of the i30 index parent record" parser="Int" />
+        <field output="i30_parent_record_number" description="Record number of the i30 index parent entry" parser="Int" />
       </field>
 
       <field
