@@ -92,49 +92,49 @@ Each row describes a Firefox add-on, including identity, version, install path, 
 
       <object input="user_permissions">
         <array>
-          <field input="permissions" parser="String" />
+          <field input="permissions" description="Permission (API) requested or granted to the add-on" parser="String" />
         </array>
         <array>
-          <field input="origins" parser="String" />
+          <field input="origins" description="Origin or match pattern the permission applies to" parser="String" />
         </array>
         <array>
-          <field input="data_collection" parser="String" />
+          <field input="data_collection" description="Kind of data the permission allows collecting" parser="String" />
         </array>
       </object>
 
       <object input="optional_permissions">
         <array>
-          <field input="permissions" parser="String" />
+          <field input="permissions" description="Permission (API) requested or granted to the add-on" parser="String" />
         </array>
         <array>
-          <field input="origins" parser="String" />
+          <field input="origins" description="Origin or match pattern the permission applies to" parser="String" />
         </array>
         <array>
-          <field input="data_collection" parser="String" />
+          <field input="data_collection" description="Kind of data the permission allows collecting" parser="String" />
         </array>
       </object>
 
       <object input="requested_permissions">
         <array>
-          <field input="permissions" parser="String" />
+          <field input="permissions" description="Permission (API) requested or granted to the add-on" parser="String" />
         </array>
         <array>
-          <field input="origins" parser="String" />
+          <field input="origins" description="Origin or match pattern the permission applies to" parser="String" />
         </array>
         <array>
-          <field input="data_collection" parser="String" />
+          <field input="data_collection" description="Kind of data the permission allows collecting" parser="String" />
         </array>
       </object>
 
       <field
-                input="install_date"
+                input="install_date" description="Date the add-on was installed"
                 parser="DateTime"
                 qualifier="DATE_INSTALLATION"
                 display_name="installation date"
             />
 
       <field
-                input="update_date"
+                input="update_date" description="Date the add-on was last updated"
                 parser="DateTime"
                 qualifier="DATE_MODIFICATION"
                 display_name="update date"

@@ -101,7 +101,7 @@ Each row is a program inventory record from the Amcache hive, with program ident
                 description="Equivalent of the 'ProgramInstanceId', hash of the file identifier"
             />
 
-      <field input="inbox_modern_app" parser="Bool" description="" />
+      <field input="inbox_modern_app" parser="Bool" description="Whether the program is an inbox modern (UWP) app" />
 
       <field
                 input="os_at_install"

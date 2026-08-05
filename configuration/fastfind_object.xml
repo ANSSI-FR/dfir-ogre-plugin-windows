@@ -18,12 +18,12 @@
 
     <xpath_tuple value="/fast_find/object/object_match" />
     <fields>
-      <field input="@description" output="description" parser="String" />
+      <field input="@description" description="Match description returned by FastFind" output="description" parser="String" />
       <array>
         <object input="object" output="object">
-          <field input="@type" output="type" parser="String" />
-          <field input="@name" output="name" parser="String" />
-          <field input="@path" output="path" parser="String" />
+          <field input="@type" description="Object type (e.g., file, folder)" output="type" parser="String" />
+          <field input="@name" description="Object name" output="name" parser="String" />
+          <field input="@path" description="Path to the object" output="path" parser="String" />
         </object>
       </array>
     </fields>

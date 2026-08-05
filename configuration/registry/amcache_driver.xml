@@ -100,7 +100,7 @@ Each row is a driver inventory record from the Amcache hive, with driver name an
                 description="company providing the driver"
             />
 
-      <field input="driver_type" parser="Int" description="" />
+      <field input="driver_type" parser="Int" description="Driver load type (e.g., boot, kernel, filter)" />
 
       <field
                 input="compilation_date"

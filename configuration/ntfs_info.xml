@@ -25,7 +25,7 @@ Each row represents an NTFS Master File Table record exported by ORC, with path,
     </timeline>
 
     <fields>
-      <field input="SnapshotID" output="snapshot_id" parser="Python" />
+      <field input="SnapshotID" description="Volume snapshot the file was collected from" output="snapshot_id" parser="Python" />
 
       <multi_input
         output="file_path"
