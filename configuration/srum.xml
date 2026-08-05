@@ -22,99 +22,99 @@
       </additional_description>
     </timeline>
     <fields>
-      <field input="AutoIncId" output="incremental_id" parser="Int" />
-      <field input="TimeStamp" output="timestamp" parser="DateTime" />
-      <field input="AppId" output="app_id" parser="String" qualifier="APP_ID" />
+      <field input="AutoIncId" description="Auto-increment identifier of the SRUM record" output="incremental_id" parser="Int" />
+      <field input="TimeStamp" description="Timestamp of the SRUM record" output="timestamp" parser="DateTime" />
+      <field input="AppId" description="Identifier of the application" output="app_id" parser="String" qualifier="APP_ID" />
       <field
-                input="UserId"
+                input="UserId" description="Identifier (SID) of the user"
                 output="user_id"
                 parser="String"
                 qualifier="USER_ID"
             />
-      <field input="Flags" output="flags" parser="Int" />
-      <field input="InFocusS" output="in_focus_s" parser="Int" />
-      <field input="DurationMS" output="duration_ms" parser="Int" />
-      <field input="SpanMS" output="span_ms" parser="Int" />
-      <field input="UserInputS" output="user_input_s" parser="Int" />
-      <field input="KeyboardInputS" output="keyboard_input_s" parser="Int" />
-      <field input="MouseInputS" output="mouse_input_s" parser="Int" />
-      <field input="AudioInS" output="audio_in_s" parser="Int" />
-      <field input="AudioOutS" output="audio_out_s" parser="Int" />
-      <field input="DiskRaw" output="disk_raw" parser="Int" />
-      <field input="NetworkTailRaw" output="network_tail_raw" parser="Int" />
-      <field input="NetworkBytesRaw" output="network_bytes_raw" parser="Int" />
+      <field input="Flags" description="Flags associated with the usage record" output="flags" parser="Int" />
+      <field input="InFocusS" description="Time the app spent as the in-focus (foreground) window, in seconds" output="in_focus_s" parser="Int" />
+      <field input="DurationMS" description="Duration of the usage interval in milliseconds" output="duration_ms" parser="Int" />
+      <field input="SpanMS" description="Time span covered by the interval in milliseconds" output="span_ms" parser="Int" />
+      <field input="UserInputS" description="Time of user input activity, in seconds" output="user_input_s" parser="Int" />
+      <field input="KeyboardInputS" description="Time of keyboard input activity, in seconds" output="keyboard_input_s" parser="Int" />
+      <field input="MouseInputS" description="Time of mouse input activity, in seconds" output="mouse_input_s" parser="Int" />
+      <field input="AudioInS" description="Time performing audio input, in seconds" output="audio_in_s" parser="Int" />
+      <field input="AudioOutS" description="Time performing audio output, in seconds" output="audio_out_s" parser="Int" />
+      <field input="DiskRaw" description="Raw disk usage count" output="disk_raw" parser="Int" />
+      <field input="NetworkTailRaw" description="Raw network tail metric" output="network_tail_raw" parser="Int" />
+      <field input="NetworkBytesRaw" description="Raw network bytes metric" output="network_bytes_raw" parser="Int" />
 
-      <field input="PSMForegroundS" output="pms_foreground_s" parser="Int" />
-      <field input="CompRenderedS" output="comp_rendered_s" parser="Int" />
-      <field input="CompDirtiedS" output="comp_dirtied_s" parser="Int" />
-      <field input="CompPropagatedS" output="comp_propagated_s" parser="Int" />
-      <field input="Cycles" output="cycles" parser="Int" />
-      <field input="CyclesBreakdown" output="cycles_breakdown" parser="Int" />
-      <field input="CyclesAttr" output="cycles_attr" parser="Int" />
+      <field input="PSMForegroundS" description="Time the process spent in foreground (Process State Manager), in seconds" output="pms_foreground_s" parser="Int" />
+      <field input="CompRenderedS" description="Time composing rendered content, in seconds" output="comp_rendered_s" parser="Int" />
+      <field input="CompDirtiedS" description="Time composing dirtied content, in seconds" output="comp_dirtied_s" parser="Int" />
+      <field input="CompPropagatedS" description="Time composing propagated content, in seconds" output="comp_propagated_s" parser="Int" />
+      <field input="Cycles" description="Total CPU cycles used" output="cycles" parser="Int" />
+      <field input="CyclesBreakdown" description="CPU cycle usage breakdown" output="cycles_breakdown" parser="Int" />
+      <field input="CyclesAttr" description="CPU cycles attributed to the process" output="cycles_attr" parser="Int" />
       <field
-                input="CyclesAttrBreakdown"
+                input="CyclesAttrBreakdown" description="Breakdown of attributed CPU cycles"
                 output="cycles_attr_breakdown"
                 parser="Int"
             />
-      <field input="CyclesWOB" output="cycles_wob" parser="Int" />
+      <field input="CyclesWOB" description="CPU cycles used without over-budget accounting" output="cycles_wob" parser="Int" />
       <field
-                input="CyclesWOBBreakdown"
+                input="CyclesWOBBreakdown" description="Breakdown of non-over-budget CPU cycles"
                 output="cycles_wob_breakdown"
                 parser="Int"
             />
-      <field input="DiskRaw" output="disk_raw" parser="Int" />
-      <field input="NetworkTailRaw" output="network_tail_raw" parser="Int" />
-      <field input="NetworkBytesRaw" output="network_bytes_raw" parser="Int" />
-      <field input="MBBTailRaw" output="mbb_tail_raw" parser="Int" />
-      <field input="MBBBytesRaw" output="mbb_bytes_raw" parser="Int" />
+      <field input="DiskRaw" description="Raw disk usage count" output="disk_raw" parser="Int" />
+      <field input="NetworkTailRaw" description="Raw network tail metric" output="network_tail_raw" parser="Int" />
+      <field input="NetworkBytesRaw" description="Raw network bytes metric" output="network_bytes_raw" parser="Int" />
+      <field input="MBBTailRaw" description="Raw mobile broadband tail metric" output="mbb_tail_raw" parser="Int" />
+      <field input="MBBBytesRaw" description="Raw mobile broadband bytes metric" output="mbb_bytes_raw" parser="Int" />
       <field
-                input="DisplayRequiredS"
+                input="DisplayRequiredS" description="Time the display was required to stay on, in seconds"
                 output="display_required_s"
                 parser="Int"
             />
 
-      <field input="EndTime" output="end_time" parser="Int" />
-      <field input="TimelineEnd" output="timeline_end" parser="Int" />
+      <field input="EndTime" description="End time of the usage interval" output="end_time" parser="Int" />
+      <field input="TimelineEnd" description="End of the usage timeline data" output="timeline_end" parser="Int" />
       <field
-                input="DisplayRequiredTimeline"
+                input="DisplayRequiredTimeline" description="Display-required timeline data"
                 output="display_required_timeline"
                 parser="Int"
             />
       <field
-                input="KeyboardInputTimeline"
+                input="KeyboardInputTimeline" description="Keyboard input timeline data"
                 output="keyboard_input_timeline"
                 parser="Int"
             />
       <field
-                input="UserInputTimeline"
+                input="UserInputTimeline" description="User input timeline data"
                 output="user_input_timeline"
                 parser="Int"
             />
       <field
-                input="CompRenderedTimeline"
+                input="CompRenderedTimeline" description="Composition rendered timeline data"
                 output="comp_rendered_timeline"
                 parser="Int"
             />
       <field
-                input="CompDirtiedTimeline"
+                input="CompDirtiedTimeline" description="Composition dirtied timeline data"
                 output="comp_dirtied_timeline"
                 parser="Int"
             />
       <field
-                input="CompPropagatedTimeline"
+                input="CompPropagatedTimeline" description="Composition propagated timeline data"
                 output="comp_propagated_timeline"
                 parser="Int"
             />
-      <field input="AudioInTimeline" output="audio_in_timeline" parser="Int" />
+      <field input="AudioInTimeline" description="Audio input timeline data" output="audio_in_timeline" parser="Int" />
       <field
-                input="AudioOutTimeline"
+                input="AudioOutTimeline" description="Audio output timeline data"
                 output="audio_out_timeline"
                 parser="Int"
             />
-      <field input="CpuTimeline" output="cpu_timeline" parser="Int" />
-      <field input="DiskTimeline" output="disk_timeline" parser="Int" />
-      <field input="NetworkTimeline" output="network_timeline" parser="Int" />
-      <field input="MBBTimeline" output="mbb_timeline" parser="Int" />
+      <field input="CpuTimeline" description="CPU usage timeline" output="cpu_timeline" parser="Int" />
+      <field input="DiskTimeline" description="Disk usage timeline" output="disk_timeline" parser="Int" />
+      <field input="NetworkTimeline" description="Network usage timeline" output="network_timeline" parser="Int" />
+      <field input="MBBTimeline" description="Mobile broadband usage timeline" output="mbb_timeline" parser="Int" />
     </fields>
   </mapping>
   <mapping data_type="srum_application_resources">
@@ -139,11 +139,11 @@
       </additional_description>
     </timeline>
     <fields>
-      <field input="AutoIncId" output="incremental_id" parser="Int" />
-      <field input="TimeStamp" output="timestamp" parser="DateTime" />
-      <field input="AppId" output="app_id" parser="String" qualifier="APP_ID" />
+      <field input="AutoIncId" description="Auto-increment identifier of the SRUM record" output="incremental_id" parser="Int" />
+      <field input="TimeStamp" description="Timestamp of the SRUM record" output="timestamp" parser="DateTime" />
+      <field input="AppId" description="Identifier of the application" output="app_id" parser="String" qualifier="APP_ID" />
       <field
-                input="UserId"
+                input="UserId" description="Identifier (SID) of the user"
                 output="user_id"
                 parser="String"
                 qualifier="USER_ID"
@@ -248,11 +248,11 @@
       </description>
     </timeline>
     <fields>
-      <field input="AutoIncId" output="incremental_id" parser="Int" />
-      <field input="TimeStamp" output="timestamp" parser="DateTime" />
-      <field input="AppId" output="app_id" parser="String" qualifier="APP_ID" />
+      <field input="AutoIncId" description="Auto-increment identifier of the SRUM record" output="incremental_id" parser="Int" />
+      <field input="TimeStamp" description="Timestamp of the SRUM record" output="timestamp" parser="DateTime" />
+      <field input="AppId" description="Identifier of the application" output="app_id" parser="String" qualifier="APP_ID" />
       <field
-                input="UserId"
+                input="UserId" description="Identifier (SID) of the user"
                 output="user_id"
                 parser="String"
                 qualifier="USER_ID"
@@ -280,11 +280,11 @@
       </description>
     </timeline>
     <fields>
-      <field input="AutoIncId" output="incremental_id" parser="Int" />
-      <field input="TimeStamp" output="timestamp" parser="DateTime" />
-      <field input="AppId" output="app_id" parser="String" qualifier="APP_ID" />
+      <field input="AutoIncId" description="Auto-increment identifier of the SRUM record" output="incremental_id" parser="Int" />
+      <field input="TimeStamp" description="Timestamp of the SRUM record" output="timestamp" parser="DateTime" />
+      <field input="AppId" description="Identifier of the application" output="app_id" parser="String" qualifier="APP_ID" />
       <field
-                input="UserId"
+                input="UserId" description="Identifier (SID) of the user"
                 output="user_id"
                 parser="String"
                 qualifier="USER_ID"
@@ -325,11 +325,11 @@
       </description>
     </timeline>
     <fields>
-      <field input="AutoIncId" output="incremental_id" parser="Int" />
-      <field input="TimeStamp" output="timestamp" parser="DateTime" />
-      <field input="AppId" output="app_id" parser="String" qualifier="APP_ID" />
+      <field input="AutoIncId" description="Auto-increment identifier of the SRUM record" output="incremental_id" parser="Int" />
+      <field input="TimeStamp" description="Timestamp of the SRUM record" output="timestamp" parser="DateTime" />
+      <field input="AppId" description="Identifier of the application" output="app_id" parser="String" qualifier="APP_ID" />
       <field
-                input="UserId"
+                input="UserId" description="Identifier (SID) of the user"
                 output="user_id"
                 parser="String"
                 qualifier="USER_ID"
@@ -383,11 +383,11 @@
       </additional_description>
     </timeline>
     <fields>
-      <field input="AutoIncId" output="incremental_id" parser="Int" />
-      <field input="TimeStamp" output="timestamp" parser="DateTime" />
-      <field input="AppId" output="app_id" parser="String" qualifier="APP_ID" />
+      <field input="AutoIncId" description="Auto-increment identifier of the SRUM record" output="incremental_id" parser="Int" />
+      <field input="TimeStamp" description="Timestamp of the SRUM record" output="timestamp" parser="DateTime" />
+      <field input="AppId" description="Identifier of the application" output="app_id" parser="String" qualifier="APP_ID" />
       <field
-                input="UserId"
+                input="UserId" description="Identifier (SID) of the user"
                 output="user_id"
                 parser="String"
                 qualifier="USER_ID"
@@ -426,11 +426,11 @@
       </additional_description>
     </timeline>
     <fields>
-      <field input="AutoIncId" output="incremental_id" parser="Int" />
-      <field input="TimeStamp" output="timestamp" parser="DateTime" />
-      <field input="AppId" output="app_id" parser="String" qualifier="APP_ID" />
+      <field input="AutoIncId" description="Auto-increment identifier of the SRUM record" output="incremental_id" parser="Int" />
+      <field input="TimeStamp" description="Timestamp of the SRUM record" output="timestamp" parser="DateTime" />
+      <field input="AppId" description="Identifier of the application" output="app_id" parser="String" qualifier="APP_ID" />
       <field
-                input="UserId"
+                input="UserId" description="Identifier (SID) of the user"
                 output="user_id"
                 parser="String"
                 qualifier="USER_ID"
@@ -462,11 +462,11 @@
       </description>
     </timeline>
     <fields>
-      <field input="AutoIncId" output="incremental_id" parser="Int" />
-      <field input="TimeStamp" output="timestamp" parser="DateTime" />
-      <field input="AppId" output="app_id" parser="String" qualifier="APP_ID" />
+      <field input="AutoIncId" description="Auto-increment identifier of the SRUM record" output="incremental_id" parser="Int" />
+      <field input="TimeStamp" description="Timestamp of the SRUM record" output="timestamp" parser="DateTime" />
+      <field input="AppId" description="Identifier of the application" output="app_id" parser="String" qualifier="APP_ID" />
       <field
-                input="UserId"
+                input="UserId" description="Identifier (SID) of the user"
                 output="user_id"
                 parser="String"
                 qualifier="USER_ID"
@@ -495,11 +495,11 @@
       </description>
     </timeline>
     <fields>
-      <field input="AutoIncId" output="incremental_id" parser="Int" />
-      <field input="TimeStamp" output="timestamp" parser="DateTime" />
-      <field input="AppId" output="app_id" parser="String" qualifier="APP_ID" />
+      <field input="AutoIncId" description="Auto-increment identifier of the SRUM record" output="incremental_id" parser="Int" />
+      <field input="TimeStamp" description="Timestamp of the SRUM record" output="timestamp" parser="DateTime" />
+      <field input="AppId" description="Identifier of the application" output="app_id" parser="String" qualifier="APP_ID" />
       <field
-                input="UserId"
+                input="UserId" description="Identifier (SID) of the user"
                 output="user_id"
                 parser="String"
                 qualifier="USER_ID"
@@ -526,11 +526,11 @@
       </description>
     </timeline>
     <fields>
-      <field input="AutoIncId" output="incremental_id" parser="Int" />
-      <field input="TimeStamp" output="timestamp" parser="DateTime" />
-      <field input="AppId" output="app_id" parser="String" qualifier="APP_ID" />
+      <field input="AutoIncId" description="Auto-increment identifier of the SRUM record" output="incremental_id" parser="Int" />
+      <field input="TimeStamp" description="Timestamp of the SRUM record" output="timestamp" parser="DateTime" />
+      <field input="AppId" description="Identifier of the application" output="app_id" parser="String" qualifier="APP_ID" />
       <field
-                input="UserId"
+                input="UserId" description="Identifier (SID) of the user"
                 output="user_id"
                 parser="String"
                 qualifier="USER_ID"
@@ -557,11 +557,11 @@
       </description>
     </timeline>
     <fields>
-      <field input="AutoIncId" output="incremental_id" parser="Int" />
-      <field input="TimeStamp" output="timestamp" parser="DateTime" />
-      <field input="AppId" output="app_id" parser="String" qualifier="APP_ID" />
+      <field input="AutoIncId" description="Auto-increment identifier of the SRUM record" output="incremental_id" parser="Int" />
+      <field input="TimeStamp" description="Timestamp of the SRUM record" output="timestamp" parser="DateTime" />
+      <field input="AppId" description="Identifier of the application" output="app_id" parser="String" qualifier="APP_ID" />
       <field
-                input="UserId"
+                input="UserId" description="Identifier (SID) of the user"
                 output="user_id"
                 parser="String"
                 qualifier="USER_ID"
@@ -589,11 +589,11 @@
       </description>
     </timeline>
     <fields>
-      <field input="AutoIncId" output="incremental_id" parser="Int" />
-      <field input="TimeStamp" output="timestamp" parser="DateTime" />
-      <field input="AppId" output="app_id" parser="String" qualifier="APP_ID" />
+      <field input="AutoIncId" description="Auto-increment identifier of the SRUM record" output="incremental_id" parser="Int" />
+      <field input="TimeStamp" description="Timestamp of the SRUM record" output="timestamp" parser="DateTime" />
+      <field input="AppId" description="Identifier of the application" output="app_id" parser="String" qualifier="APP_ID" />
       <field
-                input="UserId"
+                input="UserId" description="Identifier (SID) of the user"
                 output="user_id"
                 parser="String"
                 qualifier="USER_ID"
@@ -619,11 +619,11 @@
       </description>
     </timeline>
     <fields>
-      <field input="AutoIncId" output="incremental_id" parser="Int" />
-      <field input="TimeStamp" output="timestamp" parser="DateTime" />
-      <field input="AppId" output="app_id" parser="String" qualifier="APP_ID" />
+      <field input="AutoIncId" description="Auto-increment identifier of the SRUM record" output="incremental_id" parser="Int" />
+      <field input="TimeStamp" description="Timestamp of the SRUM record" output="timestamp" parser="DateTime" />
+      <field input="AppId" description="Identifier of the application" output="app_id" parser="String" qualifier="APP_ID" />
       <field
-                input="UserId"
+                input="UserId" description="Identifier (SID) of the user"
                 output="user_id"
                 parser="String"
                 qualifier="USER_ID"
@@ -649,11 +649,11 @@
       </description>
     </timeline>
     <fields>
-      <field input="AutoIncId" output="incremental_id" parser="Int" />
-      <field input="TimeStamp" output="timestamp" parser="DateTime" />
-      <field input="AppId" output="app_id" parser="String" qualifier="APP_ID" />
+      <field input="AutoIncId" description="Auto-increment identifier of the SRUM record" output="incremental_id" parser="Int" />
+      <field input="TimeStamp" description="Timestamp of the SRUM record" output="timestamp" parser="DateTime" />
+      <field input="AppId" description="Identifier of the application" output="app_id" parser="String" qualifier="APP_ID" />
       <field
-                input="UserId"
+                input="UserId" description="Identifier (SID) of the user"
                 output="user_id"
                 parser="String"
                 qualifier="USER_ID"

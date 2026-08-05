@@ -169,7 +169,7 @@ Each row describes a Windows Shell Link or Jump List shortcut, preserving target
       <!-- data -->
       <object input="data">
         <!-- Ignore ? -->
-        <field input="size" parser="Int" description="" />
+        <field input="size" parser="Int" description="Size of the link data block in bytes" />
 
         <field
           input="description"
@@ -490,13 +490,13 @@ Each row describes a Windows Shell Link or Jump List shortcut, preserving target
             width="16"
           />
           <field input="droid_file_mft_seq" description="Target file FRN split into record and sequence number components" parser="Extension">
-            <field output="droid_file_sequence_number" parser="Int" />
-            <field output="droid_file_record_number" parser="Int" />
+            <field output="droid_file_sequence_number" description="Sequence number of the target file MFT record" parser="Int" />
+            <field output="droid_file_record_number" description="Record number of the target file MFT entry" parser="Int" />
           </field>
 
-          <field input="droid_file_frn_hex" parser="Int" />
+          <field input="droid_file_frn_hex" description="Target file FRN (droid file identifier) as hexadecimal" parser="Int" />
 
-          <field input="droid_file_frn_split" parser="String" />
+          <field input="droid_file_frn_split" description="Target file FRN as record/sequence string" parser="String" />
           <field
             input="droid_file_timestamp"
             parser="DateTime"
@@ -534,8 +534,8 @@ Each row describes a Windows Shell Link or Jump List shortcut, preserving target
             width="16"
           />
           <field input="birth_droid_file_mft_seq" description="Birth (original) file FRN split into record and sequence components" parser="Extension">
-            <field output="birth_droid_file_sequence_number" parser="Int" />
-            <field output="birth_droid_file_record_number" parser="Int" />
+            <field output="birth_droid_file_sequence_number" description="Sequence number of the birth (original) file MFT record" parser="Int" />
+            <field output="birth_droid_file_record_number" description="Record number of the birth (original) file MFT entry" parser="Int" />
           </field>
           <field
             input="birth_droid_file_timestamp"
@@ -720,8 +720,8 @@ Each row describes a Windows Shell Link or Jump List shortcut, preserving target
           description="A structure that indicates the end of the extra data section."
         >
           <field input="size" description="Size of the terminal block" parser="Int" />
-          <field input="appended_data_sha256" parser="String" />
-          <field input="appended_data_base64" parser="String" />
+          <field input="appended_data_sha256" description="SHA-256 of the appended data block" parser="String" />
+          <field input="appended_data_base64" description="Appended data block as base64" parser="String" />
         </object>
       </object>
 
@@ -839,59 +839,59 @@ Each row describes a Windows Shell Link or Jump List shortcut, preserving target
         />
         <field input="location" description="Location of the link target (drive or UNC)" parser="String" />
         <!-- Champ ignorés (size, offsets, flags, etc.) -->
-        <field input="link_info_size" parser="Ignore" />
-        <field input="link_info_header_size" parser="Ignore" />
-        <field input="link_info_flags" parser="Ignore" />
-        <field input="volume_id_offset" parser="Ignore" />
-        <field input="local_base_path_offset" parser="Ignore" />
-        <field input="common_network_relative_link_offset" parser="Ignore" />
-        <field input="common_path_suffix_offset" parser="Ignore" />
+        <field input="link_info_size" description="Size of the LinkInfo structure in bytes" parser="Ignore" />
+        <field input="link_info_header_size" description="Size of the LinkInfo header in bytes" parser="Ignore" />
+        <field input="link_info_flags" description="Flags indicating which optional LinkInfo fields are present" parser="Ignore" />
+        <field input="volume_id_offset" description="Offset to the VolumeID structure within LinkInfo" parser="Ignore" />
+        <field input="local_base_path_offset" description="Offset to the local base path within LinkInfo" parser="Ignore" />
+        <field input="common_network_relative_link_offset" description="Offset to the CommonNetworkRelativeLink structure" parser="Ignore" />
+        <field input="common_path_suffix_offset" description="Offset to the common path suffix string" parser="Ignore" />
 
         <!-- location Info -->
         <object input="location_info">
 
-          <field input="r_drive_type" parser="Int" description="" />
+          <field input="r_drive_type" parser="Int" description="Raw drive type value (e.g., DRIVE_FIXED)" />
 
           <!-- rg: translated in drive_type ; to be hidden? -->
-          <field input="drive_type" parser="String" description="" />
+          <field input="drive_type" parser="String" description="Drive type of the link target's volume" />
 
-          <field input="drive_serial_number" parser="String" description="" />
-          <field input="volume_label" parser="String" description="" />
-          <field input="volume_label_unicode" parser="String" description="" />
+          <field input="drive_serial_number" parser="String" description="Serial number of the link target volume" />
+          <field input="volume_label" parser="String" description="Volume label of the link target volume" />
+          <field input="volume_label_unicode" parser="String" description="Volume label of the link target volume (Unicode)" />
           <field
             input="common_network_relative_link_flags"
             parser="String"
-            description=""
+            description="Flags of the CommonNetworkRelativeLink structure"
           />
           <field
             input="r_network_provider_type"
             parser="String"
-            description=""
+            description="Raw network provider type value"
           />
 
           <!-- rg: hex code translated into network_provider_type ; to be hidden? -->
-          <field input="network_provider_type" parser="String" description="" />
+          <field input="network_provider_type" parser="String" description="Network provider type of the link target" />
 
-          <field input="net_name" parser="String" description="" />
-          <field input="net_name_unicode" parser="String" description="" />
-          <field input="device_name" parser="String" description="" />
-          <field input="device_name_unicode" parser="String" description="" />
+          <field input="net_name" parser="String" description="UNC network path of the link target" />
+          <field input="net_name_unicode" parser="String" description="UNC network path of the link target (Unicode)" />
+          <field input="device_name" parser="String" description="Device/computer name of the link target on the network" />
+          <field input="device_name_unicode" parser="String" description="Device/computer name of the link target (Unicode)" />
 
           <!-- Ignored fields -->
-          <field input="volume_id_size" parser="Ignore" description="" />
-          <field input="volume_label_offset" parser="Ignore" description="" />
+          <field input="volume_id_size" parser="Ignore" description="Size of the VolumeID structure in bytes" />
+          <field input="volume_label_offset" parser="Ignore" description="Offset to the volume label within VolumeID" />
           <field
             input="volume_label_unicode_offset"
             parser="Ignore"
-            description=""
+            description="Offset to the Unicode volume label"
           />
           <field
             input="common_network_relative_link_size"
             parser="Ignore"
-            description=""
+            description="Size of the CommonNetworkRelativeLink structure"
           />
-          <field input="net_name_offset" parser="Ignore" description="" />
-          <field input="device_name_offset" parser="Ignore" description="" />
+          <field input="net_name_offset" parser="Ignore" description="Offset to the UNC network name" />
+          <field input="device_name_offset" parser="Ignore" description="Offset to the device name" />
         </object>
 
       </object>
