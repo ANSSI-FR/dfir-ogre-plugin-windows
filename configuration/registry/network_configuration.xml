@@ -47,7 +47,7 @@ Each row describes a Windows network-interface configuration from the SYSTEM hiv
       <field
         input="dhcp"
         parser="Bool"
-        escription="Indicates whether the interface obtains its configuration via DHCP (true = DHCP enabled)"
+        description="Indicates whether the interface obtains its configuration via DHCP (true = DHCP enabled)"
       />
 
       <field
