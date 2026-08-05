@@ -741,7 +741,7 @@ Each row describes a Windows Shell Link or Jump List shortcut, preserving target
               />
             </array>
 
-            <object input="identifiers" description="" />
+            <object input="identifiers" description="Identifiers of the shell item (item class and associated data)" />
 
             <field
               input="item_class"
