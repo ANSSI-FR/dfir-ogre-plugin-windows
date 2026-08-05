@@ -18,29 +18,29 @@
 
     <xpath_tuple value="/fast_find/registry/hive/regfind_match" />
     <fields>
-      <field input="../@volume_id" output="volume_id" parser="String" />
-      <field input="../@snapshot_id" output="snapshot_id" parser="String" />
+      <field input="../@volume_id" description="Volume identifier of the hive source" output="volume_id" parser="String" />
+      <field input="../@snapshot_id" description="Snapshot identifier the hive was read from" output="snapshot_id" parser="String" />
       <field
-        input="../@hive_path"
+        input="../@hive_path" description="Path to the registry hive"
         output="hive_path"
         parser="String"
         qualifier="FILE_PATH"
       />
 
-      <field input="@description" output="description" parser="String" />
+      <field input="@description" description="Match description returned by FastFind" output="description" parser="String" />
 
       <array>
         <object input="key" output="key">
           <field
-            input="@key"
+            input="@key" description="Full registry key path"
             output="key"
             parser="String"
             qualifier="KEY_PATH"
           />
-          <field input="@subkeys_count" output="subkeys_count" parser="Int" />
-          <field input="@values_count" output="values_count" parser="Int" />
+          <field input="@subkeys_count" description="Number of subkeys in the key" output="subkeys_count" parser="Int" />
+          <field input="@values_count" description="Number of values in the key" output="values_count" parser="Int" />
           <field
-            input="@lastmodified_key"
+            input="@lastmodified_key" description="Key last-write timestamp (UTC)"
             output="lastmodified_key"
             parser="DateTime"
             qualifier="DATE_MODIFICATION"
@@ -50,21 +50,21 @@
       <array>
         <object input="value" output="value">
           <field
-            input="@key"
+            input="@key" description="Full registry key path"
             output="key"
             parser="String"
             qualifier="KEY_PATH"
           />
           <field
-            input="@value"
+            input="@value" description="Name of the registry value"
             output="value"
             parser="String"
             qualifier="VALUE_NAME"
           />
-          <field input="@type" output="type" parser="String" />
-          <field input="@data_size" output="data_size" parser="Int" />
+          <field input="@type" description="Registry value data type (e.g., REG_SZ)" output="type" parser="String" />
+          <field input="@data_size" description="Size of the value data in bytes" output="data_size" parser="Int" />
           <field
-            input="@lastmodified_key"
+            input="@lastmodified_key" description="Key last-write timestamp (UTC)"
             output="lastmodified_key"
             parser="DateTime"
             qualifier="DATE_MODIFICATION"

@@ -59,9 +59,9 @@ Each row is an auto-start entry from a Sysinternals Autoruns CSV snapshot, with 
         qualifier="KEY_PATH"
         description="full registry path (location + value name) of the autorun entry"
       >
-        <field input="Entry Location" parser="String" />
+        <field input="Entry Location" description="Location (registry key or folder) that launched the entry" parser="String" />
 
-        <field input="Entry" parser="String" />
+        <field input="Entry" description="Name of the autorun entry" parser="String" />
       </multi_input>
 
       <field

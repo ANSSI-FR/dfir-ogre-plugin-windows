@@ -23,22 +23,22 @@
     <xpath_tuple value="/fast_find/filesystem/filefind_match/record" />
     <fields>
       <field
-        input="filename/@fullname"
+        input="filename/@fullname" description="Full path from the NTFS filename attribute"
         output="fn_fullname"
         parser="String"
         qualifier="FILE_PATH"
       />
       <field
-        input="i30/@fullname"
+        input="i30/@fullname" description="Full path from the NTFS i30 index entry"
         output="i30_fullname"
         parser="String"
         qualifier="FILE_PATH"
       />
 
-      <field input="../@description" output="description" parser="String" />
+      <field input="../@description" description="FastFind match description" output="description" parser="String" />
 
-      <field input="@volume_id" output="volume_id" parser="String" />
-      <field input="@snapshot_id" output="snapshot_id" parser="String" />
+      <field input="@volume_id" description="Volume identifier of the collected file" output="volume_id" parser="String" />
+      <field input="@snapshot_id" description="Snapshot identifier of the collected file" output="snapshot_id" parser="String" />
 
       <field input="@frn" parser="Extension">
         <field output="sequence_number" parser="Int" />
@@ -195,75 +195,75 @@
       </field>
       <!-- standardinformation dates-->
       <field
-        input="standardinformation/@creation"
+        input="standardinformation/@creation" description="File creation time from the standard information attribute"
         output="si_creation_date"
         qualifier="DATE_CREATION"
         parser="DateTime"
       />
       <field
-        input="standardinformation/@lastmodification"
+        input="standardinformation/@lastmodification" description="Last modification time from the standard information attribute"
         output="si_lastmod_date"
         qualifier="DATE_MODIFICATION"
         parser="DateTime"
       />
       <field
-        input="standardinformation/@lastaccess"
+        input="standardinformation/@lastaccess" description="Last access time from the standard information attribute"
         output="si_lastaccess_date"
         qualifier="DATE_ACCESS"
         parser="DateTime"
       />
       <field
-        input="standardinformation/@lastentrychange"
+        input="standardinformation/@lastentrychange" description="Last entry-change (MFT) time from the standard information attribute"
         output="si_lastchange_date"
         qualifier="DATE_CHANGE"
         parser="DateTime"
       />
       <!-- filename dates-->
       <field
-        input="filename/@creation"
+        input="filename/@creation" description="File creation time from the NTFS filename attribute"
         output="fn_creation_date"
         qualifier="DATE_CREATION"
         parser="DateTime"
       />
       <field
-        input="filename/@lastmodification"
+        input="filename/@lastmodification" description="Last modification time from the NTFS filename attribute"
         output="fn_lastmod_date"
         qualifier="DATE_MODIFICATION"
         parser="DateTime"
       />
       <field
-        input="filename/@lastaccess"
+        input="filename/@lastaccess" description="Last access time from the NTFS filename attribute"
         output="fn_lastaccess_date"
         qualifier="DATE_ACCESS"
         parser="DateTime"
       />
       <field
-        input="filename/@lastentrychange"
+        input="filename/@lastentrychange" description="Last entry-change time from the NTFS filename attribute"
         output="fn_lastchange_date"
         qualifier="DATE_CHANGE"
         parser="DateTime"
       />
       <!-- i30 dates-->
       <field
-        input="i30/@creation"
+        input="i30/@creation" description="File creation time from the NTFS i30 index entry"
         output="i30_creation"
         parser="DateTime"
         qualifier="DATE_CREATION"
       />
       <field
-        input="i30/@lastmodification"
+        input="i30/@lastmodification" description="Last modification time from the NTFS i30 index entry"
         output="i30_lastmodification"
         qualifier="DATE_MODIFICATION"
         parser="DateTime"
       />
       <field
-        input="i30/@lastaccess"
+        input="i30/@lastaccess" description="Last access time from the NTFS i30 index entry"
         output="i30_lastaccess"
         qualifier="DATE_ACCESS"
         parser="DateTime"
       />
       <field
-        input="i30/@lastentrychange"
+        input="i30/@lastentrychange" description="Last entry-change time from the NTFS i30 index entry"
         output="i30_lastentrychange"
         qualifier="DATE_CHANGE"
         parser="DateTime"
@@ -272,31 +272,31 @@
       <array>
         <object input="data" output="data">
           <field
-            input="@name"
+            input="@name" description="File name"
             output="name"
             parser="String"
             qualifier="FILE_NAME"
           />
           <field
-            input="@filesize"
+            input="@filesize" description="File size in bytes"
             output="filesize"
             parser="Int"
             qualifier="FILE_SIZE"
           />
           <field
-            input="@MD5"
+            input="@MD5" description="MD5 hash of the file"
             output="md5"
             parser="String"
             qualifier="FILE_MD5"
           />
           <field
-            input="@SHA1"
+            input="@SHA1" description="SHA-1 hash of the file"
             output="sha1"
             parser="String"
             qualifier="FILE_SHA1"
           />
           <field
-            input="@SHA256"
+            input="@SHA256" description="SHA-256 hash of the file"
             output="sha256"
             parser="String"
             qualifier="FILE_SHA256"

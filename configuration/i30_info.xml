@@ -87,7 +87,7 @@ Each row represents a current or carved NTFS directory-index entry, with name, r
         description="Volume identifier"
       />
 
-      <field input="SnapshotID" output="snapshot_id" parser="Python" />
+      <field input="SnapshotID" description="Volume snapshot the entry was collected from" output="snapshot_id" parser="Python" />
 
       <!-- date fields -->
       <field

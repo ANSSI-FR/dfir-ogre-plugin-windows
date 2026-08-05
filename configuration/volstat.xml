@@ -52,7 +52,7 @@ Each row describes a volume observed by ORC, with host, volume identifier, mount
         parser="String"
         description="File system type (FAT, NTFS, etc.)"
       />
-      <field input="Parse" output="is_parsed" parser="Bool" />
+      <field input="Parse" description="Whether the volume was successfully parsed" output="is_parsed" parser="Bool" />
       <field
         input="MountPoint"
         output="mount_point"
