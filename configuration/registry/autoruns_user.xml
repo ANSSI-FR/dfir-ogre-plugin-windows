@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="RegAutorunsUser" file_encoding="UTF_8">
   <mapping data_type="reg_autoruns">
+    <name>Autoruns Reg User</name>
     <description>
       <![CDATA[
 Each row is a per-user auto-start value found in a known user-hive persistence location, with persistence type, key and value, command data, LastWrite time, owner, and permissions. Use it to attribute configured persistence to a profile and correlate commands with files. Configuration does not prove execution, and LastWrite applies to the key rather than an individual value.

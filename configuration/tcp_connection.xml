@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="TCPConn" file_encoding="UTF_8">
   <mapping data_type="tcpvcon">
+    <name>Tcp Connections</name>
     <description>
     <![CDATA[
 Each row is a TCP or UDP endpoint from a Sysinternals Tcpvcon snapshot, with owning process and identifier, protocol and state, and local or remote addresses and ports. Use it to correlate collection-time network exposure with processes and other telemetry. It contains no payload or connection history, and process attribution can become stale as identifiers are reused.

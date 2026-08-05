@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="RegScheduledTask" batch="true" file_encoding="UTF_8">
   <mapping data_type="scheduled_tasks">
+    <name>Scheduled Tasks</name>
     <description
     ><![CDATA[
 Each row reconstructs a Registry-backed scheduled task, with task identity, author, triggers, actions, command and arguments, registration or run metadata, exit code, and security information where available. Use it to hunt persistence and correlate task actions with binaries or accounts. Registration does not prove execution, and last-run fields may be absent or stale.

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="FirefoxExtension" file_encoding="UTF_8">
   <mapping data_type="firefox_extension">
+    <name>Firefox Extension</name>
     <description
         ><![CDATA[
 Each row describes a Firefox add-on, including identity, version, install path, source, declared permissions or origins, and install or update times. Use it to assess extension provenance and capability or hunt for risky permissions and unexpected installation sources. Declared capability is not observed behavior, and the snapshot can miss removed add-ons.

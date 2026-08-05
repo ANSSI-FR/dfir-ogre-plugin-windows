@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="RegSIPP" file_encoding="UTF_8">
   <mapping data_type="subject_interface_package">
+    <name>Subject Interface Package</name>
     <description
     ><![CDATA[
 Each row is a Subject Interface Package registration used by Windows trust services, with GUID, descriptive name, implementing DLL, entry-point function, and registry provenance. Use it to hunt trust-provider tampering by comparing DLL paths and functions with a known-good baseline. Registration alone does not prove the package loaded or that its output was trustworthy.

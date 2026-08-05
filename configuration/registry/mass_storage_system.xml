@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="RegMassStorageSystem" file_encoding="UTF_8">
   <mapping data_type="mass_storage">
+    <name>Mass Storage</name>
     <description
     ><![CDATA[
 Each row consolidates registry evidence for a mass-storage device, with device and instance identifiers, serial or volume labels, drive mapping, user context, and setup or arrival/removal times where available. Use it to correlate removable media across registry sources and file activity. Timestamps have source-specific meanings and should be corroborated before inferring an exact physical connection.

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="SQLite" file_encoding="UTF_8">
   <mapping data_type="browser_download_history">
+    <name>Firefox Download History</name>
     <description
     ><![CDATA[
 Each row represents Firefox download metadata recovered from the Places database, linking a source URL to a saved path, byte count, start and end times, state, and deletion flag where available. Use it to trace acquisition and correlate files with later activity. A history row does not guarantee the transfer completed or that the file was opened.

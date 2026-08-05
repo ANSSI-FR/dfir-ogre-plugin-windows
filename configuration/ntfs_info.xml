@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="NTFSInfo" file_encoding="UTF_8">
   <mapping data_type="ntfsinfo">
+    <name>Ntfs Info</name>
     <description
     ><![CDATA[
 Each row represents an NTFS Master File Table record exported by ORC, with path, file and parent identifiers, standard and filename timestamps, attributes, size, hashes, and executable metadata. Use it to reconstruct filesystem state and correlate binaries or deleted records. NTFS timestamps can be altered or inherited and do not by themselves identify the actor or action.

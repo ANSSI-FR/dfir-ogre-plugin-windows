@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="RegAmCacheDriver" file_encoding="UTF_8">
   <mapping data_type="amcache_driver">
+    <name>Amcache Driver</name>
     <description
         ><![CDATA[
 Each row is a driver inventory record from the Amcache hive, with driver name and path, identifier or hash, version, vendor, size, and compilation metadata. Use it to identify rare or vulnerable drivers and correlate binaries across hosts. Amcache inventory presence does not establish that the driver loaded or executed, and fields vary by Windows version.

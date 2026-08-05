@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="RegExplorerSearchHistory" file_encoding="UTF_8">
   <mapping data_type="explorer_search_history">
+    <name>Explorer Search History</name>
     <description
     ><![CDATA[
 Each row is a Windows Explorer search query from WordWheelQuery, with decoded query text, MRU order, value index, user and registry provenance, and key LastWrite time. Use it to reconstruct search intent and pivot on filenames or terms. Only the newest query is associated with the key time; remaining entries have relative order but no individual timestamp.

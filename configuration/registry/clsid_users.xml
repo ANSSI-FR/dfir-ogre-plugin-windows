@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="RegClsIdIUser" file_encoding="UTF_8">
   <mapping data_type="clsid">
+    <name>CLSID Users</name>
     <description
     ><![CDATA[
 Each row is a per-user COM class registration, with CLSID, description, implementing executable or DLL, TreatAs redirection, and registry provenance. Use it to find user-scoped COM hijacking or persistence and attribute the registration to a profile. Registration alone does not prove that the COM object was instantiated or its code loaded.

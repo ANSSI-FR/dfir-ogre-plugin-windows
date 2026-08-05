@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="RegClsIdSoftware" file_encoding="UTF_8">
   <mapping data_type="clsid">
+    <name>CLSID Software</name>
     <description
     ><![CDATA[
 Each row is a machine-wide COM class registration, with CLSID, description, implementing executable or DLL, TreatAs redirection, and registry provenance. Use it to hunt COM hijacking or persistence by comparing handlers and redirects with expected baselines. Registration alone does not prove that the COM object was instantiated or its code loaded.

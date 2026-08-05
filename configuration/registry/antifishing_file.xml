@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="RegAntifishingFile" file_encoding="UTF_8">
   <mapping data_type="antifishing_file">
+    <name>Antifishing File</name>
     <description
     ><![CDATA[
 Each row exposes the Internet Explorer anti-phishing UserFile registry setting for a user, with its configured value, key path, LastWrite time, owner, and access controls. Use it to locate related browser-protection data and assess unexpected configuration changes. The setting alone does not describe the file contents or prove that Internet Explorer consumed it.

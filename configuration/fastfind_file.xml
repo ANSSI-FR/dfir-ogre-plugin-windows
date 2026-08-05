@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="FastFind" file_encoding="UTF_8">
   <mapping data_type="fastfind_file">
+    <name>Fastfind File</name>
     <description>Each row is a filesystem match returned by FastFind, with volume and snapshot context, path, NTFS identifiers, timestamps, attributes, hashes, and match details. Use it to pivot from search criteria to matching files and correlate records across snapshots. Results reflect the configured search and collected volumes, not a complete filesystem inventory.</description>
     <short_description>Shows FastFind filesystem matches with paths, NTFS identifiers, timestamps, attributes, hashes, and match context.</short_description>
     <category>Fast Find</category>

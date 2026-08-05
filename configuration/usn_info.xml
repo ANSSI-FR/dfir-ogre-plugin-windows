@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="USNInfo" file_encoding="UTF_8">
   <mapping data_type="usninfo">
+    <name>Usn Info</name>
     <description
     ><![CDATA[
 Each row is an NTFS USN Change Journal record, with file and parent identifiers, path, timestamp, reason flags, attributes, volume, and snapshot context. Use it to reconstruct sequences of filesystem changes and correlate renamed or deleted objects. Reason flags describe recorded changes rather than user intent, multiple changes can be combined, and journal retention is finite.

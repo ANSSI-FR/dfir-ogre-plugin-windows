@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="RegUserCertificates" file_encoding="UTF_8">
   <mapping data_type="x509_cert">
+    <name>X509 Certificates Users</name>
     <description
     ><![CDATA[
 Each row is a per-user X.509 certificate decoded from an NTUSER hive, with subject, issuer, validity, public-key algorithm, fingerprint, and registry provenance. Use it to attribute trust material to a profile and identify unexpected issuers or subjects. Store presence does not prove the certificate was trusted for a specific purpose or used in an observed connection.

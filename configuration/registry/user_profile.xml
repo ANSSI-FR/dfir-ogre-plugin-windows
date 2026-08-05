@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="RegUserProfile" file_encoding="UTF_8">
   <mapping data_type="user_profile">
+    <name>User Profile</name>
     <description
     ><![CDATA[
 Each row describes a Windows user profile, with account name, SID, profile path, administrative or hidden status, profile state, key time, and registry permissions. Use it to map artifacts to users and identify unusual, orphaned, or concealed profiles. Profile presence does not prove an active session, while absence from this snapshot does not exclude a removed profile.

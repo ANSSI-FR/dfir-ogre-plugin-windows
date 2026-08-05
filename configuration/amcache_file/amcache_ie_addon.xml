@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="XML" file_encoding="UTF_8">
   <mapping data_type="amcache_ie_addon_xml">
+    <name>Amcache Ie Addon Xml</name>
     <description
     >Each row identifies an Internet Explorer add-on found in an Amcache XML report, including its identifier, name, type, and publisher. Use it to inventory browser integrations and pivot on suspicious publishers or identifiers. Report presence does not show that the add-on was enabled or used.</description>
     <short_description>Lists Internet Explorer add-on identifiers, names, types, and publishers from Amcache XML reports.</short_description>

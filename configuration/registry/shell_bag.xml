@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="RegShellBag" batch="true" file_encoding="UTF_8">
   <mapping data_type="shellbags">
+    <name>Shellbags</name>
     <description
     ><![CDATA[
 Each row reconstructs a folder or item recorded in a user's Shellbag hierarchy, with browsed path, item type and name, embedded timestamps, and registry provenance. Use it to infer Explorer awareness of folders, including removable or network locations, and correlate paths with other user artifacts. Times belong to item or Registry structures rather than a guaranteed visit event; local DOS or FAT times are normalized with the matching SYSTEM hive.

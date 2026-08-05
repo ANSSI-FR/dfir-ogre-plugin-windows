@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="RegUserAssist" file_encoding="UTF_8">
   <mapping data_type="user_assist">
+    <name>User Assist</name>
     <description
     ><![CDATA[
 Each row is a per-user UserAssist record for a GUI-launched item, with decoded path or name, run count, focus metrics, launch type, last-run time, and registry provenance. Use it as execution evidence and correlate user-attributed launches with files and other timelines. Counter semantics vary by format and Windows version, and absence does not exclude execution by other mechanisms.

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="RegAutorunsSoftware" file_encoding="UTF_8">
   <mapping data_type="reg_autoruns">
+    <name>Autoruns Reg Software</name>
     <description>
       <![CDATA[
 Each row is a machine-wide auto-start value found in a known SOFTWARE-hive persistence location, with persistence type, key and value, command data, LastWrite time, owner, and permissions. Use it to identify configured persistence and correlate commands with files or accounts. Registry configuration does not prove the entry executed, and LastWrite applies to the key rather than an individual value.

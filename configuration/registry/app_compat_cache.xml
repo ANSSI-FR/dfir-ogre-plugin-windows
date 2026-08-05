@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="RegAppCompatCache" file_encoding="UTF_8">
   <mapping data_type="app_compat_cache">
+    <name>App Compat Cache</name>
     <description
     ><![CDATA[
 Each row is an executable path cached by Windows Application Compatibility, with file modification time, cache flags, index, and registry provenance. Use it to establish that Windows knew of a path and correlate it with stronger execution artifacts. AppCompatCache presence alone is not definitive execution evidence, and formats and flag meaning vary by Windows version.

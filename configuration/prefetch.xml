@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="Prefetch" file_encoding="UTF_8">
   <mapping data_type="prefetch">
+    <name>Prefetch</name>
     <description
     ><![CDATA[
 Each row describes a Windows Prefetch file for an executable, with executable name, prefetch version and hash, run count, recorded run times, referenced files, and source volumes. Use it as strong execution evidence and to correlate paths, devices, and supporting files. Creation depends on Windows configuration and workload, retention is limited, and absence does not prove non-execution.

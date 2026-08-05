@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="OrcProcesses1" file_encoding="UTF_8">
   <mapping data_type="processes_orc">
+    <name>Processes Orc V1</name>
     <description
     ><![CDATA[
 Each row describes a process observed in an ORC process CSV, with name, executable path, command line, process and parent identifiers, session, and creation or termination times. Use it to reconstruct process ancestry and correlate execution context with files, users, and network evidence. It is a collection-time view; absence does not exclude earlier execution and identifiers can be reused.

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="RegRunMru" file_encoding="UTF_8">
   <mapping data_type="run_mru">
+    <name>Run Mru</name>
     <description
     ><![CDATA[
 Each row is a command stored in a user's RunMRU key after entry through the Windows Run dialog, with command text, MRU index, user and registry provenance, and key LastWrite time. Use it to reconstruct explicit command intent and pivot on paths, URLs, or utilities. MRU order is relative, and the shared key time is not an individual timestamp for every command.

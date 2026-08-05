@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="RegSnapExclude" file_encoding="UTF_8">
   <mapping data_type="backup_exclude">
+    <name>Backup Exclude</name>
     <description
     ><![CDATA[
 Each row is a path configured for exclusion from Volume Shadow Copy or backup processing, with exclusion type, path, key LastWrite time, owner, and permissions. Use it to identify data omitted from recovery sources or suspicious attempts to reduce backup coverage. The setting records configuration intent and does not prove that a backup ran or exclusion occurred.

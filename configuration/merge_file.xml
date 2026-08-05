@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin parser="Merge" file_encoding="UTF_8">
   <mapping data_type="merge_file">
+    <name>Merge File</name>
     <description><![CDATA[
 Each row is the complete text of one multiline input artifact after its lines are concatenated for downstream parsing or language-model analysis. It preserves content but adds no independent event semantics, timestamps, or provenance beyond the source file. Interpret any claims using the originating artifact and collection context.
 ]]>     

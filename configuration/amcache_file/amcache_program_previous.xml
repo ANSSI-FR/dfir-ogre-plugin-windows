@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="XML" file_encoding="UTF_8">
   <mapping data_type="amcache_program_xml">
+    <name>Amcache Program Previous</name>
     <description
     >Each row is a program inventory entry from an AEINV PREVIOUS report, with program identity, version, publisher, source, paths, and related executable hashes where available. Use it to recover earlier inventory and correlate software across reports. Presence in the report does not by itself prove execution.</description>
     <short_description>Lists installed programs and executable hashes, paths, versions, vendors, and run evidence from AEINV_PREVIOUS.</short_description>

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin parser="ChromeExtension" file_encoding="UTF_8">
   <mapping data_type="chrome_extension">
+    <name>Chrome Extension</name>
     <description>
 <![CDATA[
 Each row describes an installed Chrome extension manifest, including identity, version, source, update URL, declared permissions, content scripts, background code, accessible resources, and security policy. Use it to assess extension capability and provenance or hunt risky permissions and injected origins. Declared capability is not proof that code ran, and the snapshot can miss removed versions.

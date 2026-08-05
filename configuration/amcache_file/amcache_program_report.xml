@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="XML" file_encoding="UTF_8">
   <mapping data_type="amcache_program_xml">
+    <name>Amcache Program Report</name>
     <description
     >Each row is a program inventory entry from a FullCompatReport, with program identity, version, publisher, source, paths, and related executable hashes where available. Use it to correlate installed software and binaries at report time. Inventory presence does not by itself prove installation time or execution.</description>
     <short_description>Lists installed programs and executable hashes, paths, versions, vendors, and run evidence from FullCompatReport.</short_description>

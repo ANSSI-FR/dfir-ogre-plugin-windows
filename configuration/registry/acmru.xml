@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="RegAcMru" file_encoding="UTF_8">
   <mapping data_type="acmru">
+    <name>Acmru</name>
     <description
     ><![CDATA[
 Each row is a Windows XP Search Assistant query recovered from a per-user hive, with search category, query text, MRU order, registry provenance, and key LastWrite time. Use it to reconstruct user search intent and pivot on filenames, hosts, or terms. Only the newest indexed entry is associated with the category key time; other queries have no individual timestamp.

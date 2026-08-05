@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="LnkBatched" batch="true" file_encoding="UTF_8">
   <mapping data_type="lnk">
+    <name>Lnk</name>
     <description
     ><![CDATA[
 Each row describes a Windows Shell Link or Jump List shortcut, preserving target paths, arguments, working directory, target metadata, volume and tracker identifiers, link flags, and extra data. Use it to infer access or launch context and correlate files, devices, shares, and hosts, but shortcut creation alone does not prove the target was opened. Local DOS or FAT times are normalized with the matching SYSTEM hive; header FILETIME values remain unchanged.

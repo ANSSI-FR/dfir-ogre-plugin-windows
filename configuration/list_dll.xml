@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="ListDll" file_encoding="UTF_8">
     <mapping data_type="listdlls">
+    <name>List Dlls</name>
     <description
     ><![CDATA[
 Each row is a module listed by Sysinternals ListDLLs for a process observed at collection time, with process name, identifier, command line, module path, base address, and size. Use it to detect unexpected DLL loads and correlate modules with processes and hashes from other artifacts. It is a transient snapshot; absent or terminated processes are not represented and process identifiers can be reused.

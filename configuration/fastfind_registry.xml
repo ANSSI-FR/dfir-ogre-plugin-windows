@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="XML" file_encoding="UTF_8">
   <mapping data_type="fastfind_reg">
+    <name>Fastfind Registry</name>
     <description>Each row is a Registry match returned by FastFind, with hive, key and value paths, value data, key timestamp, and volume or snapshot context. Use it to locate configuration, persistence, or indicator hits across hives and snapshots. Results reflect the configured search, and a key LastWrite time is not a per-value modification time.</description>
     <short_description>Shows FastFind registry matches with hive and key paths, values, data, timestamps, and snapshot context.</short_description>
     <category>Fast Find</category>

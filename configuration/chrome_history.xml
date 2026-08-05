@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="SQLite" file_encoding="UTF_8">
   <mapping data_type="browser_history">
+    <name>Chrome History</name>
     <description
     ><![CDATA[
 Each row represents a Chrome visit, with URL, page title, visit time, visit count, referrer, and hidden state where available. Use it to reconstruct navigation and correlate web activity with downloads, authentication, or endpoint events. Browser history can be incomplete because of deletion, private browsing, retention, or profile selection.

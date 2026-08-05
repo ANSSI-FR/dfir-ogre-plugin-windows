@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="RegAmCacheProgram" file_encoding="UTF_8">
   <mapping data_type="amcache_program">
+    <name>Amcache Program</name>
     <description
         ><![CDATA[
 Each row is a program inventory record from the Amcache hive, with program identity, name, version, publisher, install source or path, and MSI identifiers where available. Use it to correlate installed software with related file records and enterprise inventory. Presence does not by itself prove installation time, current installation, or execution.

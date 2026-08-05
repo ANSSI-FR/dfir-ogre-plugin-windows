@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="RegAutorunsSystem" file_encoding="UTF_8">
   <mapping data_type="reg_autoruns">
+    <name>Autoruns Reg System</name>
     <description>
       <![CDATA[
 Each row is a SYSTEM-hive auto-start value found in a known persistence location, with persistence type, control-set key and value, command data, LastWrite time, owner, and permissions. Use it to identify boot or service-related persistence and correlate commands with binaries. Configuration does not prove execution, and the active control set must be established for incident-time interpretation.

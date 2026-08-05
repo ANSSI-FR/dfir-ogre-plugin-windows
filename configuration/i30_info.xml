@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="I30Info" file_encoding="UTF_8">
   <mapping data_type="i30info">
+    <name>I30 info</name>
     <description
     ><![CDATA[
 Each row represents a current or carved NTFS directory-index entry, with name, reconstructed path, file and parent record identifiers, timestamps, size, attributes, volume, and snapshot. Use it to recover directory membership and possible deleted-name remnants. Carved records and embedded timestamps require corroboration, and a directory entry alone does not prove user interaction.

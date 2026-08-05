@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="SQLite" file_encoding="UTF_8">
   <mapping data_type="browser_history">
+    <name>Firefox History</name>
     <description
     ><![CDATA[
 Each row represents a Firefox page visit, with URL, title, visit time, visit count, referrer, and hidden state where available. Use it to reconstruct navigation and correlate browsing with downloads, credentials, or endpoint events. History can be incomplete because of deletion, private browsing, retention, synchronization, or profile selection.

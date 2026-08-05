@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="Autoruns" file_encoding="UTF_16_LE">
   <mapping data_type="autoruns">
+    <name>Autoruns</name>
     <description
     ><![CDATA[
 Each row is an auto-start entry from a Sysinternals Autoruns CSV snapshot, with persistence location, entry name, enabled state, launch command, image path, profile, signer, and hashes. Use it to identify persistence candidates and correlate configured commands with files and users. Configuration at collection time does not prove the entry executed, and signature metadata is not a trust verdict.

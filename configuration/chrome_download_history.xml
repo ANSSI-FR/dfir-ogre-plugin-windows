@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="SQLite" file_encoding="UTF_8">
   <mapping data_type="browser_download_history">
+    <name>Chrome Download History</name>
     <description
     ><![CDATA[
 Each row represents a Chrome download record, linking the source URL to the saved path, start and end times, byte counts, state, interruption or danger status, and opened flag. Use it to trace file acquisition and correlate downloads with filesystem or execution evidence. A record can describe an interrupted, removed, or otherwise incomplete download.

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="RegNetworkConfig" file_encoding="UTF_8">
   <mapping data_type="network_config">
+    <name>Network Configuration</name>
     <description
     ><![CDATA[
 Each row describes a Windows network-interface configuration from the SYSTEM hive, including interface identity, IP address, mask, gateway, DHCP and DNS values, plus registry provenance. Use it to establish host network context and correlate addresses with logs or captures. Settings can be historical, stale, or lease-derived and do not represent network traffic.

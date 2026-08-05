@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="JavaIdx" file_encoding="UTF_8">
   <mapping data_type="java_idx">
+    <name>Java Idx</name>
     <description
     ><![CDATA[
 Each row describes an artifact recorded in a Java deployment cache index, with source URL, server IP, size, cache state, signing flag, request data, and modification or expiry times. Use it to trace Java-delivered content and correlate cached files with network or execution evidence. Cache presence and a signing flag do not prove successful execution or trustworthiness.

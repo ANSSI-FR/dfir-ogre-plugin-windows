@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="RegShimDb" file_encoding="UTF_8">
   <mapping data_type="shim_db">
+    <name>Shim Database</name>
     <description
     ><![CDATA[
 Each row identifies an installed Windows application-compatibility shim database, with database GUID, file path, install time, and registry provenance. Use it to find custom compatibility layers that may alter application behavior or provide persistence and correlate the database file. Installation can be legitimate and does not prove the shim was applied to a specific process.

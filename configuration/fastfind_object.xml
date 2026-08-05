@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="XML" file_encoding="UTF_8">
   <mapping data_type="fastfind_obj">
+    <name>Fastfind Object</name>
     <description>Each row is a Windows object-manager match returned by FastFind, with object type, name, namespace path, and match description. Use it to identify suspicious named objects or namespace links and correlate them with processes or malware indicators. The result is bounded by the search criteria and collection-time namespace state.</description>
     <short_description>Shows FastFind Windows object matches with object type, name, path, and match description.</short_description>
     <category>Fast Find</category>

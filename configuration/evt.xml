@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="WinEvt" file_encoding="UTF_8">
   <mapping data_type="evt">
+    <name>Evt</name>
     <description
     >Each row represents a record parsed from a legacy Windows EVT log, with provider, event identifier, severity, record number, host, user, timestamps, message data, and recovery state. Use provider and event semantics to reconstruct system or security activity. Logs may be cleared, overwritten, filtered, or partially recovered, and event meaning depends on the provider schema.</description>
     <short_description>Shows legacy Windows EVT events with provider, ID, message data, user, host, timestamps, and recovery status.</short_description>

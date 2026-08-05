@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="RegSystemCertificates" file_encoding="UTF_8">
   <mapping data_type="x509_cert">
+    <name>X509Cert Software</name>
     <description
     ><![CDATA[
 Each row is a machine-wide X.509 certificate decoded from the SOFTWARE hive, with subject, issuer, validity, public-key algorithm, fingerprint, and registry provenance. Use it to inventory trust material and identify unexpected issuers, subjects, or expired certificates. Store presence does not prove the certificate was trusted for a specific purpose or used in an observed connection.

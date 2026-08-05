@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="RegAmCacheFile" file_encoding="UTF_8">
   <mapping data_type="amcache_file">
+    <name>Amcache Files</name>
     <description
         ><![CDATA[
 Each row is a file inventory record from the Amcache hive, with path, normalized hash, size, program identifiers, version or publisher data, timestamps, and registry provenance. Use it to identify binaries and correlate software across files, programs, and hosts. Amcache presence is contextual inventory evidence, not standalone proof of execution, and schema semantics vary by Windows version.

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="RegRecentApp" file_encoding="UTF_8">
   <mapping data_type="recent_app">
+    <name>Recent App</name>
     <description
     ><![CDATA[
 Each row describes an application or recent item from the short-lived Windows 10 RecentApps artifact, with program identity, launch count, last access time, file path, and arguments where available. Use it to associate applications with recently accessed files. The artifact is limited to Windows 10 versions 1607 through 1709, has finite retention, and absence does not exclude use.

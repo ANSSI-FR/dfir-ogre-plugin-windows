@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="IeWebCache" file_encoding="UTF_8">
   <mapping data_type="ie_webcache_history">
+    <name>Ie Webcache History</name>
     <description
         ><![CDATA[
 Each row is an Internet Explorer or legacy WebCache container record, with URL, cached filename, request or response properties, access counts, and creation, access, modification, synchronization, or expiry times. Use it to reconstruct browsing and cached-resource activity. Cache records may arise from redirects or background content, and timestamp meaning varies by container.

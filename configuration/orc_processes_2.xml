@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="Csv" file_encoding="UTF_8">
   <mapping data_type="processes_orc">
+    <name>Processes Orc V2</name>
     <description
     ><![CDATA[
 Each row describes a process observed in an enriched ORC process CSV, with identity, executable and command line, parentage, timing, version, window, resource, and response metadata. Use it to reconstruct process trees and flag anomalous paths or behavior. It remains a snapshot; absence does not exclude earlier execution and identifiers can be reused.

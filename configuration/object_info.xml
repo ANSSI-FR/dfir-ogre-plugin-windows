@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="Csv" file_encoding="UTF_8">
   <mapping data_type="objinfo">
+    <name>Object Info</name>
     <description
     ><![CDATA[
 Each row represents a Windows object-manager namespace entry captured by GetObjInfo, with object type, name, namespace path, symbolic-link target, and link creation time where available. Use it to find suspicious mutexes, devices, or redirections and correlate named objects with processes. The namespace is transient, so the output reflects collection-time state rather than historical activity.

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="Csv" file_encoding="UTF_8">
   <mapping data_type="volstats">
+    <name>Volstats</name>
     <description
     ><![CDATA[
 Each row describes a volume observed by ORC, with host, volume identifier, mount point or device location, volume type, shadow-copy identifier, and indicators of which artifact sets were collected. Use it to map paths and records to the correct live volume or snapshot. It is collection metadata and does not itself represent file or user activity.

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="Regexp" file_encoding="IBM866">
   <mapping data_type="systeminfo">
+    <name>Systeminfo</name>
     <description
     ><![CDATA[
 Each row summarizes a host from Windows systeminfo output, including hostname, OS edition and build, installation and boot times, hardware, memory, domain, hotfixes, network adapters, and virtualization support. Use it to scope the system and interpret version-dependent artifacts. Values reflect collection-time or OS-reported state rather than historical activity.

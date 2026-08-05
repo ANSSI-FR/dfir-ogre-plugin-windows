@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="XML" file_encoding="UTF_8">
   <mapping data_type="amcache_program_xml">
+    <name>Amcache Program Wer</name>
     <description
     >Each row is a program inventory entry from an AEINV Windows Error Reporting XML report, with program identity, version, publisher, source, paths, and related executable hashes where available. Use it to correlate software and binaries seen by the reporting process. Presence does not by itself prove execution.</description>
     <short_description>Lists installed programs and executable hashes, paths, versions, vendors, and run evidence from AEINV WER reports.</short_description>

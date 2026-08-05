@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin parser="Regexp" file_encoding="UTF_16_LE">
   <mapping data_type="pca_general_record">
+    <name>Pca General Record</name>
     <description
     ><![CDATA[
 Each row is a Program Compatibility Assistant general record, with run time, executable path, status, vendor, version, program identifier, and exit code where available. Use it to support execution analysis and correlate compatibility handling with binaries and other timelines. Status and exit code describe the recorded PCA interaction and should not alone be treated as the program's full outcome.
