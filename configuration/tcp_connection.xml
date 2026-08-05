@@ -28,7 +28,7 @@ Each row is a TCP or UDP endpoint from a Sysinternals Tcpvcon snapshot, with own
 
     <fields>
       <field input="process_name" parser="String" description="Process name" />
-      <field input="pid" parser="String" description="PID" />
+      <field input="pid" parser="String" description="Process identifier (PID)" />
       <field
         input="protocol"
         parser="String"
@@ -39,11 +39,11 @@ Each row is a TCP or UDP endpoint from a Sysinternals Tcpvcon snapshot, with own
         parser="String"
         description="LISTENING, ESTABLISHED, … (can be empty for UDP)"
       />
-      <field input="local_adress" parser="String" description="local addres" />
+      <field input="local_adress" parser="String" description="Local IP address" />
       <field
         input="remote_adress"
         parser="String"
-        description="remote address"
+        description="Remote IP address"
       />
     </fields>
   </mapping>

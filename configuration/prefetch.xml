@@ -32,7 +32,7 @@ Each row describes a Windows Prefetch file for an executable, with executable na
         description="executable file name"
       />
 
-      <field input="version" parser="String" description="version" />
+      <field input="version" parser="String" description="Prefetch file version" />
 
       <field
         input="prefetch_hash"

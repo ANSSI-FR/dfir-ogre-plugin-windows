@@ -27,7 +27,7 @@ Each row is a module listed by Sysinternals ListDLLs for a process observed at c
 
     <fields>
       <field input="process_name" parser="String" description="Process name" />
-      <field input="pid" parser="String" description="PID" />
+      <field input="pid" parser="String" description="Process identifier (PID)" />
       <field
         input="command_line"
         parser="String"
