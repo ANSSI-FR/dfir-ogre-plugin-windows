@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<plugin parser="RegTypedPaths" file_encoding="UTF_8">
+  <mapping data_type="typed_paths">
+    <description
+    ><![CDATA[
+Extracts entries from the `TypedPaths` key in the `NTUser` hive, which stores the paths and locations a user typed into the Windows Explorer address bar.
+
+- Reveals folders, drives, and UNC/remote paths the user navigated to manually.
+- Preserves the `urlN` index indicating the order of entry (`url1` is the most recent).
+]]>
+    </description>
+    <category>Services and Applications</category>
+    <default_parser value="Ignore" />
+    <default_date_pattern value='iso' />
+
+    <!-- Timeline definition -->
+    <timeline>
+      <timeline_type value="Standard" />
+      <related_user>
+        <output_name value="key_security.owner_sid" />
+      </related_user>
+      <description>
+        <output_name value="path" />
+      </description>
+      <additional_description>
+        <output_name value="index" />
+      </additional_description>
+    </timeline>
+
+    <!-- Fields -->
+    <fields>
+      <field
+        input="path"
+        parser="String"
+        qualifier="FILE_PATH"
+        description="path or location typed into the Windows Explorer address bar"
+      />
+      <field
+        input="index"
+        parser="String"
+        description="urlN index indicating the entry's position in the TypedPaths list (url1 is the most recent)"
+      />
+
+      <!-- Registry Key data-->
+      <field
+        input="key_path"
+        parser="String"
+        qualifier="KEY_PATH"
+        description="full registry key name"
+      />
+      <field
+        input="key_modif_time"
+        parser="DateTime"
+        qualifier="DATE_MODIFICATION"
+        display_name="Registry key last modification"
+        description="last modification timestamp of the registry key"
+      />
+      <object input="key_security">
+        <field
+          input="owner_sid"
+          parser="String"
+          qualifier="USER_SID"
+          description="SID of the user that owns the registry key"
+        />
+        <field
+          input="group_sid"
+          parser="String"
+          description="SID of the group that owns the registry key"
+        />
+        <array>
+          <field
+            input="control_flags"
+            parser="String"
+            description="security descriptor control flags for the key"
+          />
+        </array>
+        <object input="dacl_ace">
+          <field
+            input="ace_type"
+            parser="String"
+            description="type of ACE (e.g., allow, deny)"
+          />
+          <field
+            input="account_sid"
+            parser="String"
+            description="SID of the account the ACE applies to"
+          />
+          <array>
+            <field
+              input="ace_flags"
+              parser="String"
+              description="ACE flags that modify inheritance or behavior"
+            />
+          </array>
+          <array>
+            <field
+              input="rights"
+              parser="String"
+              description="permissions granted or denied by the ACE"
+            />
+          </array>
+        </object>
+      </object>
+    </fields>
+  </mapping>
+
+</plugin>
