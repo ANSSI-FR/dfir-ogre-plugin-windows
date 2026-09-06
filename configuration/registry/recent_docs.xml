@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<plugin parser="RegRecentDocs" file_encoding="UTF_8">
+  <mapping data_type="recent_docs">
+    <description
+    ><![CDATA[
+Extracts entries from the `RecentDocs` key in the `NTUser` hive, which records the files and folders a user most recently opened through Windows Explorer.
+
+- Lists recent items from the root key and from each per-extension subkey (and the `Folder` subkey).
+- `mru_position` gives the recency order (0 is the most recent); the newest entry corresponds to the key's last modification time.
+]]>
+    </description>
+    <category>Services and Applications</category>
+    <default_parser value="Ignore" />
+    <default_date_pattern value='iso' />
+
+    <!-- Timeline definition -->
+    <timeline>
+      <timeline_type value="Standard" />
+      <related_user>
+        <output_name value="key_security.owner_sid" />
+      </related_user>
+      <description>
+        <output_name value="target" />
+      </description>
+      <additional_description>
+        <output_name value="extension" />
+      </additional_description>
+    </timeline>
+
+    <!-- Fields -->
+    <fields>
+      <field
+        input="target"
+        parser="String"
+        qualifier="FILE_NAME"
+        description="name of the recently opened file or folder"
+      />
+      <field
+        input="extension"
+        parser="String"
+        description="extension subkey the entry came from (empty means the root RecentDocs key, which lists items of every type)"
+      />
+      <field
+        input="index"
+        parser="String"
+        description="registry value name (numeric id) of the entry"
+      />
+      <field
+        input="mru_position"
+        parser="Int"
+        description="position in the MRUListEx recency order (0 is the most recently opened)"
+      />
+
+      <!-- Registry Key data-->
+      <field
+        input="key_path"
+        parser="String"
+        qualifier="KEY_PATH"
+        description="full registry key name"
+      />
+      <field
+        input="key_modif_time"
+        parser="DateTime"
+        qualifier="DATE_MODIFICATION"
+        display_name="Registry key last modification"
+        description="last modification timestamp of the registry key"
+      />
+      <object input="key_security">
+        <field
+          input="owner_sid"
+          parser="String"
+          qualifier="USER_SID"
+          description="SID of the user that owns the registry key"
+        />
+        <field
+          input="group_sid"
+          parser="String"
+          description="SID of the group that owns the registry key"
+        />
+        <array>
+          <field
+            input="control_flags"
+            parser="String"
+            description="security descriptor control flags for the key"
+          />
+        </array>
+        <object input="dacl_ace">
+          <field
+            input="ace_type"
+            parser="String"
+            description="type of ACE (e.g., allow, deny)"
+          />
+          <field
+            input="account_sid"
+            parser="String"
+            description="SID of the account the ACE applies to"
+          />
+          <array>
+            <field
+              input="ace_flags"
+              parser="String"
+              description="ACE flags that modify inheritance or behavior"
+            />
+          </array>
+          <array>
+            <field
+              input="rights"
+              parser="String"
+              description="permissions granted or denied by the ACE"
+            />
+          </array>
+        </object>
+      </object>
+    </fields>
+  </mapping>
+
+</plugin>

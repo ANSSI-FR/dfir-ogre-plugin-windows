@@ -58,6 +58,7 @@ from .registry.mui_cache import RegMuiCache as RegMuiCache
 from .registry.network_configuration import RegNetworkConfig as RegNetworkConfig
 from .registry.pending_file_rename import RegPendingRename as RegPendingRename
 from .registry.recent_app import RegRecentApp as RegRecentApp
+from .registry.recent_docs import RegRecentDocs as RegRecentDocs
 from .registry.run_mru import RegRunMru as RegRunMru
 from .registry.scheduled_task import RegScheduledTask as RegScheduledTask
 from .registry.services import RegServicesControlSet as RegServicesControlSet
