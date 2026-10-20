@@ -3,6 +3,8 @@ import hashlib
 import json
 import os
 import struct
+import subprocess
+import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -73,6 +75,40 @@ class SrumTest(TestCase):
             with patch("pyesedb.file", wraps=pyesedb.file) as open_database:
                 run_reference(self._parse, folder, {})
             open_database.assert_called_once_with()
+
+    def test_import_and_parse_without_common_srum_api(self):
+        # A fresh interpreter catches imports as well as calls to the retired API.
+        code = """
+import sys
+import dfir_ogre_common as common
+if hasattr(common, 'parse_srum'):
+    del common.parse_srum
+from dfir_ogre_plugin_windows import Srum
+report = Srum().parse(
+    'tests/data/srum/SRUDB.dat', 'configuration/srum.xml',
+    common.RunConfiguration([common.OutputConfiguration('srum', sys.argv[1])]),
+    common.Metadata('test'),
+)
+assert report.num_errors == 0, report.last_error
+assert sum(f.num_lines for o in report.output_reports for f in o.file_reports) == 2355
+"""
+        with TemporaryDirectory() as folder:
+            result = subprocess.run(
+                [sys.executable, "-c", code, folder], capture_output=True, text=True
+            )
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_original_keyword_arguments_are_supported(self):
+        with TemporaryDirectory() as folder:
+            report = parse_srum(
+                input_file=os.path.join(DATA_FOLDER, "srum", "SRUDB.dat"),
+                configuration=RunConfiguration([OutputConfiguration("srum", folder)]),
+                plugin_config=PluginConfiguration.load(
+                    os.path.join(CONF_FOLDER, "srum.xml")
+                ),
+                metadata=Metadata("test"),
+            )
+            self.assertEqual(report.num_errors, 0, report.last_error)
 
     def test_missing_database_reports_error(self):
         with TemporaryDirectory() as folder:

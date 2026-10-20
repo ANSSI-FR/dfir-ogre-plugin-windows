@@ -188,11 +188,12 @@ def _parse_table(table, output, field_mapping, index):
 
 def parse_srum(
     input_file: str,
-    run_config: RunConfiguration,
+    configuration: RunConfiguration,
     plugin_config: PluginConfiguration,
     metadata: Metadata,
 ) -> RunReport:
     """Parse SRUM using pyesedb and common's configuration/output runtime."""
+    run_config = configuration
     report = RunReport()
     database = None
     opened = False

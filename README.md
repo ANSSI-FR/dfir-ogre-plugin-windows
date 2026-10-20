@@ -8,6 +8,26 @@ This project is part of the [DFIR-OGRE](https://github.com/ANSSI-FR/dfir-ogre) s
 
 Please refers to the ogre documentation for more details.
 
+## SRUM parser migration
+
+The `Srum` plugin now parses ESE databases with `libesedb-python`, sharing the
+engine used by the other Windows ESE plugins. Its command, XML mappings, output
+fields and timeline behavior are unchanged. Install this Windows plugin version
+before or together with the common version that removes its Rust SRUM parser.
+
+Direct callers of `dfir_ogre_common.parse_srum` should use:
+
+```python
+from dfir_ogre_plugin_windows.srum import parse_srum
+
+report = parse_srum(input_file, run_config, plugin_config, metadata)
+```
+
+The arguments and result are unchanged. Full-output comparisons against the
+original Rust parser cover two databases and 24 output configurations; see
+[SRUM validation and fixture provenance](tests/data/srum/README.md), including
+recent Windows coverage and performance limitations.
+
 ## ⚠️ Beta Status
 This software is currently in **beta**. While functional and actively developed, it may still undergo breaking changes, and some artefact parsers may not yet be fully stabilized. We welcome feedback, bug reports, and contributions using the [issue tracker](https://github.com/ANSSI-FR/dfir-ogre/issues).
 
