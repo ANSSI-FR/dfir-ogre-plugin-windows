@@ -3,6 +3,7 @@
 import base64
 import math
 import struct
+from datetime import datetime, timedelta, timezone
 from functools import lru_cache
 
 import pyesedb
@@ -67,16 +68,20 @@ _DATE_PARSER = FieldMapping(
         )
     ]
 ).get_parser("date")
+_ISO_DATE_PARSER = FieldMapping(
+    [Field.Single(FieldName("date"), Parser.DateTime(DateInputCodec.Iso()), None)]
+).get_parser("date")
 
 
 @lru_cache(maxsize=4096)
 def _timestamp_value(data: bytes, column_type: int) -> Value:
     if column_type in (_TYPES.DOUBLE_64BIT, _TYPES.DATE_TIME):
         days = struct.unpack("<d", data)[0]
-        if not math.isfinite(days):
-            raise ValueError("Invalid SRUM OLE timestamp")
         # Match libesedb-rs/time's float multiplication and i64 saturation.
-        elapsed = max(-(1 << 63), min((1 << 63) - 1, int(days * 86_400_000_000_000)))
+        total = days * 86_400_000_000_000
+        elapsed = (
+            0 if math.isnan(total) else int(max(-(1 << 63), min((1 << 63) - 1, total)))
+        )
         nanoseconds = elapsed - 2_209_161_600_000_000_000
     elif column_type == _TYPES.INTEGER_64BIT_SIGNED:
         ticks = struct.unpack("<Q", data)[0]
@@ -86,7 +91,15 @@ def _timestamp_value(data: bytes, column_type: int) -> Value:
         nanoseconds = (seconds - 11_644_473_600) * 1_000_000_000 + remainder
     else:
         return Value.Null()
-    return _DATE_PARSER.parse_into_value(str(nanoseconds))
+    if -(1 << 63) <= nanoseconds < (1 << 63):
+        return _DATE_PARSER.parse_into_value(str(nanoseconds))
+    # FILETIME zero (1601) predates the i64 Unix-nanosecond range. Parse ISO
+    # with an explicit nanosecond suffix instead, retaining the same precision.
+    nanoseconds = min(nanoseconds, 253_402_300_799_999_999_999)
+    seconds, fraction = divmod(nanoseconds, 1_000_000_000)
+    date = datetime(1970, 1, 1, tzinfo=timezone.utc) + timedelta(seconds=seconds)
+    text = date.strftime("%Y-%m-%dT%H:%M:%S") + f".{fraction:09d}+00:00"
+    return _ISO_DATE_PARSER.parse_into_value(text)
 
 
 def _sid(data: bytes) -> str:

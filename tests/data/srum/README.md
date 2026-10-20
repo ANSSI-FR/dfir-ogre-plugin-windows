@@ -50,3 +50,53 @@ Run the migration checks with:
 ```sh
 .venv/bin/python -m unittest tests.test_srum tests.test_esedb -v
 ```
+
+## Recent-format coverage
+
+The existing `tests/data/esedb/qmgr-win11-24h2.zip` is an actual Windows 11
+24H2 ESE database from [libesedb issue 75](https://github.com/libyal/libesedb/issues/75).
+The SRUM parser regression opens this file successfully and reaches the expected
+missing-SRUM-ID-map error. This checks the new ESE engine on the plugin's real
+execution path; it does not establish end-to-end SRUM decoding on recent Windows.
+
+No publicly downloadable, redistributable actual 24H2-or-newer SRUM database was
+established during this migration. [go-ese PR 30](https://github.com/Velocidex/go-ese/pull/30)
+and [Chainsaw issue 234](https://github.com/WithSecureOpenSource/chainsaw/issues/234)
+report Windows 11 25H2 databases but provide no public database attachment.
+
+## Additional Windows 11 database
+
+`win11-2022.zip` contains an unmodified `SRUDB.dat` from Andrew Rathbun's
+[DFIR Artifact Museum](https://github.com/AndrewRathbun/DFIRArtifactMuseum), pinned
+to commit `fcf81b3e5dce2dff67e4b481b648ead49c75a28a` (2022-07-19), source path
+`Windows/SRUM/Win11/RathbunVM/Clean/SRUDB.dat`. The original is 2,490,368 bytes,
+SHA-256 `f2aeeafe6843aefba35756ffee0eea128b97ec985f852a6c074267a71ceb1696`.
+Its ESE format is `0x620`, revision `0xc8`, 4 KiB pages; its exact Windows build
+is unknown. It predates 24H2. The MIT copyright/license notice is preserved in
+`MUSEUM-LICENSE.txt`.
+
+Re-download the original with:
+
+```sh
+curl -fL 'https://raw.githubusercontent.com/AndrewRathbun/DFIRArtifactMuseum/fcf81b3e5dce2dff67e4b481b648ead49c75a28a/Windows/SRUM/Win11/RathbunVM/Clean/SRUDB.dat' -o SRUDB.dat
+```
+
+`rust-baseline-win11-2022.json` was independently captured from the same original
+Rust release wheel as the first reference, using the same XML and all 12 output
+configurations. It covers 2,463 provider records (2,472 timeline entries), including
+810 energy-estimation records absent from the original fixture. All full-record
+digests match the port. Normalized counts additionally include metadata and,
+with timelines enabled, the separate provider and timeline records.
+
+## Performance
+
+On this Linux workspace, Python 3.10, a release build of common, and the
+1,835,008-byte existing database (2,355 provider records), median parser plus
+JSONL-file output time was 0.052 seconds for Rust and 0.101 seconds for Python.
+Eight measured runs followed one warm-up; parsers ran alternately, logging was
+disabled, configuration was loaded before timing, and the Python timestamp cache
+was cleared before each parse. Both used timeline off and include-empty on.
+Reference digest calculation was outside the measurement.
+
+The Python port took about 1.94 times as long on this small database. A larger
+representative SRUM database is still needed to assess production throughput.

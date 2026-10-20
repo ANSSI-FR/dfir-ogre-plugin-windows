@@ -8,6 +8,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 from unittest.mock import Mock, patch
+from zipfile import ZipFile
 
 import pyesedb
 from dfir_ogre_common import (
@@ -37,10 +38,22 @@ class SrumTest(TestCase):
         )
 
     def test_all_outputs_match_rust_reference(self):
-        reference = json.loads(
-            Path(DATA_FOLDER, "srum", "rust-baseline.json").read_text()
+        self._assert_outputs_match(
+            Path(DATA_FOLDER, "srum", "rust-baseline.json"),
+            Path(DATA_FOLDER, "srum", "SRUDB.dat"),
         )
-        database = Path(DATA_FOLDER, "srum", "SRUDB.dat")
+
+    def test_windows_11_2022_outputs_match_rust_reference(self):
+        with TemporaryDirectory() as folder:
+            database = Path(folder, "SRUDB.dat")
+            with ZipFile(Path(DATA_FOLDER, "srum", "win11-2022.zip")) as archive:
+                database.write_bytes(archive.read("SRUDB.dat"))
+            self._assert_outputs_match(
+                Path(DATA_FOLDER, "srum", "rust-baseline-win11-2022.json"), database
+            )
+
+    def _assert_outputs_match(self, reference_path, database):
+        reference = json.loads(reference_path.read_text())
         self.assertEqual(
             hashlib.sha256(database.read_bytes()).hexdigest(),
             reference["database_sha256"],
@@ -49,7 +62,9 @@ class SrumTest(TestCase):
             for name, options in output_cases():
                 with self.subTest(output=name):
                     self.assertEqual(
-                        run_reference(self._parse, Path(folder, name), options),
+                        run_reference(
+                            self._parse, Path(folder, name), options, database=database
+                        ),
                         reference["cases"][name],
                     )
 
@@ -69,6 +84,52 @@ class SrumTest(TestCase):
             )
             self.assertEqual(report.num_errors, 1)
             self.assertEqual(report.output_reports, [])
+
+    def test_opens_windows_11_24h2_ese_before_srum_validation(self):
+        # This is a real modern ESE database, but it contains BITS, not SRUM.
+        # Reaching the ID-map check proves the plugin can open the page format.
+        with TemporaryDirectory() as folder:
+            database = Path(folder, "qmgr.db")
+            with ZipFile(Path(DATA_FOLDER, "esedb", "qmgr-win11-24h2.zip")) as archive:
+                database.write_bytes(archive.read("qmgr.db"))
+            report = parse_srum(
+                str(database),
+                RunConfiguration([OutputConfiguration("srum", folder)]),
+                PluginConfiguration.load(os.path.join(CONF_FOLDER, "srum.xml")),
+                Metadata("test"),
+            )
+            self.assertEqual(report.num_errors, 1)
+            self.assertIn("Missing SRUM SruDbIdMapTable", report.last_error)
+            self.assertEqual(report.output_reports, [])
+
+    def test_finalization_errors_are_reported(self):
+        from dfir_ogre_plugin_windows import srum
+
+        original = srum.Output
+
+        class FailingOutput:
+            def __init__(self, *args):
+                self.output = original(*args)
+
+            def __enter__(self):
+                return self.output.__enter__()
+
+            def __exit__(self, *args):
+                self.output.__exit__(*args)
+                raise OSError("forced finalization failure")
+
+        with TemporaryDirectory() as folder:
+            with patch.object(srum, "Output", FailingOutput):
+                report = Srum().parse(
+                    os.path.join(DATA_FOLDER, "srum", "SRUDB.dat"),
+                    os.path.join(CONF_FOLDER, "srum.xml"),
+                    RunConfiguration([OutputConfiguration("srum", folder)]),
+                    Metadata("test"),
+                )
+            self.assertEqual(report.num_errors, 14)
+            self.assertIn("forced finalization failure", report.last_error)
+            self.assertEqual(len(report.output_reports), 14)
+            self.assertEqual(report.output_reports[0].file_reports[0].num_lines, 1660)
 
     def test_aliases_and_unmapped_columns_keep_typed_values(self):
         with TemporaryDirectory() as folder:
@@ -243,4 +304,25 @@ class SrumValueTest(TestCase):
         )
         self.assertIsNone(
             self.read(types.INTEGER_32BIT_SIGNED, struct.pack("<i", 42), "TimeStamp")
+        )
+
+    def test_filetime_epoch_and_saturated_dates_match_rust(self):
+        column_type = pyesedb.column_types.INTEGER_64BIT_SIGNED
+        self.assertEqual(
+            self.read(column_type, struct.pack("<q", 0), "ConnectStartTime"),
+            "1601-01-01T00:00:00.000000+00:00",
+        )
+        self.assertEqual(
+            self.read(column_type, struct.pack("<q", -1), "ConnectStartTime"),
+            "9999-12-31T23:59:59.999999+00:00",
+        )
+
+    def test_nan_ole_timestamp_matches_rust_saturating_cast(self):
+        self.assertEqual(
+            self.read(
+                pyesedb.column_types.DOUBLE_64BIT,
+                struct.pack("<d", float("nan")),
+                "TimeStamp",
+            ),
+            "1899-12-30T00:00:00.000000+00:00",
         )
