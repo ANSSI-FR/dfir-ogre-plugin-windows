@@ -1,13 +1,28 @@
 import glob
+import hashlib
 import json
 import os
+import struct
+import xml.etree.ElementTree as ET
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from unittest import TestCase
+from unittest.mock import Mock, patch
 
-from dfir_ogre_common import Metadata, OutputConfiguration, RunConfiguration
+import pyesedb
+from dfir_ogre_common import (
+    Metadata,
+    OutputConfiguration,
+    PluginConfiguration,
+    Record,
+    RunConfiguration,
+)
 
 from dfir_ogre_plugin_windows import Srum
+from dfir_ogre_plugin_windows.srum import _read_value, _sid, parse_srum
 
 from . import BASE_TEMP_FOLDER, CONF_FOLDER
+from .srum_reference import output_cases, run_reference
 
 DATA_FOLDER = os.path.join("tests", "data")
 TEMP_FOLDER = os.path.join(BASE_TEMP_FOLDER, "srum")
@@ -15,6 +30,103 @@ os.makedirs(TEMP_FOLDER, exist_ok=True)
 
 
 class SrumTest(TestCase):
+    @staticmethod
+    def _parse(input_file, run_config, plugin_config, metadata):
+        return Srum().parse(
+            input_file, os.path.join(CONF_FOLDER, "srum.xml"), run_config, metadata
+        )
+
+    def test_all_outputs_match_rust_reference(self):
+        reference = json.loads(
+            Path(DATA_FOLDER, "srum", "rust-baseline.json").read_text()
+        )
+        database = Path(DATA_FOLDER, "srum", "SRUDB.dat")
+        self.assertEqual(
+            hashlib.sha256(database.read_bytes()).hexdigest(),
+            reference["database_sha256"],
+        )
+        with TemporaryDirectory() as folder:
+            for name, options in output_cases():
+                with self.subTest(output=name):
+                    self.assertEqual(
+                        run_reference(self._parse, Path(folder, name), options),
+                        reference["cases"][name],
+                    )
+
+    def test_uses_python_esedb_backend(self):
+        with TemporaryDirectory() as folder:
+            with patch("pyesedb.file", wraps=pyesedb.file) as open_database:
+                run_reference(self._parse, folder, {})
+            open_database.assert_called_once_with()
+
+    def test_missing_database_reports_error(self):
+        with TemporaryDirectory() as folder:
+            report = parse_srum(
+                os.path.join(folder, "missing.dat"),
+                RunConfiguration([OutputConfiguration("srum", folder)]),
+                PluginConfiguration.load(os.path.join(CONF_FOLDER, "srum.xml")),
+                Metadata("test"),
+            )
+            self.assertEqual(report.num_errors, 1)
+            self.assertEqual(report.output_reports, [])
+
+    def test_aliases_and_unmapped_columns_keep_typed_values(self):
+        with TemporaryDirectory() as folder:
+            xml = ET.parse(os.path.join(CONF_FOLDER, "srum.xml"))
+            fields = xml.find("mapping/fields")
+            app = fields.find("field[@input='AppId']")
+            app.set("output", "application_alias")
+            ET.SubElement(
+                fields,
+                "field",
+                {"input": "AppId", "output": "application_copy", "parser": "String"},
+            )
+            fields.remove(fields.find("field[@input='InFocusS']"))
+            config_file = Path(folder, "srum.xml")
+            xml.write(config_file)
+            report = Srum().parse(
+                os.path.join(DATA_FOLDER, "srum", "SRUDB.dat"),
+                str(config_file),
+                RunConfiguration([OutputConfiguration("srum", folder)]),
+                Metadata("test"),
+            )
+            self.assertEqual(report.num_errors, 0, report.last_error)
+            path = Path(report.output_reports[0].file_reports[0].file_name)
+            row = json.loads(path.read_text().splitlines()[0])
+            self.assertEqual(row["application_alias"], row["application_copy"])
+            self.assertNotIn("app_id", row)
+            self.assertIsInstance(row["in_focus_s"], int)
+
+    def test_record_error_retains_finalized_partial_output_and_other_tables(self):
+        from dfir_ogre_plugin_windows import srum
+
+        original = srum._read_value
+        calls = 0
+
+        def fail_second_record(row, position, name, index):
+            nonlocal calls
+            if position == 0:
+                calls += 1
+            if calls == 2:
+                raise ValueError("unreadable record")
+            return original(row, position, name, index)
+
+        with TemporaryDirectory() as folder:
+            with patch.object(srum, "_read_value", side_effect=fail_second_record):
+                report = Srum().parse(
+                    os.path.join(DATA_FOLDER, "srum", "SRUDB.dat"),
+                    os.path.join(CONF_FOLDER, "srum.xml"),
+                    RunConfiguration([OutputConfiguration("srum", folder)]),
+                    Metadata("test"),
+                )
+            self.assertEqual(report.num_errors, 1)
+            self.assertIn("unreadable record", report.last_error)
+            self.assertEqual(len(report.output_reports), 14)
+            first = report.output_reports[0].file_reports[0]
+            self.assertEqual(first.num_lines, 1)
+            self.assertEqual(len(Path(first.file_name).read_text().splitlines()), 1)
+            self.assertEqual(report.output_reports[1].file_reports[0].num_lines, 562)
+
     # python -m unittest tests.test_srum.SrumTest.test_srum -v
     def test_srum(self):
         plugin_file = os.path.join(CONF_FOLDER, "srum.xml")
@@ -27,10 +139,10 @@ class SrumTest(TestCase):
             os.remove(f)
 
         output_config = OutputConfiguration(
-          base_output_name,
-          TEMP_FOLDER,
-          with_timeline=False,
-                    include_empty=True,
+            base_output_name,
+            TEMP_FOLDER,
+            with_timeline=False,
+            include_empty=True,
         )
 
         run_config = RunConfiguration(
@@ -60,3 +172,75 @@ class SrumTest(TestCase):
                     )
                 i += 1
             self.assertEqual(i, expected_lines)
+
+
+class SrumValueTest(TestCase):
+    def read(self, column_type, data, name="Counter", index=None, **flags):
+        row = Mock(spec=pyesedb.record)
+        row.is_long_value.return_value = flags.get("long", False)
+        row.is_multi_value.return_value = flags.get("multi", False)
+        row.get_column_type.return_value = column_type
+        row.get_value_data.return_value = data
+        row.get_value_data_as_string.return_value = "text"
+        record = Record()
+        record.add("value", _read_value(row, 0, name, index or {}))
+        return json.loads(record.to_string())["value"]
+
+    def test_scalar_values_and_unsigned_binary_encoding(self):
+        types = pyesedb.column_types
+        cases = [
+            (types.INTEGER_8BIT_UNSIGNED, b"\xff", 255),
+            (types.INTEGER_16BIT_SIGNED, b"\xff\xff", -1),
+            (types.INTEGER_32BIT_UNSIGNED, b"\xff" * 4, 4294967295),
+            (types.INTEGER_64BIT_SIGNED, struct.pack("<q", -42), -42),
+            (types.CURRENCY, struct.pack("<q", 12345), 12345),
+            (types.BOOLEAN, b"\x01", True),
+            (types.DOUBLE_64BIT, struct.pack("<d", 1.5), 1.5),
+            (types.DATE_TIME, struct.pack("<q", 12345), 12345),
+            (types.BINARY_DATA, b"\xfb\xff", "-_8"),
+            (types.TEXT, b"text", "text"),
+        ]
+        for column_type, data, expected in cases:
+            with self.subTest(column_type=column_type):
+                self.assertEqual(self.read(column_type, data), expected)
+
+    def test_null_long_and_multi_values(self):
+        types = pyesedb.column_types
+        self.assertIsNone(self.read(types.INTEGER_32BIT_SIGNED, None))
+        self.assertIsNone(self.read(types.BINARY_DATA, b"abc", long=True))
+        self.assertIsNone(self.read(types.BINARY_DATA, b"abc", multi=True))
+
+    def test_id_resolution_and_missing_ids(self):
+        column_type = pyesedb.column_types.INTEGER_32BIT_SIGNED
+        self.assertEqual(
+            self.read(column_type, struct.pack("<i", 7), "AppId", {7: "app"}), "app"
+        )
+        self.assertIsNone(
+            self.read(column_type, struct.pack("<i", 8), "UserId", {7: "app"})
+        )
+
+    def test_sid_and_truncated_sid_match_common(self):
+        self.assertEqual(_sid(bytes.fromhex("010100000000000512000000")), "S-1-5-18")
+        self.assertEqual(_sid(b"\x01"), "S-1-")
+        self.assertEqual(_sid(bytes.fromhex("010200000000000512000000")), "S-1-5-18")
+
+    def test_timestamp_rounding_matches_rust(self):
+        types = pyesedb.column_types
+        self.assertEqual(
+            self.read(
+                types.DOUBLE_64BIT, struct.pack("<d", 44630.69097222222), "TimeStamp"
+            ),
+            "2022-03-10T16:34:59.999999+00:00",
+        )
+        # Retain the historical Rust FILETIME subsecond scaling during migration.
+        self.assertEqual(
+            self.read(
+                types.INTEGER_64BIT_SIGNED,
+                struct.pack("<Q", 116444736001234567),
+                "ConnectStartTime",
+            ),
+            "1970-01-01T00:00:00.001234+00:00",
+        )
+        self.assertIsNone(
+            self.read(types.INTEGER_32BIT_SIGNED, struct.pack("<i", 42), "TimeStamp")
+        )
