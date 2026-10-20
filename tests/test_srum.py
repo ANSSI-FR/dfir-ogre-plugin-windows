@@ -14,15 +14,25 @@ from zipfile import ZipFile
 
 import pyesedb
 from dfir_ogre_common import (
+    Field,
+    FieldMapping,
+    FieldName,
     Metadata,
     OutputConfiguration,
     PluginConfiguration,
     Record,
     RunConfiguration,
+    Value,
 )
 
 from dfir_ogre_plugin_windows import Srum
-from dfir_ogre_plugin_windows.srum import _read_value, _sid, parse_srum
+from dfir_ogre_plugin_windows.srum import (
+    _load_index,
+    _parse_table,
+    _read_value,
+    _sid,
+    parse_srum,
+)
 
 from . import BASE_TEMP_FOLDER, CONF_FOLDER
 from .srum_reference import output_cases, run_reference
@@ -272,12 +282,59 @@ assert sum(f.num_lines for o in report.output_reports for f in o.file_reports) =
 
 
 class SrumValueTest(TestCase):
+    def test_index_skips_long_and_multivalue_blobs(self):
+        for flag in ("long", "multi"):
+            with self.subTest(flag=flag):
+                row = Mock(spec=pyesedb.record)
+                row.is_long_value.side_effect = (
+                    lambda column: flag == "long" and column == 2
+                )
+                row.is_multi_value.side_effect = (
+                    lambda column: flag == "multi" and column == 2
+                )
+                row.get_value_data_as_integer.side_effect = [0, 7]
+                row.get_value_data.return_value = b"\x01\x02\x03\x04"
+                table = Mock(spec=pyesedb.table)
+                table.get_number_of_records.return_value = 1
+                table.get_record.return_value = row
+                database = Mock(spec=pyesedb.file)
+                database.get_table_by_name.return_value = table
+                self.assertEqual(_load_index(database), {})
+
+    def test_container_mapping_keeps_null_alias_and_rejects_scalar(self):
+        mapping = FieldMapping(
+            [Field.Object(FieldName("Details", False, "alias"), [], False)]
+        )
+        column = Mock()
+        column.get_name.return_value = "Details"
+        table = Mock(spec=pyesedb.table)
+        table.get_number_of_columns.return_value = 1
+        table.get_column.return_value = column
+        table.get_number_of_records.return_value = 1
+        table.get_record.return_value = Mock(spec=pyesedb.record)
+        output = Mock()
+        rows = []
+        output.write.side_effect = lambda record: rows.append(
+            json.loads(record.to_string())
+        )
+        with patch(
+            "dfir_ogre_plugin_windows.srum._read_value", return_value=Value.Null()
+        ):
+            _parse_table(table, output, mapping, {})
+        self.assertEqual(rows, [{"alias": None}])
+        with patch(
+            "dfir_ogre_plugin_windows.srum._read_value", return_value=Value.Int(1)
+        ):
+            with self.assertRaises(Exception):
+                _parse_table(table, output, mapping, {})
+
     def read(self, column_type, data, name="Counter", index=None, **flags):
         row = Mock(spec=pyesedb.record)
         row.is_long_value.return_value = flags.get("long", False)
         row.is_multi_value.return_value = flags.get("multi", False)
         row.get_column_type.return_value = column_type
         row.get_value_data.return_value = data
+        row.get_value_data_flags.return_value = 2 if flags.get("compressed") else 0
         row.get_value_data_as_string.return_value = "text"
         record = Record()
         record.add("value", _read_value(row, 0, name, index or {}))
@@ -301,11 +358,65 @@ class SrumValueTest(TestCase):
             with self.subTest(column_type=column_type):
                 self.assertEqual(self.read(column_type, data), expected)
 
+    def test_compressed_binary_values_match_original_binary_accessor(self):
+        import base64
+
+        # libyal's esedb_test_compression.c regression vectors, with known bytes.
+        sevenbit = bytes.fromhex(
+            "10d2a20e0442bd82f2313a5d36b7c37078d9fdb296e5f7b49a5c9693cba034bd"
+            "dc9ebfac65b9feed2697dda034bddc9ea700"
+        )
+        vectors = [
+            (sevenbit, b"RE:  (/Archiefmappen/Verwijderde items/Verzonden items)\0"),
+            (
+                bytes.fromhex("181a003f000000") + b"abcdefghijklmnopqrstuvwxyz",
+                b"abcdefghijklmnopqrstuvwxyz",
+            ),
+            # MS-XCA overlapping match: literal a, distance 1, length 5.
+            (bytes.fromhex("18060000000040610200"), b"aaaaaa"),
+            # Two matches share a byte containing their length nibbles.
+            (bytes.fromhex("18150000000060610700000700"), b"a" * 21),
+            # Byte and uint16 length extensions for a 25-byte match.
+            (bytes.fromhex("181a00000000406107000f00"), b"a" * 26),
+            (bytes.fromhex("181a00000000406107000fff1600"), b"a" * 26),
+        ]
+        for data, expected in vectors:
+            with self.subTest(data=data):
+                self.assertEqual(
+                    self.read(pyesedb.column_types.BINARY_DATA, data, compressed=True),
+                    base64.urlsafe_b64encode(expected).decode().rstrip("="),
+                )
+
+    def test_invalid_compressed_binary_is_reported(self):
+        for data in (
+            b"\x18",
+            bytes.fromhex("180a0000000000"),
+            b"\x10\xff",
+            bytes.fromhex("180600000000800000"),  # back-reference before output
+            bytes.fromhex("18060000000040610700"),  # truncated length nibble
+            bytes.fromhex("1806000000004061070000"),  # output exceeds declared size
+            bytes.fromhex(
+                "181a00000000406107000fff000016000000"
+            ),  # noncanonical long length
+        ):
+            with self.subTest(data=data), self.assertRaises(ValueError):
+                self.read(pyesedb.column_types.BINARY_DATA, data, compressed=True)
+
     def test_null_long_and_multi_values(self):
         types = pyesedb.column_types
         self.assertIsNone(self.read(types.INTEGER_32BIT_SIGNED, None))
         self.assertIsNone(self.read(types.BINARY_DATA, b"abc", long=True))
         self.assertIsNone(self.read(types.BINARY_DATA, b"abc", multi=True))
+
+    def test_compressed_match_keeps_native_size_limit(self):
+        data = (
+            b"\x18"
+            + (40000).to_bytes(2, "little")
+            + bytes.fromhex("000000406107000fff")
+            + (39996).to_bytes(2, "little")
+        )
+        with self.assertRaises(ValueError):
+            self.read(pyesedb.column_types.BINARY_DATA, data, compressed=True)
 
     def test_id_resolution_and_missing_ids(self):
         column_type = pyesedb.column_types.INTEGER_32BIT_SIGNED

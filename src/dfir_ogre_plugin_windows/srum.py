@@ -24,6 +24,8 @@ from dfir_ogre_common import (
     Value,
 )
 
+from ._srum_compression import decompress_binary
+
 
 # Keep provider order and names compatible with the original Rust parser.
 SRUM_TABLES = (
@@ -122,11 +124,23 @@ def _load_index(database) -> dict[int, str]:
     index = {}
     for position in range(table.get_number_of_records()):
         row = table.get_record(position)
+        if any(row.is_long_value(i) or row.is_multi_value(i) for i in range(3)):
+            continue
+        if (
+            row.get_column_type(0) not in _INTEGERS
+            or row.get_column_type(1) not in _INTEGERS
+        ):
+            continue
+        if row.get_column_type(2) not in _BINARY:
+            continue
         id_type = row.get_value_data_as_integer(0)
         id_index = row.get_value_data_as_integer(1)
         blob = row.get_value_data(2)
         if id_type is None or id_index is None or blob is None:
             continue
+        if not 0 <= id_type <= 0xFFFFFFFF or not -(1 << 31) <= id_index < (1 << 31):
+            continue
+        blob = _binary_data(row, 2, blob)
         # Keep the legacy decoding for this compatibility migration. Switching
         # IdBlob strings to UTF-16LE would change existing non-ASCII output.
         index[id_index] = (
@@ -135,6 +149,13 @@ def _load_index(database) -> dict[int, str]:
             else blob.decode("utf-8", "replace").replace("\0", "")
         )
     return index
+
+
+def _binary_data(row, position, data):
+    if row.get_column_type(position) in (_TYPES.BINARY_DATA, _TYPES.LARGE_BINARY_DATA):
+        if row.get_value_data_flags(position) & 2:
+            return decompress_binary(data)
+    return data
 
 
 def _read_value(row, position: int, name: str, index: dict[int, str]) -> Value:
@@ -165,24 +186,23 @@ def _read_value(row, position: int, name: str, index: dict[int, str]) -> Value:
     if column_type in (_TYPES.TEXT, _TYPES.LARGE_TEXT):
         return Value.String(row.get_value_data_as_string(position))
     if column_type in _BINARY:
+        data = _binary_data(row, position, data)
         return Value.String(base64.urlsafe_b64encode(data).decode("ascii").rstrip("="))
     return Value.Null()
 
 
 def _parse_table(table, output, field_mapping, index):
-    columns = []
-    for position in range(table.get_number_of_columns()):
-        name = table.get_column(position).get_name()
-        columns.append((name, field_mapping.get_parser(name)))
+    columns = [
+        table.get_column(position).get_name()
+        for position in range(table.get_number_of_columns())
+    ]
+    parsers = field_mapping.get_field_parser_tree()
     for position in range(table.get_number_of_records()):
         row = table.get_record(position)
         record = Record()
-        for column, (name, parser) in enumerate(columns):
+        for column, name in enumerate(columns):
             value = _read_value(row, column, name, index)
-            if parser is None:
-                record.add(name, value)
-            else:
-                parser.set_value(value, record)
+            parsers.set_field_value(name, value, record)
         output.write(record)
 
 

@@ -45,6 +45,16 @@ FILETIME subsecond scaling. Correcting those independently would change existing
 results and normalized IDs. OLE timestamps retain nanosecond precision internally
 through the common runtime's timestamp parser rather than Python `datetime`.
 
+Compressed binary values use a small bounded decoder because pyesedb's raw
+binary accessor does not perform the decompression done by the original typed
+C accessor. The ESE 7-bit and LZXPRESS framing follows libyal's documented
+formats; LZXPRESS follows Microsoft's MS-XCA 2.4.4. Regression vectors include
+libyal's 7-bit and alphabet examples, overlapping matches, shared length nibbles,
+extended lengths and malformed input. A development comparison against the
+pinned native libesedb decoder also matched 168 valid XPRESS streams. This native
+comparison is optional development verification; the product and regression
+suite have no ctypes or additional library dependency.
+
 Run the migration checks with:
 
 ```sh
@@ -92,11 +102,11 @@ with timelines enabled, the separate provider and timeline records.
 
 On this Linux workspace, Python 3.10, a release build of common, and the
 1,835,008-byte existing database (2,355 provider records), median parser plus
-JSONL-file output time was 0.052 seconds for Rust and 0.101 seconds for Python.
+JSONL-file output time was 0.050 seconds for Rust and 0.101 seconds for Python.
 Eight measured runs followed one warm-up; parsers ran alternately, logging was
 disabled, configuration was loaded before timing, and the Python timestamp cache
 was cleared before each parse. Both used timeline off and include-empty on.
 Reference digest calculation was outside the measurement.
 
-The Python port took about 1.94 times as long on this small database. A larger
+The Python port took about 2.02 times as long on this small database. A larger
 representative SRUM database is still needed to assess production throughput.
