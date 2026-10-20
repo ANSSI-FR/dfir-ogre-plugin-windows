@@ -17,7 +17,7 @@ dependencies = [
     "libevt-python==20240421",
     "libscca-python>=20250915",
     "libfwsi-python>=20240423",
-    "libesedb-python==20240420",
+    "libesedb-python==20260704",
     "tzdata>=2025.3"
 ]
 

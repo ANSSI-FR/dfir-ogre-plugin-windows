@@ -1,0 +1,19 @@
+qmgr-win11-24h2.zip is the unmodified qmgr.zip attachment submitted by
+puffyCid to libyal/libesedb issue #75:
+https://github.com/libyal/libesedb/issues/75
+https://github.com/user-attachments/files/18916231/qmgr.zip
+
+The archive is 51,622 bytes and contains a 1,310,720-byte Windows 11 24H2
+BITS ESE database (format 0x620, revision 300, 16 KiB pages).
+Archive SHA-256: afd2ee17dae3ee1029cdc0aa766fad2e7c86d3cf675f8af0abd7d9d3364be5ee
+
+libesedb-python 20240420 fails to open it with:
+  libesedb_page_read_tags: invalid number of page tags value out of bounds.
+
+The format support was fixed upstream in commit:
+https://github.com/libyal/libesedb/commit/768a0474f1eb4c594d18886b7361bcb92b139c07
+and is included in libesedb-python 20260704.
+
+This sample tests the ESE compatibility needed by ie_webcache. It contains
+BITS tables rather than browser history; tests/data/iewebcache/WebCacheV01.dat
+separately covers history extraction.
