@@ -234,9 +234,13 @@ def parse_srum(
             output = None
             try:
                 with Output(run_config, plugin_config, metadata, name) as output:
-                    table = database.get_table_by_name(guid)
-                    if table is not None:
-                        _parse_table(table, output, mapping, index)
+                    try:
+                        table = database.get_table_by_name(guid)
+                        if table is not None:
+                            _parse_table(table, output, mapping, index)
+                    except Exception as error:
+                        # Finalization may fail too; retain both errors.
+                        report.add_error(f"SRUM Table:'{name}', Error: {error}")
             except Exception as error:
                 report.add_error(f"SRUM Table:'{name}', Error: {error}")
             finally:

@@ -152,6 +152,7 @@ assert sum(f.num_lines for o in report.output_reports for f in o.file_reports) =
         from dfir_ogre_plugin_windows import srum
 
         original = srum.Output
+        original_parse_table = srum._parse_table
 
         class FailingOutput:
             def __init__(self, *args):
@@ -164,18 +165,37 @@ assert sum(f.num_lines for o in report.output_reports for f in o.file_reports) =
                 self.output.__exit__(*args)
                 raise OSError("forced finalization failure")
 
-        with TemporaryDirectory() as folder:
-            with patch.object(srum, "Output", FailingOutput):
-                report = Srum().parse(
-                    os.path.join(DATA_FOLDER, "srum", "SRUDB.dat"),
-                    os.path.join(CONF_FOLDER, "srum.xml"),
-                    RunConfiguration([OutputConfiguration("srum", folder)]),
-                    Metadata("test"),
+        for fail_record in (False, True):
+            calls = 0
+
+            def parse_table(*args):
+                nonlocal calls
+                calls += 1
+                if fail_record and calls == 1:
+                    raise ValueError("unreadable record")
+                return original_parse_table(*args)
+
+            with self.subTest(fail_record=fail_record), TemporaryDirectory() as folder:
+                with (
+                    patch.object(srum, "Output", FailingOutput),
+                    patch.object(srum, "_parse_table", side_effect=parse_table),
+                ):
+                    report = Srum().parse(
+                        os.path.join(DATA_FOLDER, "srum", "SRUDB.dat"),
+                        os.path.join(CONF_FOLDER, "srum.xml"),
+                        RunConfiguration([OutputConfiguration("srum", folder)]),
+                        Metadata("test"),
+                    )
+                self.assertEqual(report.num_errors, 14 + int(fail_record))
+                self.assertIn("forced finalization failure", report.last_error)
+                self.assertEqual(len(report.output_reports), 14)
+                self.assertEqual(
+                    report.output_reports[0].file_reports[0].num_lines,
+                    0 if fail_record else 1660,
                 )
-            self.assertEqual(report.num_errors, 14)
-            self.assertIn("forced finalization failure", report.last_error)
-            self.assertEqual(len(report.output_reports), 14)
-            self.assertEqual(report.output_reports[0].file_reports[0].num_lines, 1660)
+                self.assertEqual(
+                    report.output_reports[1].file_reports[0].num_lines, 562
+                )
 
     def test_aliases_and_unmapped_columns_keep_typed_values(self):
         with TemporaryDirectory() as folder:

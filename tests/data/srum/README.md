@@ -98,6 +98,10 @@ configurations. It covers 2,463 provider records (2,472 timeline entries), inclu
 digests match the port. Normalized counts additionally include metadata and,
 with timelines enabled, the separate provider and timeline records.
 
+Across both databases, 9 of the 14 configured providers contain records. The
+four SDP providers and tagged-energy provider are absent from both fixtures;
+their baselines verify missing-table and empty-output handling only.
+
 ## Performance
 
 On this Linux workspace, Python 3.10, a release build of common, and the
