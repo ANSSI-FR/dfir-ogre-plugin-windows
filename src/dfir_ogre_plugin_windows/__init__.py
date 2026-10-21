@@ -1,19 +1,8 @@
-import argparse
-import logging
-import xml.etree.ElementTree as ET
-from pathlib import Path
+"""Windows artifact parsers registered for the DFIR-OGRE application."""
+
 from typing import List
 
-from dfir_ogre_common import (
-    BatchEntry,
-    Metadata,
-    OgrePlugin,
-    OgreBatchedPlugin,
-    OutputConfiguration,
-    PluginDescription,
-    RunConfiguration,
-)
-from tabulate import tabulate
+from dfir_ogre_common import OgrePlugin, PluginDescription
 
 from .activity_cache import ActivityCache as ActivityCache
 from .autoruns import Autoruns as Autoruns
@@ -78,129 +67,6 @@ from .usn_info import USNInfo as USNInfo
 from .wer import Wer as Wer
 from .xml import XML as XML
 
-logger = logging.getLogger(__name__)
-
-
-def main() -> None:
-    # init_logger()
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s - %(levelname)s - %(message)s",
-    )
-    # disable WARNING level from evtx(to much noisen and a case of infinite loop creating too much logs)
-    logging.getLogger("evtx").setLevel(logging.ERROR)
-
-    parser = argparse.ArgumentParser(
-        prog="Ogre plugin",
-        description="Run plugins",
-    )
-
-    sub_parser = parser.add_subparsers()
-    list_parser = sub_parser.add_parser("list", help="list available plugins")
-    list_parser.set_defaults(func=display_list)
-
-    run = sub_parser.add_parser("run", help="parse file using a plugin")
-    run.add_argument("-f", "--filename", required=True, help="input file path")
-    run.add_argument(
-        "-p",
-        "--plugin_config",
-        required=True,
-        help="XML plugin configuration file path",
-    )
-    run.add_argument("-o", "--output_folder", required=True, help="output folder")
-    run.add_argument("-t", "--timeline", action="store_true", help="add timeline data")
-    run.add_argument(
-        "-i", "--include_empty", action="store_true", help="include empty fields"
-    )
-    run.set_defaults(func=run_plugin)
-
-    args = parser.parse_args()
-
-    if hasattr(args, "func"):
-        args.func(args)
-    else:
-        parser.print_help()
-
-
-def run_plugin(
-    args,
-):
-    output_name = Path(args.filename).stem
-
-    rust_output = OutputConfiguration(
-        base_file_name=output_name,
-        output_folder=args.output_folder,
-        output_type="file",
-        format="jsonl",
-        date_format="iso",
-        with_timeline=args.timeline,
-        include_empty=args.include_empty,
-        params={},
-    )
-
-    plugin_file = args.plugin_config
-
-    # create element tree object
-    tree = ET.parse(plugin_file)
-    root = tree.getroot()
-    plugin = root.attrib.get("parser")
-    is_batch = root.attrib.get("batch", None)
-
-    addition_conf = {}
-
-    runconfig = RunConfiguration([rust_output], False, addition_conf)
-
-    found = False
-    # process batched plugins
-    if is_batch:
-        for parser in OgreBatchedPlugin.__subclasses__():
-            parser_obj = parser()
-            parser_descr = parser_obj.description()
-            if parser_descr.get_command() == plugin:
-                found = True
-                try:
-                    logger.info(f"Running '{plugin}', on file '{args.filename}' ")
-
-                    result = parser_obj.parse(
-                        [ BatchEntry(args.filename,runconfig, Metadata("test") )], plugin_file,
-                    )
-
-                    if result.last_error:
-                        logger.error(
-                            f"file: '{args.filename}' with parser: '{plugin}' error: {result.last_error}"
-                        )
-                except Exception as e:
-                    logger.error(
-                        f"file: '{args.filename}' with parser: '{plugin}' error: {e}"
-                    )
-
-
-    # process batched plugins
-    else:
-        for parser in OgrePlugin.__subclasses__():
-            parser_obj = parser()
-            parser_descr = parser_obj.description()
-            if parser_descr.get_command() == plugin:
-                found = True
-                try:
-                    logger.info(f"Running '{plugin}', on file '{args.filename}' ")
-
-                    result = parser_obj.parse(
-                        args.filename, plugin_file, runconfig, Metadata("test")
-                    )
-
-                    if result.last_error:
-                        logger.error(
-                            f"file: '{args.filename}' with parser: '{plugin}' error: {result.last_error}"
-                        )
-                except Exception as e:
-                    logger.error(
-                        f"file: '{args.filename}' with parser: '{plugin}' error: {e}"
-                    )
-
-    if not found:
-        logger.error(f"Unknown plugin '{plugin}'")
-
 
 def list_parsers() -> List[PluginDescription]:
     parser_dict = {}
@@ -218,18 +84,3 @@ def list_parsers() -> List[PluginDescription]:
             descriptions.append(parser_descr)
 
     return descriptions
-
-
-def display_list(args):
-    unsorted = {}
-    for c in list_parsers():
-        unsorted[c.get_command()] = c.get_description()
-
-    sorted_command = dict(sorted(unsorted.items()))
-    print(
-        tabulate(
-            sorted_command.items(),
-            headers=["Command", "Description"],
-            tablefmt="simple_grid",
-        )
-    )

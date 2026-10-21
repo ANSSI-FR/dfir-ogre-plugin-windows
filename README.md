@@ -8,6 +8,15 @@ This project is part of the [DFIR-OGRE](https://github.com/ANSSI-FR/dfir-ogre) s
 
 Please refers to the ogre documentation for more details.
 
+Run an individual parser with the main application's `dfir-ogre plugin` command:
+
+```shell
+dfir-ogre plugin --filename artifact --plugin_config configuration/prefetch.xml \
+    --computer_name evidence-host --output_folder output
+```
+
+The standalone `dfir-ogre-plugin` command has been removed.
+
 ## SRUM parser migration
 
 The `Srum` plugin now parses ESE databases with `libesedb-python`, sharing the

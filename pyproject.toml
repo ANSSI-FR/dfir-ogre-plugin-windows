@@ -7,7 +7,6 @@ authors = [{ name = "ANSSI", email = "opensource@ssi.gouv.fr" }]
 requires-python = ">=3.10"
 dependencies = [
     "dfir-ogre-common",
-    "tabulate>=0.9.0",
     "dfir-jumplist-parser",
     "typing_extensions",
     "dateutils>=0.6.12",
@@ -20,9 +19,6 @@ dependencies = [
     "libesedb-python==20260704",
     "tzdata>=2025.3"
 ]
-
-[project.scripts]
-dfir-ogre-plugin = "dfir_ogre_plugin_windows:main"
 
 [build-system]
 requires = ["hatchling"]
