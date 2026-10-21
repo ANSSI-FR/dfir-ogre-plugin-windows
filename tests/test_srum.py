@@ -64,6 +64,16 @@ class SrumTest(TestCase):
                 Path(DATA_FOLDER, "srum", "rust-baseline-win11-2022.json"), database
             )
 
+    def test_server_2022_sdp_outputs_match_rust_reference(self):
+        with TemporaryDirectory() as folder:
+            database = Path(folder, "SRUDB.dat")
+            with ZipFile(Path(DATA_FOLDER, "srum", "server2022-2023.zip")) as archive:
+                database.write_bytes(archive.read("SRUDB.dat"))
+            self._assert_outputs_match(
+                Path(DATA_FOLDER, "srum", "rust-baseline-server2022-2023.json"),
+                database,
+            )
+
     def _assert_outputs_match(self, reference_path, database):
         reference = json.loads(reference_path.read_text())
         self.assertEqual(

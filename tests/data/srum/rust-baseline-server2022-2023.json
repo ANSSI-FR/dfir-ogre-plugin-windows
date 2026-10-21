@@ -1,0 +1,831 @@
+{
+  "common_commit": "21ff914100f7d2ee0ea9207587ea3cb1de2d9358",
+  "plugin_commit": "802f9b2ae5073f833ab9d591885ac7f96c29fa99",
+  "database_sha256": "eb683ffcea831e6e81e28df9c98f8d441b5143fa23c0092c1286c0b911370349",
+  "cases": {
+    "jsonl-timeline0-empty0": {
+      "srum.srum_app_timeline.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_application_resources.jsonl": {
+        "rows": 153,
+        "sha256": "1b633ae5e2d7ba75018b7bc482feed8d5309e6adfff3e5aca7a262852678c46d"
+      },
+      "srum.srum_energy_estimation.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_energy_usage.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_energy_usage_long_term.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_network_connectivity_usage.jsonl": {
+        "rows": 4,
+        "sha256": "273cadaff3935cc49ccaa36c6f84c7e859a7c3e14eb05cea4fbeab0034b1a040"
+      },
+      "srum.srum_network_data_usage.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_sdp_volume.jsonl": {
+        "rows": 4,
+        "sha256": "19924b8b1b959c3851de6d951ef92ecb691d60240dccd2958c9a290c79cc71ac"
+      },
+      "srum.srum_sdp_physical_disk.jsonl": {
+        "rows": 2,
+        "sha256": "2167e251646dfde418187e32fa869f350047c7250d0287a67ffbe6df2cad485f"
+      },
+      "srum.srum_sdp_cpu.jsonl": {
+        "rows": 2,
+        "sha256": "fe7931ff9d6a5e84e5a4df2dd6a1883e8e742e99a0c978be4b2c370e7cc77107"
+      },
+      "srum.srum_sdp_network.jsonl": {
+        "rows": 2,
+        "sha256": "7b15be3cb490286ed6002e9e6febbb731a65aeba15e44b6e0f882d8fe180f2fe"
+      },
+      "srum.srum_tagged_energy.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_vfuprov.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_wpn_provider.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    "jsonl-timeline0-empty1": {
+      "srum.srum_app_timeline.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_application_resources.jsonl": {
+        "rows": 153,
+        "sha256": "1b633ae5e2d7ba75018b7bc482feed8d5309e6adfff3e5aca7a262852678c46d"
+      },
+      "srum.srum_energy_estimation.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_energy_usage.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_energy_usage_long_term.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_network_connectivity_usage.jsonl": {
+        "rows": 4,
+        "sha256": "fc771f487651f5ff71c925e321b4b110ceafc08707b80e88623d12510afbcda9"
+      },
+      "srum.srum_network_data_usage.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_sdp_volume.jsonl": {
+        "rows": 4,
+        "sha256": "0dde0a542773511df5b4ae2ac4558fcb00a1013052312fb5587df6dedafc9c98"
+      },
+      "srum.srum_sdp_physical_disk.jsonl": {
+        "rows": 2,
+        "sha256": "2868ffa39ec978294eb43d2483f55a3cebc4cc73f531af3365292aff468416af"
+      },
+      "srum.srum_sdp_cpu.jsonl": {
+        "rows": 2,
+        "sha256": "97ca72a339b8afd54b7a9eb4fbfe9a7781b38f7af44def9eb179c76c5c74382d"
+      },
+      "srum.srum_sdp_network.jsonl": {
+        "rows": 2,
+        "sha256": "21193ae0c2e88bd338d2432dfe2e703934fc2b7861d7e7cf9f33cd197af2f357"
+      },
+      "srum.srum_tagged_energy.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_vfuprov.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_wpn_provider.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    "jsonl-timeline1-empty0": {
+      "srum.srum_app_timeline.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_application_resources.jsonl": {
+        "rows": 153,
+        "sha256": "a47e5fbb38cfb32eaad8475a249497d8717f352e8fc53009f835fe1cf0e5d263"
+      },
+      "srum.srum_energy_estimation.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_energy_usage.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_energy_usage_long_term.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_network_connectivity_usage.jsonl": {
+        "rows": 8,
+        "sha256": "f1a0556b8f10dcd956d3ec372ff2ee016eabe2cee6029870f2cd25562e45e012"
+      },
+      "srum.srum_network_data_usage.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_sdp_volume.jsonl": {
+        "rows": 4,
+        "sha256": "942075ec30e5e5d4cc65b6adc9f363fd8f677cacc069c65e1ef29a76fb78687d"
+      },
+      "srum.srum_sdp_physical_disk.jsonl": {
+        "rows": 2,
+        "sha256": "3f7f20549b601cfc9ee856b92faf7e16d55dd356559cb9c7e89787b3606dee67"
+      },
+      "srum.srum_sdp_cpu.jsonl": {
+        "rows": 2,
+        "sha256": "30de26fafdeb6e8f8408c27ade3c94d884fd22405dc604be7b696862dfe63e07"
+      },
+      "srum.srum_sdp_network.jsonl": {
+        "rows": 2,
+        "sha256": "27cfb13fbc4be59ff20de16663dd17eb1d39285473aaf012367571cd3a462ff1"
+      },
+      "srum.srum_tagged_energy.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_vfuprov.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_wpn_provider.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    "jsonl-timeline1-empty1": {
+      "srum.srum_app_timeline.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_application_resources.jsonl": {
+        "rows": 153,
+        "sha256": "a47e5fbb38cfb32eaad8475a249497d8717f352e8fc53009f835fe1cf0e5d263"
+      },
+      "srum.srum_energy_estimation.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_energy_usage.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_energy_usage_long_term.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_network_connectivity_usage.jsonl": {
+        "rows": 8,
+        "sha256": "ea1e5def8e7aae7e05afd85bc2496a24e4e0e7e813bd8499413284c3fad30f70"
+      },
+      "srum.srum_network_data_usage.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_sdp_volume.jsonl": {
+        "rows": 4,
+        "sha256": "ec9fa43d34985de37e3064f275652599d77f08be8499694960fbbf2dbc8a134c"
+      },
+      "srum.srum_sdp_physical_disk.jsonl": {
+        "rows": 2,
+        "sha256": "afbb98dbc413b44f73cd7908651f0d3792f18ed87800bceef8b4eb15868ba868"
+      },
+      "srum.srum_sdp_cpu.jsonl": {
+        "rows": 2,
+        "sha256": "ad3fad37c34166a669b49c67d954abf7709ccbb5c10df2720d89ba5823e8e358"
+      },
+      "srum.srum_sdp_network.jsonl": {
+        "rows": 2,
+        "sha256": "cbf37eeda0f3a320ca2dd210fe41eea76a17c7cf1fb65bab5abc47e2c9e4aeb1"
+      },
+      "srum.srum_tagged_energy.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_vfuprov.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_wpn_provider.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    "csv-timeline0-empty0": {
+      "srum.srum_app_timeline.csv": {
+        "rows": 0,
+        "sha256": "d83e580b112845d06e1b970a8668f84af26d253eeaca2cbd20e7c5a2be68556b"
+      },
+      "srum.srum_application_resources.csv": {
+        "rows": 153,
+        "sha256": "2c5e443975936a69735363b7fdb2b3a6c4323aa55f929537f03897a22ce7db01"
+      },
+      "srum.srum_energy_estimation.csv": {
+        "rows": 0,
+        "sha256": "3a9b06cc22962cc1e6b8d79ab6a8676e2c0d2d0691ee4be6a85464f1c8029ca0"
+      },
+      "srum.srum_energy_usage.csv": {
+        "rows": 0,
+        "sha256": "93acddadd22e846106d730538488a6468311792d8a17659fed8728987ee1dd1b"
+      },
+      "srum.srum_energy_usage_long_term.csv": {
+        "rows": 0,
+        "sha256": "5ba5db7ddf134f2d92a991a8d6c093e465922c279e75dcb4f7452f74b3866c41"
+      },
+      "srum.srum_network_connectivity_usage.csv": {
+        "rows": 4,
+        "sha256": "2d411c805b2453cafd69a97fb159a51b5baaffe03e0c3ee4e19ce0b7faa76f69"
+      },
+      "srum.srum_network_data_usage.csv": {
+        "rows": 0,
+        "sha256": "755b899816d85c969c34ca1d19b536b811cf0e937821412e8dbf78e901a36be7"
+      },
+      "srum.srum_sdp_volume.csv": {
+        "rows": 4,
+        "sha256": "cb80c3f252458cf3e352ca51bd23580fb70751a53a53679aca96ceeccc90ed20"
+      },
+      "srum.srum_sdp_physical_disk.csv": {
+        "rows": 2,
+        "sha256": "4a854e70c3e03d9a4d25bb2a7e3089a6749609bb288bb2cd545c48499c24bec1"
+      },
+      "srum.srum_sdp_cpu.csv": {
+        "rows": 2,
+        "sha256": "4d8ca8ac41eb805a99786e7bc3be4410560f99a53326647860e03bc436aa82a2"
+      },
+      "srum.srum_sdp_network.csv": {
+        "rows": 2,
+        "sha256": "ee4519292efc62ce7013cba8d339a1e5a3a87766fe93fa3927c8a83065d96215"
+      },
+      "srum.srum_tagged_energy.csv": {
+        "rows": 0,
+        "sha256": "d94ce958197bb82014b25ff05cbe31e271384029d1dee82cf449ec5b9d249452"
+      },
+      "srum.srum_vfuprov.csv": {
+        "rows": 0,
+        "sha256": "d94ce958197bb82014b25ff05cbe31e271384029d1dee82cf449ec5b9d249452"
+      },
+      "srum.srum_wpn_provider.csv": {
+        "rows": 0,
+        "sha256": "472e5194707098f1a85a8802ae2164d4cf1ed3938f3a204833cd247cc7d26ba9"
+      }
+    },
+    "csv-timeline0-empty1": {
+      "srum.srum_app_timeline.csv": {
+        "rows": 0,
+        "sha256": "d83e580b112845d06e1b970a8668f84af26d253eeaca2cbd20e7c5a2be68556b"
+      },
+      "srum.srum_application_resources.csv": {
+        "rows": 153,
+        "sha256": "2c5e443975936a69735363b7fdb2b3a6c4323aa55f929537f03897a22ce7db01"
+      },
+      "srum.srum_energy_estimation.csv": {
+        "rows": 0,
+        "sha256": "3a9b06cc22962cc1e6b8d79ab6a8676e2c0d2d0691ee4be6a85464f1c8029ca0"
+      },
+      "srum.srum_energy_usage.csv": {
+        "rows": 0,
+        "sha256": "93acddadd22e846106d730538488a6468311792d8a17659fed8728987ee1dd1b"
+      },
+      "srum.srum_energy_usage_long_term.csv": {
+        "rows": 0,
+        "sha256": "5ba5db7ddf134f2d92a991a8d6c093e465922c279e75dcb4f7452f74b3866c41"
+      },
+      "srum.srum_network_connectivity_usage.csv": {
+        "rows": 4,
+        "sha256": "2d411c805b2453cafd69a97fb159a51b5baaffe03e0c3ee4e19ce0b7faa76f69"
+      },
+      "srum.srum_network_data_usage.csv": {
+        "rows": 0,
+        "sha256": "755b899816d85c969c34ca1d19b536b811cf0e937821412e8dbf78e901a36be7"
+      },
+      "srum.srum_sdp_volume.csv": {
+        "rows": 4,
+        "sha256": "cb80c3f252458cf3e352ca51bd23580fb70751a53a53679aca96ceeccc90ed20"
+      },
+      "srum.srum_sdp_physical_disk.csv": {
+        "rows": 2,
+        "sha256": "4a854e70c3e03d9a4d25bb2a7e3089a6749609bb288bb2cd545c48499c24bec1"
+      },
+      "srum.srum_sdp_cpu.csv": {
+        "rows": 2,
+        "sha256": "4d8ca8ac41eb805a99786e7bc3be4410560f99a53326647860e03bc436aa82a2"
+      },
+      "srum.srum_sdp_network.csv": {
+        "rows": 2,
+        "sha256": "ee4519292efc62ce7013cba8d339a1e5a3a87766fe93fa3927c8a83065d96215"
+      },
+      "srum.srum_tagged_energy.csv": {
+        "rows": 0,
+        "sha256": "d94ce958197bb82014b25ff05cbe31e271384029d1dee82cf449ec5b9d249452"
+      },
+      "srum.srum_vfuprov.csv": {
+        "rows": 0,
+        "sha256": "d94ce958197bb82014b25ff05cbe31e271384029d1dee82cf449ec5b9d249452"
+      },
+      "srum.srum_wpn_provider.csv": {
+        "rows": 0,
+        "sha256": "472e5194707098f1a85a8802ae2164d4cf1ed3938f3a204833cd247cc7d26ba9"
+      }
+    },
+    "csv-timeline1-empty0": {
+      "srum.srum_app_timeline.csv": {
+        "rows": 0,
+        "sha256": "59bc7136273696db6c2072b9de8bc92bc6e4c60c0919bce8fc7736b7d368d967"
+      },
+      "srum.srum_application_resources.csv": {
+        "rows": 153,
+        "sha256": "f4fe798d63daf5f3075fab5cef83d7be5c0d7ac2f248f06ef9bb5ae726bfc230"
+      },
+      "srum.srum_energy_estimation.csv": {
+        "rows": 0,
+        "sha256": "59bc7136273696db6c2072b9de8bc92bc6e4c60c0919bce8fc7736b7d368d967"
+      },
+      "srum.srum_energy_usage.csv": {
+        "rows": 0,
+        "sha256": "59bc7136273696db6c2072b9de8bc92bc6e4c60c0919bce8fc7736b7d368d967"
+      },
+      "srum.srum_energy_usage_long_term.csv": {
+        "rows": 0,
+        "sha256": "59bc7136273696db6c2072b9de8bc92bc6e4c60c0919bce8fc7736b7d368d967"
+      },
+      "srum.srum_network_connectivity_usage.csv": {
+        "rows": 8,
+        "sha256": "76fff066e9ff837f5f0a03a21282461fac2f5af7240d7ab61e440246a0d2e18e"
+      },
+      "srum.srum_network_data_usage.csv": {
+        "rows": 0,
+        "sha256": "59bc7136273696db6c2072b9de8bc92bc6e4c60c0919bce8fc7736b7d368d967"
+      },
+      "srum.srum_sdp_volume.csv": {
+        "rows": 4,
+        "sha256": "16664e63eb3e4dc9c3aeb8214813d655ab787109e00e2375719ff289e51dd346"
+      },
+      "srum.srum_sdp_physical_disk.csv": {
+        "rows": 2,
+        "sha256": "041f879fd861eaaefeaeef07ebf20df267f61b84a11fc3c89721f6a155991820"
+      },
+      "srum.srum_sdp_cpu.csv": {
+        "rows": 2,
+        "sha256": "a0db07b46ca8663b242c7e1ed1b5ec91b87deb8d6c27f17a10a5c6d308b4330c"
+      },
+      "srum.srum_sdp_network.csv": {
+        "rows": 2,
+        "sha256": "ca682b97ad067c714e87bd66d2c732f0f3e07ca0d9f563ae7b1fdb82a7da74e3"
+      },
+      "srum.srum_tagged_energy.csv": {
+        "rows": 0,
+        "sha256": "59bc7136273696db6c2072b9de8bc92bc6e4c60c0919bce8fc7736b7d368d967"
+      },
+      "srum.srum_vfuprov.csv": {
+        "rows": 0,
+        "sha256": "59bc7136273696db6c2072b9de8bc92bc6e4c60c0919bce8fc7736b7d368d967"
+      },
+      "srum.srum_wpn_provider.csv": {
+        "rows": 0,
+        "sha256": "59bc7136273696db6c2072b9de8bc92bc6e4c60c0919bce8fc7736b7d368d967"
+      }
+    },
+    "csv-timeline1-empty1": {
+      "srum.srum_app_timeline.csv": {
+        "rows": 0,
+        "sha256": "59bc7136273696db6c2072b9de8bc92bc6e4c60c0919bce8fc7736b7d368d967"
+      },
+      "srum.srum_application_resources.csv": {
+        "rows": 153,
+        "sha256": "f4fe798d63daf5f3075fab5cef83d7be5c0d7ac2f248f06ef9bb5ae726bfc230"
+      },
+      "srum.srum_energy_estimation.csv": {
+        "rows": 0,
+        "sha256": "59bc7136273696db6c2072b9de8bc92bc6e4c60c0919bce8fc7736b7d368d967"
+      },
+      "srum.srum_energy_usage.csv": {
+        "rows": 0,
+        "sha256": "59bc7136273696db6c2072b9de8bc92bc6e4c60c0919bce8fc7736b7d368d967"
+      },
+      "srum.srum_energy_usage_long_term.csv": {
+        "rows": 0,
+        "sha256": "59bc7136273696db6c2072b9de8bc92bc6e4c60c0919bce8fc7736b7d368d967"
+      },
+      "srum.srum_network_connectivity_usage.csv": {
+        "rows": 8,
+        "sha256": "3c08acdb1ebeeab2f25a986cc1c6b28c68a42d990e7589f5b2f6b13c9e124612"
+      },
+      "srum.srum_network_data_usage.csv": {
+        "rows": 0,
+        "sha256": "59bc7136273696db6c2072b9de8bc92bc6e4c60c0919bce8fc7736b7d368d967"
+      },
+      "srum.srum_sdp_volume.csv": {
+        "rows": 4,
+        "sha256": "23b40b378e5a6562f87dfea6ef42ba23a7de463ae9902c3069a3fdee0a8a820e"
+      },
+      "srum.srum_sdp_physical_disk.csv": {
+        "rows": 2,
+        "sha256": "4c9b1ce7f3aeca406d7cdfc2b8214d3af66f8b65cadfa7c9f00c2f5092412cda"
+      },
+      "srum.srum_sdp_cpu.csv": {
+        "rows": 2,
+        "sha256": "88e3ae42a2bdc2fc59a781fae9c2a01138fbd0ccea4c7fec2c23294147a1c8ac"
+      },
+      "srum.srum_sdp_network.csv": {
+        "rows": 2,
+        "sha256": "ba0c0a6cacfb0ecacfd7d9612b7c3769964416eb470f47ba29ca2462ff7f31f2"
+      },
+      "srum.srum_tagged_energy.csv": {
+        "rows": 0,
+        "sha256": "59bc7136273696db6c2072b9de8bc92bc6e4c60c0919bce8fc7736b7d368d967"
+      },
+      "srum.srum_vfuprov.csv": {
+        "rows": 0,
+        "sha256": "59bc7136273696db6c2072b9de8bc92bc6e4c60c0919bce8fc7736b7d368d967"
+      },
+      "srum.srum_wpn_provider.csv": {
+        "rows": 0,
+        "sha256": "59bc7136273696db6c2072b9de8bc92bc6e4c60c0919bce8fc7736b7d368d967"
+      }
+    },
+    "normalized_jsonl-timeline0-empty0": {
+      "srum.srum_app_timeline.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "ogre_metadata.jsonl": {
+        "rows": 1,
+        "sha256": "4fae5a36e4efb9d09331e65e36dde82fafd3e76038122cbdf0114b5c50373fcd"
+      },
+      "srum.srum_application_resources.jsonl": {
+        "rows": 153,
+        "sha256": "208da7a2bab56c35aa6cb1ae13ea0d0db3ae9d4d5ace42e4301411c29c4f86c1"
+      },
+      "srum.srum_energy_estimation.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_energy_usage.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_energy_usage_long_term.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_network_connectivity_usage.jsonl": {
+        "rows": 4,
+        "sha256": "913b0f68271a0c7e5c0903799f9932f402f4a3321172b09063abb27b6a6eb805"
+      },
+      "srum.srum_network_data_usage.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_sdp_volume.jsonl": {
+        "rows": 4,
+        "sha256": "eed48f31a599b57a12032a2b6d996a9a2ddb9529b9a8a06865875dcea4baaa2f"
+      },
+      "srum.srum_sdp_physical_disk.jsonl": {
+        "rows": 2,
+        "sha256": "0d23d76dd9baf541382a29fd862ab6339c0d5164fcfcacdc6cd33e5702e3f556"
+      },
+      "srum.srum_sdp_cpu.jsonl": {
+        "rows": 2,
+        "sha256": "773e8a6bbdd933624e751b995493662161e4c8cc463352acf343edf9b881552e"
+      },
+      "srum.srum_sdp_network.jsonl": {
+        "rows": 2,
+        "sha256": "94d1f4dcbde1b85abf352fd8c3c50276c533ec9112be7c7f0f1f3a3400cc34b9"
+      },
+      "srum.srum_tagged_energy.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_vfuprov.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_wpn_provider.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    "normalized_jsonl-timeline0-empty1": {
+      "srum.srum_app_timeline.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "ogre_metadata.jsonl": {
+        "rows": 1,
+        "sha256": "4fae5a36e4efb9d09331e65e36dde82fafd3e76038122cbdf0114b5c50373fcd"
+      },
+      "srum.srum_application_resources.jsonl": {
+        "rows": 153,
+        "sha256": "208da7a2bab56c35aa6cb1ae13ea0d0db3ae9d4d5ace42e4301411c29c4f86c1"
+      },
+      "srum.srum_energy_estimation.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_energy_usage.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_energy_usage_long_term.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_network_connectivity_usage.jsonl": {
+        "rows": 4,
+        "sha256": "7250373d87130a6c34a59804b05c80253b6796c68e8019cbae061d96d57eb393"
+      },
+      "srum.srum_network_data_usage.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_sdp_volume.jsonl": {
+        "rows": 4,
+        "sha256": "13216a623d7a6dbc1f2659fc0c99c93433261cb75d9316c2ffe6706357b7c482"
+      },
+      "srum.srum_sdp_physical_disk.jsonl": {
+        "rows": 2,
+        "sha256": "133251d2463bce5cb2a32f5edff9f78691a10cfbdbbb720cbf9dd46c586f757d"
+      },
+      "srum.srum_sdp_cpu.jsonl": {
+        "rows": 2,
+        "sha256": "7c7233035cce2d5336ecc8bc9560e5cbcaf8e45810abeece742d3983bc691adb"
+      },
+      "srum.srum_sdp_network.jsonl": {
+        "rows": 2,
+        "sha256": "ffafbb83649b170d86fe63856ddefb9430b4ea5e60bf19fb14acd67fbb031348"
+      },
+      "srum.srum_tagged_energy.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_vfuprov.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_wpn_provider.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    "normalized_jsonl-timeline1-empty0": {
+      "srum.srum_app_timeline.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "ogre_metadata.jsonl": {
+        "rows": 1,
+        "sha256": "4fae5a36e4efb9d09331e65e36dde82fafd3e76038122cbdf0114b5c50373fcd"
+      },
+      "srum.srum_app_timeline.tl.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_application_resources.jsonl": {
+        "rows": 153,
+        "sha256": "208da7a2bab56c35aa6cb1ae13ea0d0db3ae9d4d5ace42e4301411c29c4f86c1"
+      },
+      "srum.srum_application_resources.tl.jsonl": {
+        "rows": 153,
+        "sha256": "71bb333e2ef6eb28c6ec4e96cdb7d82dccb457b8ae12b7c5981ce42592005a08"
+      },
+      "srum.srum_energy_estimation.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_energy_estimation.tl.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_energy_usage.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_energy_usage.tl.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_energy_usage_long_term.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_energy_usage_long_term.tl.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_network_connectivity_usage.jsonl": {
+        "rows": 4,
+        "sha256": "913b0f68271a0c7e5c0903799f9932f402f4a3321172b09063abb27b6a6eb805"
+      },
+      "srum.srum_network_connectivity_usage.tl.jsonl": {
+        "rows": 8,
+        "sha256": "2595d90f92fb80eceb47e322190bac97f717773877ae2cd013f47003da12fcaf"
+      },
+      "srum.srum_network_data_usage.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_network_data_usage.tl.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_sdp_volume.jsonl": {
+        "rows": 4,
+        "sha256": "eed48f31a599b57a12032a2b6d996a9a2ddb9529b9a8a06865875dcea4baaa2f"
+      },
+      "srum.srum_sdp_volume.tl.jsonl": {
+        "rows": 4,
+        "sha256": "ae8ccb30c43a6e8b1565d4bcf4e5c89d3da000bb0be7d682ce755df66d372d30"
+      },
+      "srum.srum_sdp_physical_disk.jsonl": {
+        "rows": 2,
+        "sha256": "0d23d76dd9baf541382a29fd862ab6339c0d5164fcfcacdc6cd33e5702e3f556"
+      },
+      "srum.srum_sdp_physical_disk.tl.jsonl": {
+        "rows": 2,
+        "sha256": "f467d3a6709118622ef92ef33e9c80c9e6be97e7c5eab4a5ab2114eded0152c0"
+      },
+      "srum.srum_sdp_cpu.jsonl": {
+        "rows": 2,
+        "sha256": "773e8a6bbdd933624e751b995493662161e4c8cc463352acf343edf9b881552e"
+      },
+      "srum.srum_sdp_cpu.tl.jsonl": {
+        "rows": 2,
+        "sha256": "e6801c13444bfee875936b33aad207ccd7290d2adb8b4c3a0bc1519af35e50be"
+      },
+      "srum.srum_sdp_network.jsonl": {
+        "rows": 2,
+        "sha256": "94d1f4dcbde1b85abf352fd8c3c50276c533ec9112be7c7f0f1f3a3400cc34b9"
+      },
+      "srum.srum_sdp_network.tl.jsonl": {
+        "rows": 2,
+        "sha256": "a1feba7f84413b05a9807ec6483c753e41b9b44aa94a6f07b03fa89da7f82631"
+      },
+      "srum.srum_tagged_energy.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_tagged_energy.tl.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_vfuprov.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_vfuprov.tl.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_wpn_provider.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_wpn_provider.tl.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    "normalized_jsonl-timeline1-empty1": {
+      "srum.srum_app_timeline.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "ogre_metadata.jsonl": {
+        "rows": 1,
+        "sha256": "4fae5a36e4efb9d09331e65e36dde82fafd3e76038122cbdf0114b5c50373fcd"
+      },
+      "srum.srum_app_timeline.tl.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_application_resources.jsonl": {
+        "rows": 153,
+        "sha256": "208da7a2bab56c35aa6cb1ae13ea0d0db3ae9d4d5ace42e4301411c29c4f86c1"
+      },
+      "srum.srum_application_resources.tl.jsonl": {
+        "rows": 153,
+        "sha256": "71bb333e2ef6eb28c6ec4e96cdb7d82dccb457b8ae12b7c5981ce42592005a08"
+      },
+      "srum.srum_energy_estimation.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_energy_estimation.tl.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_energy_usage.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_energy_usage.tl.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_energy_usage_long_term.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_energy_usage_long_term.tl.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_network_connectivity_usage.jsonl": {
+        "rows": 4,
+        "sha256": "7250373d87130a6c34a59804b05c80253b6796c68e8019cbae061d96d57eb393"
+      },
+      "srum.srum_network_connectivity_usage.tl.jsonl": {
+        "rows": 8,
+        "sha256": "2595d90f92fb80eceb47e322190bac97f717773877ae2cd013f47003da12fcaf"
+      },
+      "srum.srum_network_data_usage.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_network_data_usage.tl.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_sdp_volume.jsonl": {
+        "rows": 4,
+        "sha256": "13216a623d7a6dbc1f2659fc0c99c93433261cb75d9316c2ffe6706357b7c482"
+      },
+      "srum.srum_sdp_volume.tl.jsonl": {
+        "rows": 4,
+        "sha256": "ae8ccb30c43a6e8b1565d4bcf4e5c89d3da000bb0be7d682ce755df66d372d30"
+      },
+      "srum.srum_sdp_physical_disk.jsonl": {
+        "rows": 2,
+        "sha256": "133251d2463bce5cb2a32f5edff9f78691a10cfbdbbb720cbf9dd46c586f757d"
+      },
+      "srum.srum_sdp_physical_disk.tl.jsonl": {
+        "rows": 2,
+        "sha256": "f467d3a6709118622ef92ef33e9c80c9e6be97e7c5eab4a5ab2114eded0152c0"
+      },
+      "srum.srum_sdp_cpu.jsonl": {
+        "rows": 2,
+        "sha256": "7c7233035cce2d5336ecc8bc9560e5cbcaf8e45810abeece742d3983bc691adb"
+      },
+      "srum.srum_sdp_cpu.tl.jsonl": {
+        "rows": 2,
+        "sha256": "e6801c13444bfee875936b33aad207ccd7290d2adb8b4c3a0bc1519af35e50be"
+      },
+      "srum.srum_sdp_network.jsonl": {
+        "rows": 2,
+        "sha256": "ffafbb83649b170d86fe63856ddefb9430b4ea5e60bf19fb14acd67fbb031348"
+      },
+      "srum.srum_sdp_network.tl.jsonl": {
+        "rows": 2,
+        "sha256": "a1feba7f84413b05a9807ec6483c753e41b9b44aa94a6f07b03fa89da7f82631"
+      },
+      "srum.srum_tagged_energy.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_tagged_energy.tl.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_vfuprov.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_vfuprov.tl.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_wpn_provider.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "srum.srum_wpn_provider.tl.jsonl": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    }
+  }
+}

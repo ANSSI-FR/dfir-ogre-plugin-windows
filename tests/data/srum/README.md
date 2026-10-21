@@ -58,7 +58,8 @@ suite have no ctypes or additional library dependency.
 Run the migration checks with:
 
 ```sh
-.venv/bin/python -m unittest tests.test_srum tests.test_esedb -v
+python -m unittest tests.test_srum tests.test_esedb tests.test_srum_failures \
+  tests.test_srum_compression tests.test_srum_tagged_energy tests.test_srum_benchmark -v
 ```
 
 ## Recent-format coverage
@@ -98,9 +99,59 @@ configurations. It covers 2,463 provider records (2,472 timeline entries), inclu
 digests match the port. Normalized counts additionally include metadata and,
 with timelines enabled, the separate provider and timeline records.
 
-Across both databases, 9 of the 14 configured providers contain records. The
-four SDP providers and tagged-energy provider are absent from both fixtures;
-their baselines verify missing-table and empty-output handling only.
+Across these original two databases, 9 of the 14 configured providers contain
+records. The Server 2022 fixture below adds the four SDP providers, bringing
+real-database coverage to 13 of 14 providers. Tagged energy remains synthetic.
+
+## Windows Server 2022 SDP database
+
+`server2022-2023.zip` contains the unmodified 655,360-byte `SRUDB.dat` from
+[DFIR Artifact Museum's Server 2022 archive](https://raw.githubusercontent.com/AndrewRathbun/DFIRArtifactMuseum/a10637725ac9e1951f3ff81775d5114afb55b0d5/Windows/SRUM/Server2022/APTSimulatorVM/APTSimulatorVM_SRUM_Clean_Server2022_1DayLater.7z),
+introduced by commit `a10637725ac9e1951f3ff81775d5114afb55b0d5` on 2023-10-18.
+The original archive SHA-256 is
+`62bdf0021240e6d79b3a03c0d81a8ccab6d6fad2b824147e1ec1c921933ac261`;
+the database SHA-256 is
+`eb683ffcea831e6e81e28df9c98f8d441b5143fa23c0092c1286c0b911370349`.
+It is repackaged as ZIP so the regression needs only the standard library.
+The existing `MUSEUM-LICENSE.txt` exactly matches its upstream MIT notice.
+ESE format is `0x620`, revision `0xb4`, with 4 KiB pages. The contributor labels
+the source Server 2022; its exact Windows build is unknown.
+
+The 167 provider records include 4 SDP volume records, 2 physical-disk records,
+2 CPU records, 2 network records, 153 application-resource records and 4
+network-connectivity records. `rust-baseline-server2022-2023.json` was captured
+in a separate environment containing the original Rust release wheel, with the
+same source commits and all 12 output configurations described above. All complete
+record digests match the Python port, including SDP counters and timestamps.
+The three real databases now provide 36 output-configuration comparisons.
+
+`tests/test_srum_tagged_energy.py` substitutes only native database accessors
+with a synthetic logical table. It runs real ID-map loading, typed conversions,
+XML mapping and JSONL/timeline output, checking complete expected records.
+It does not establish tagged-energy ESE schema compatibility.
+
+`tests/test_srum_failures.py` checks invalid/truncated databases, absent output
+configuration, invalid ID-map types/nulls/ranges, compressed ID-map blobs,
+duplicate IDs, SID decoding, and cleanup after parsing/close failures.
+`tests/test_srum_compression.py` adds deterministic flag-word boundaries,
+every truncation of a literal stream, declared-size mismatches, maximum
+back-reference distance, native match-length limits and all 7-bit values.
+
+## Installed application integration
+
+The sibling `dfir-ogre` repository contains
+`test/test_srum_cli_integration.py`. After installing non-editable application,
+common and Windows-plugin wheels in the active environment, run from that repo:
+
+```sh
+DFIR_OGRE_RUN_SRUM_INTEGRATION=1 python -m unittest test.test_srum_cli_integration -v
+```
+
+This starts the installed console entry point in an isolated interpreter and
+temporary working directory. It verifies the exact file set, all provider row
+counts, selected application/network values, metadata and absence of worker
+errors. Default discovery explicitly skips this cross-repository check; when
+opted in, missing prerequisites fail instead of silently skipping.
 
 ## Performance
 
@@ -114,3 +165,39 @@ Reference digest calculation was outside the measurement.
 
 The Python port took about 2.02 times as long on this small database. A larger
 representative SRUM database is still needed to assess production throughput.
+
+To measure an actual database without committing or copying it into the tests,
+run the opt-in benchmark from the Windows-plugin repository:
+
+```sh
+python benchmarks/benchmark_srum.py /path/to/SRUDB.dat --repeats 5 --warmups 1 > benchmark.json
+```
+
+It uses this checkout's Python plugin and the active interpreter's installed
+native common runtime. Each run uses a fresh subprocess, clears the timestamp
+cache, loads configuration before timing, writes JSONL into a temporary
+directory and removes the outputs. It fails if parsing reports errors or the
+output row count differs from the source provider-record count. JSON includes
+per-run and median parser-plus-output time, rows per second, input size, backend
+paths and whole-worker peak RSS, including native ESE allocations. RSS includes
+imports, configuration and the independent source count; it is not incremental
+parser memory. RSS is available on Linux/macOS and null elsewhere. Filesystem
+caches remain enabled. There is no timing threshold in the regression suite.
+
+The additional local manual-test SRUM databases are only 1.44-2.75 MB; they
+cannot establish large-database throughput. A Python 3.13 run with the installed
+release common runtime, three measured runs and one warm-up per database gave:
+
+| Database bytes | Provider records | Median seconds | Whole-worker peak RSS bytes |
+| ---: | ---: | ---: | ---: |
+| 2,752,512 | 6,304 | 0.173 | 62,742,528 |
+| 1,441,792 | 1,289 | 0.052 | 59,617,280 |
+| 1,900,544 | 1,432 | 0.054 | 59,727,872 |
+
+These are workspace observations, not performance acceptance thresholds. Private
+database contents and paths are not included in the repository.
+
+No actual Windows 11 24H2+ SRUM
+sample or large representative database was established for these additions.
+Future modern samples need independently checked expected records, since the
+original Rust engine cannot serve as the reference for formats it cannot open.
