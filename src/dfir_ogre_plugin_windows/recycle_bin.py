@@ -42,14 +42,22 @@ class RecycleBin(OgrePlugin):
                 with open(input_file, "rb") as input:
                     tuple = Record()
 
-                    header = int.from_bytes(input.read(8), byteorder="little")
+                    input_size = input.seek(0, 2)
+                    input.seek(0)
+                    fixed_fields = input.read(24)
+                    if len(fixed_fields) != 24:
+                        raise ValueError("Truncated Recycle Bin fixed fields")
+
+                    header = int.from_bytes(fixed_fields[:8], byteorder="little")
+                    if header not in (1, 2):
+                        raise ValueError(f"Unexpected header value: {header}")
                     tuple.add("header", value(header))
 
-                    size = int.from_bytes(input.read(8), byteorder="little")
+                    size = int.from_bytes(fixed_fields[8:16], byteorder="little")
                     tuple.add("size", value(size))
 
                     deletion_timestamp_int = int.from_bytes(
-                        input.read(8), byteorder="little"
+                        fixed_fields[16:24], byteorder="little"
                     )
                     deletion_timestamp = filetime_to_utc(deletion_timestamp_int)
                     tuple.add("uninstall_date", value(deletion_timestamp))
@@ -58,20 +66,30 @@ class RecycleBin(OgrePlugin):
                         logger.debug(
                             "INFO2 file version 1 : Windows Vista or Windows 7"
                         )
-                        filepath = input.read(520)
+                        filepath_size = 520
 
                     elif header == 2:
                         logger.debug("INFO2 file version 2 : Windows 10+")
+                        length_bytes = input.read(4)
+                        if len(length_bytes) != 4:
+                            raise ValueError("Truncated Recycle Bin path length")
                         filepath_length = int.from_bytes(
-                            input.read(4), byteorder="little"
+                            length_bytes, byteorder="little"
                         )
-                        filepath = input.read(filepath_length * 2)
+                        filepath_size = filepath_length * 2
 
-                    else:
-                        logger.debug("Unexpected header value: %s", header)
-                        raise ValueError("Unexpected header value: %s", header)
+                    if filepath_size > input_size - input.tell():
+                        raise ValueError("Truncated Recycle Bin path")
+                    filepath = input.read(filepath_size)
+                    if len(filepath) != filepath_size:
+                        raise ValueError("Truncated Recycle Bin path")
 
-                    path = filepath.decode(encoding="utf-16-le").replace("\u0000", "")
+                    path = filepath.decode(encoding="utf-16-le")
+                    if "\u0000" not in path or (
+                        header == 2 and not path.endswith("\u0000")
+                    ):
+                        raise ValueError("Recycle Bin path is not NUL terminated")
+                    path = path.replace("\u0000", "")
                     tuple.add("path", value(path))
                     output.write(tuple)
 

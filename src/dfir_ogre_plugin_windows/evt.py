@@ -140,6 +140,6 @@ def _get_event_data(evt_record: pyevt.record, recovered=False) -> Record:
         date = datetime.fromtimestamp(written_ts, tz=timezone.utc)
         rec.add("written_time", Value.Date(date))
     except (OverflowError, AttributeError):
-        rec.add("creation_time", Value.Null())
+        rec.add("written_time", Value.Null())
 
     return rec
