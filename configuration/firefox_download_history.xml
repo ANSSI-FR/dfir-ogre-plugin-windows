@@ -19,7 +19,7 @@ Each row represents Firefox download metadata recovered from the Places database
         moz_places.url,
         metadata.file_size as total_bytes,
         moz_annos.dateAdded/1000 as start_time_ms,
-        metadata.end_time/1000 as end_time_ms,
+        metadata.end_time as end_time_ms,
         metadata.state,
         metadata.deleted
       FROM moz_annos

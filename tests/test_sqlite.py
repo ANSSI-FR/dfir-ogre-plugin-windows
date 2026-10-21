@@ -283,5 +283,13 @@ class SqliteTest(TestCase):
                         jsoned["target_path"],
                         "file:///build/Downloads/plaso-static-1.0.2-rc3-win-amd64-vs2010.zip",
                     )
+                    # Raw annotation dateAdded=1383170304854681 (microseconds),
+                    # JSON metadata endTime=1383170308130 (milliseconds).
+                    self.assertEqual(
+                        jsoned["start_time"], "2013-10-30T21:58:24.854000+00:00"
+                    )
+                    self.assertEqual(
+                        jsoned["end_time"], "2013-10-30T21:58:28.130000+00:00"
+                    )
                 i += 1
             self.assertEqual(i, expected_lines)
