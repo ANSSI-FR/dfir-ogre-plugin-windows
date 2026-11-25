@@ -17,6 +17,40 @@ dfir-ogre plugin --filename artifact --plugin_config configuration/prefetch.xml 
 
 The standalone `dfir-ogre-plugin` command has been removed.
 
+## Raw MFT
+
+The `MFT` plugin reads a collected `$MFT` file using `ntfs-core`; no volume,
+boot sector or journal is needed. Install the matching `dfir-ogre-common`
+branch/version that provides `parse_mft` together with this plugin.
+
+```shell
+dfir-ogre plugin --filename '$MFT' --plugin_config configuration/mft.xml \
+    --computer_name evidence-host --output_folder output
+```
+
+Fields shared with `NTFSInfo` use the same names, output types and qualifiers.
+Binary file references retain the full 48-bit record and 16-bit sequence parts;
+attributes use the shared Windows flag-name table. `file_attributes_ea` and
+`file_attributes_recall_on_open` expose the same `0x40000` bit: their intended
+meaning cannot be distinguished in a raw MFT. `file_attribute_raw` retains the
+complete hexadecimal bitmask, including unknown bits. The directory boolean
+comes from the record header.
+
+One row is emitted per long name/hard link, with unambiguous DOS aliases in
+`short_name`. Unknown stream sizes remain absent; a verified empty stream has
+size zero.
+Parent resolution checks sequences and places unresolved chains under
+`\$OrphanFiles`. Extension attributes are matched through their full base
+reference and allocation state. Resident `$ATTRIBUTE_LIST` references are
+checked against the referenced record, sequence, attribute id and stream name;
+for nonresident lists, only the collected extension records are available.
+Stream sizes come from resident data or the VCN-0 fragment. Deleted
+records are included, but reconstructed paths are not historical certainty.
+Hashes, PE metadata, volume identifiers and stream contents are unavailable.
+Malformed records are reported while subsequent valid records are retained.
+
+The small test fixture and its provenance are in [tests/data/mft](tests/data/mft/README.md).
+
 ## SRUM parser migration
 
 The `Srum` plugin now parses ESE databases with `libesedb-python`, sharing the

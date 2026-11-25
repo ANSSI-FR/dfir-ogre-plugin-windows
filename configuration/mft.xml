@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<plugin parser="MFT">
+  <mapping data_type="mft">
+    <name>MFT</name>
+    <description>Each row is a long file name or hard link parsed from a standalone raw $MFT using ntfs-core. Shared output fields and qualifiers follow NTFSInfo. Includes deleted records, sequence-aware reconstructed paths, $SI/$FN timestamps, file attributes, logical stream sizes, ADS metadata and USN. Unknown parent chains use \$OrphanFiles. No volume or journal is required or read; hashes, PE metadata, stream contents and volume identifiers are unavailable.</description>
+    <short_description>Shows raw MFT names, paths, NTFS identifiers, timestamps, attributes, sizes and alternate data streams.</short_description>
+    <category>File System</category>
+    <default_parser value="Ignore" />
+    <default_date_pattern value="iso" />
+    <timeline>
+      <timeline_type value="MacbMacb" />
+      <description>
+        <output_name value="file_path" />
+      </description>
+      <additional_description include_field_name="true" field_separator=" - ">
+        <output_name value="file_size" />
+      </additional_description>
+    </timeline>
+    <fields>
+      <field input="file_path" parser="String" qualifier="FILE_PATH" default_value="\" description="full path (path+name) of the file, rebuilt from the parent chain" />
+      <field input="parent" parser="String" description="full parent directory path of the entry (orphaned records are under \$OrphanFiles)" />
+      <field input="file_name" parser="String" description="name of the file without path" qualifier="FILE_NAME" />
+      <field input="extension" parser="String" description="file extension (e.g., .txt, .exe)" />
+      <field input="file_size" parser="Int" qualifier="FILE_SIZE" description="logical size of the unnamed data stream in bytes, absent when unknown" />
+      <field input="file_in_use" parser="Bool" description="flag indicating whether the MFT record is allocated (true) or free (false)" qualifier="IN_USE" />
+      <field input="sequence_number" parser="Int" description="sequence number of the MFT record" qualifier="MFT_SEQUENCE" />
+      <field input="record_number" parser="Int" description="index of the MFT record" qualifier="FS_INODE" />
+      <field input="parent_sequence_number" parser="Int" description="sequence number of the parent directory reference" />
+      <field input="parent_record_number" parser="Int" description="record number of the parent directory" />
+      <field input="hard_link_count" parser="Int" description="hard link count stored in the MFT record header" />
+      <field input="short_name" parser="String" description="DOS 8.3 alias when it can be associated unambiguously with this link" />
+      <field input="ads" parser="String" description="alternate data streams as name:size, separated by semicolons" />
+      <field input="file_attribute_raw" parser="String" description="raw FILE_ATTRIBUTE bitmask in hexadecimal, including unknown bits" />
+      <field input="file_attributes_archive" parser="Bool" description="archive attribute flag" />
+      <field input="file_attributes_no_scrub_data" parser="Bool" description="no-scrub-data attribute flag" />
+      <field input="file_attributes_compressed" parser="Bool" description="compressed attribute flag" />
+      <field input="file_attributes_directory" parser="Bool" description="true when the MFT record is a directory" />
+      <field input="file_attributes_encrypted" parser="Bool" description="encrypted attribute flag" />
+      <field input="file_attributes_hidden" parser="Bool" description="hidden attribute flag" />
+      <field input="file_attributes_not_content_indexed" parser="Bool" description="not-content-indexed attribute flag" />
+      <field input="file_attributes_reparse_point" parser="Bool" description="reparse-point attribute flag" />
+      <field input="file_attributes_normal" parser="Bool" description="normal attribute flag" />
+      <field input="file_attributes_offline" parser="Bool" description="offline attribute flag" />
+      <field input="file_attributes_sparse_file" parser="Bool" description="sparse-file attribute flag" />
+      <field input="file_attributes_readonly" parser="Bool" description="read-only attribute flag" />
+      <field input="file_attributes_system" parser="Bool" description="system attribute flag" />
+      <field input="file_attributes_temporary" parser="Bool" description="temporary attribute flag" />
+      <field input="file_attributes_virtual" parser="Bool" description="virtual attribute flag" />
+      <field input="file_attributes_recall_on_data_access" parser="Bool" description="recall-on-data-access attribute flag" />
+      <field input="file_attributes_device" parser="Bool" description="device attribute flag" />
+      <field input="file_attributes_ea" parser="Bool" description="EA / recall-on-open shared bit (0x40000); a raw MFT cannot distinguish these aliases" />
+      <field input="file_attributes_pinned" parser="Bool" description="pinned attribute flag" />
+      <field input="file_attributes_integrity_stream" parser="Bool" description="integrity-stream attribute flag" />
+      <field input="file_attributes_recall_on_open" parser="Bool" description="recall-on-open / EA shared bit (0x40000); a raw MFT cannot distinguish these aliases" />
+      <field input="file_attributes_unpinned" parser="Bool" description="unpinned attribute flag" />
+      <field input="usn_number" parser="Int" qualifier="FS_USN" description="last USN of the record, from $STANDARD_INFORMATION" />
+      <field input="owner_id" parser="Int" description="owner identifier from $STANDARD_INFORMATION" />
+      <field input="security_id" parser="Int" description="security descriptor identifier from $STANDARD_INFORMATION" />
+      <field input="file_name_flags" parser="Int" description="$FILE_NAME namespace (0 POSIX, 1 Win32, 2 DOS, 3 Win32 and DOS)" />
+      <field input="fn_creation_date" parser="DateTime" qualifier="DATE_CREATION" description="creation timestamp of the $FILE_NAME attribute" />
+      <field input="fn_lastmod_date" parser="DateTime" qualifier="DATE_MODIFICATION" description="last modification timestamp of the $FILE_NAME attribute" />
+      <field input="fn_lastaccess_date" parser="DateTime" qualifier="DATE_ACCESS" description="last access timestamp of the $FILE_NAME attribute" />
+      <field input="fn_lastchange_date" parser="DateTime" qualifier="DATE_CHANGE" description="MFT record change timestamp of the $FILE_NAME attribute" />
+      <field input="si_creation_date" parser="DateTime" qualifier="DATE_CREATION" description="creation timestamp of the $STANDARD_INFORMATION attribute" />
+      <field input="si_lastmod_date" parser="DateTime" qualifier="DATE_MODIFICATION" description="last modification timestamp of the $STANDARD_INFORMATION attribute" />
+      <field input="si_lastaccess_date" parser="DateTime" qualifier="DATE_ACCESS" description="last access timestamp of the $STANDARD_INFORMATION attribute" />
+      <field input="si_lastchange_date" parser="DateTime" qualifier="DATE_CHANGE" description="MFT record change timestamp of the $STANDARD_INFORMATION attribute" />
+    </fields>
+  </mapping>
+</plugin>

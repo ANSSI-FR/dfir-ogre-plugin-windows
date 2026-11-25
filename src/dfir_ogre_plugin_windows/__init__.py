@@ -23,6 +23,7 @@ from .list_dll import ListDll as ListDll
 from .lnk import Lnk as Lnk
 from .lnk import LnkBatched as LnkBatched
 from .merge import MergeLine as MergeLine
+from .mft import MFT as MFT
 from .ntfs_info import NTFSInfo as NTFSInfo
 from .orc_processes import OrcProcesses1 as OrcProcesses1
 from .prefetch import Prefetch as Prefetch
