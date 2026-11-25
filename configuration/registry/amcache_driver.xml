@@ -83,6 +83,7 @@ Each row is a driver inventory record from the Amcache hive, with driver name an
       <field
                 input="product"
                 parser="String"
+                qualifier="PRODUCT"
                 description="name of the product"
             />
 
@@ -121,7 +122,6 @@ Each row is a driver inventory record from the Amcache hive, with driver name an
       <field
                 input="wdf_version"
                 parser="String"
-                qualifier="PE_VERSION"
                 description="Windows Driver Framework version"
             />
 

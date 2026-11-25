@@ -50,6 +50,7 @@ Each row reconstructs a Registry-backed scheduled task, with task identity, auth
       <field
         input="task"
         parser="String"
+        qualifier="SCHTASK_URI"
         description="full registry path of the scheduled task definition"
       />
 
@@ -68,6 +69,7 @@ Each row reconstructs a Registry-backed scheduled task, with task identity, auth
       <field
         input="author"
         parser="String"
+        qualifier="USER_NAME"
         description="author or creator of the scheduled task"
       />
 
@@ -124,24 +126,28 @@ Each row reconstructs a Registry-backed scheduled task, with task identity, auth
           <field
             input="exec_command"
             parser="String"
+            qualifier="FILE_PATH"
             description="executable command to run for Exec actions"
           />
 
           <field
             input="exec_arguments"
             parser="String"
+            qualifier="COMMAND_LINE"
             description="command‑line arguments for the executable"
           />
 
           <field
             input="exec_working_dir"
             parser="String"
+            qualifier="FILE_PATH"
             description="working directory used when executing the command"
           />
 
           <field
             input="com_classid"
             parser="String"
+            qualifier="APP_CLSID"
             description="COM class identifier (CLSID) for ComHandler actions"
           />
 
@@ -273,7 +279,7 @@ Each row reconstructs a Registry-backed scheduled task, with task identity, auth
 
       <field
         input="creation_date"
-        parser="String"
+        parser="DateTime"
         qualifier="DATE_CREATION"
         display_name="Creation date"
         description="timestamp when the scheduled task was initially created"

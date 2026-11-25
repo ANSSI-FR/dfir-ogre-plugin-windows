@@ -31,12 +31,14 @@ Each row is a file rename or deletion operation queued in PendingFileRenameOpera
       <field
         input="old_name"
         parser="String"
+        qualifier="FILE_PATH"
         description="original file path scheduled for rename at next reboot"
       />
 
       <field
         input="new_name"
         parser="String"
+        qualifier="FILE_PATH"
         description="target file path after rename operation"
       />
 

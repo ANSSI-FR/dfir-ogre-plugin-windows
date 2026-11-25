@@ -120,6 +120,7 @@ Each row describes a Windows Prefetch file for an executable, with executable na
           <field
             input="creation_time"
             parser="DateTime"
+            qualifier="DATE_CREATION"
             display_name="volume creation date"
             description="creation timestamp of the volume"
           />

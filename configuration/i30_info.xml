@@ -29,6 +29,7 @@ Each row represents a current or carved NTFS directory-index entry, with name, r
         input="Name"
         output="name"
         parser="String"
+        qualifier="FILE_NAME"
         description="File Name"
       />
 
@@ -58,11 +59,13 @@ Each row represents a current or carved NTFS directory-index entry, with name, r
         <field
           output="sequence_number"
           parser="Int"
+          qualifier="MFT_SEQUENCE"
           description="sequence number part of the File Reference Number (FRN)"
         />
         <field
           output="record_number"
           parser="Int"
+          qualifier="FS_INODE"
           description="record/index part of the File Reference Number (FRN)"
         />
       </field>
@@ -84,6 +87,7 @@ Each row represents a current or carved NTFS directory-index entry, with name, r
         input="VolumeID"
         output="volume_id"
         parser="String"
+        qualifier="VOLUME_ID"
         description="Volume identifier"
       />
 

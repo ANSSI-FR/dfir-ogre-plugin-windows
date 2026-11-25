@@ -48,6 +48,7 @@ Each row describes a Volume Shadow Copy snapshot, with snapshot identifier, sour
         input="CreationTime"
         output="creation_time"
         parser="DateTime"
+        qualifier="DATE_CREATION"
         description="Timestamp when the snapshot was created"
       />
       <field

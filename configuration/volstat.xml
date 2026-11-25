@@ -32,12 +32,14 @@ Each row describes a volume observed by ORC, with host, volume identifier, mount
         input="ComputerName"
         output="computer_name"
         parser="String"
+        qualifier="COMPUTER_NAME"
         description="Host name that produced the volstat report"
       />
       <field
         input="VolumeID"
         output="volumeid"
         parser="String"
+        qualifier="VOLUME_ID"
         description="Unique identifier (GUID) of the volume"
       />
       <field

@@ -30,16 +30,16 @@ Each row describes an installed Chrome extension manifest, including identity, v
       <field input="browser" parser="String"
         description="browser family that owns the extension manifest" />
 
-      <field input="extension_id" parser="String"
+      <field input="extension_id" parser="String" qualifier="APP_ID"
         description="Chrome extension ID inferred from the standard Extensions directory path" />
 
       <field input="extension_type" parser="String"
         description="manifest type: extension, app or theme" />
 
-      <field input="manifest_path" parser="String"
+      <field input="manifest_path" parser="String" qualifier="FILE_PATH"
         description="filesystem path of the parsed manifest" />
 
-      <field input="manifest_sha256" parser="String"
+      <field input="manifest_sha256" parser="String" qualifier="FILE_SHA256"
         description="SHA-256 hash of the parsed manifest file" />
 
       <field input="manifest_version" parser="Int"
@@ -48,7 +48,7 @@ Each row describes an installed Chrome extension manifest, including identity, v
       <field input="version_directory" parser="String"
         description="installed extension version directory inferred from the manifest path" />
 
-      <field input="name" parser="String"
+      <field input="name" parser="String" qualifier="APP_NAME"
         description="localized display name of the Chrome extension when available" />
 
       <field input="short_name" parser="String"
@@ -60,7 +60,7 @@ Each row describes an installed Chrome extension manifest, including identity, v
       <field input="version_name" parser="String"
         description="human-readable extension version label" />
 
-      <field input="author" parser="String"
+      <field input="author" parser="String" qualifier="PUBLISHER"
         description="extension author declared by the manifest" />
 
       <field input="default_locale" parser="String"
@@ -69,10 +69,10 @@ Each row describes an installed Chrome extension manifest, including identity, v
       <field input="description" parser="String"
         description="localized human-readable extension description when available" />
 
-      <field input="homepage_url" parser="String"
+      <field input="homepage_url" parser="String" qualifier="URL"
         description="homepage URL declared by the extension" />
 
-      <field input="update_url" parser="String"
+      <field input="update_url" parser="String" qualifier="URL"
         description="URL from which the extension receives updates" />
 
       <field input="minimum_chrome_version" parser="String"

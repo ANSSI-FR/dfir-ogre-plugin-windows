@@ -42,7 +42,7 @@ Each row describes a Windows Shell Link or Jump List shortcut, preserving target
       <field input="type" description="Type of the shell link record" parser="String" />
       <field input="status" description="Parsing status of the .lnk record" parser="String" />
       <field input="size" description="Size of the .lnk record in bytes" parser="Int" />
-      <field input="modification_time" description="Modification time of the .lnk file" parser="DateTime" />
+      <field input="modification_time" description="Modification time of the .lnk file" parser="DateTime" qualifier="DATE_MODIFICATION" />
 
       <!-- Header -->
       <object input="header">
@@ -194,6 +194,7 @@ Each row describes a Windows Shell Link or Jump List shortcut, preserving target
         <field
           input="command_line_arguments"
           parser="String"
+          qualifier="COMMAND_LINE"
           description="COMMAND_LINE_ARGUMENTS stores the command-line arguments that are specified when activating the link target."
         />
 
@@ -233,12 +234,14 @@ Each row describes a Windows Shell Link or Jump List shortcut, preserving target
           <field
             input="target_ansi"
             parser="String"
+            qualifier="FILE_PATH"
             description="Defined by the system default code page, which specifies a path to environment variable information."
           />
 
           <field
             input="target_unicode"
             parser="String"
+            qualifier="FILE_PATH"
             description="Unicode string that specifies a path to environment variable information."
           />
         </object>
@@ -255,12 +258,14 @@ Each row describes a Windows Shell Link or Jump List shortcut, preserving target
           <field
             input="target_ansi"
             parser="String"
+            qualifier="FILE_PATH"
             description="Defined by the system default code page, which specifies a path to environment variable information."
           />
 
           <field
             input="target_unicode"
             parser="String"
+            qualifier="FILE_PATH"
             description="Unicode string that specifies a path to environment variable information."
           />
         </object>
@@ -466,6 +471,7 @@ Each row describes a Windows Shell Link or Jump List shortcut, preserving target
           <field
             input="machine_identifier"
             parser="String"
+            qualifier="COMPUTER_NAME"
             description="Specifies the NetBIOS name of the machine where the link target was last known to reside."
           />
           <field
@@ -500,11 +506,13 @@ Each row describes a Windows Shell Link or Jump List shortcut, preserving target
           <field
             input="droid_file_timestamp"
             parser="DateTime"
+            qualifier="TIMESTAMP"
             description="Timestamp resolved by the parser from the droid volume and file identifiers"
           />
           <field
             input="droid_file_mac"
             parser="String"
+            qualifier="MAC_ADDRESS"
             description="MAC address resolved by the parser from the droid volume and file identifiers"
           />
           <field
@@ -540,11 +548,13 @@ Each row describes a Windows Shell Link or Jump List shortcut, preserving target
           <field
             input="birth_droid_file_timestamp"
             parser="DateTime"
+            qualifier="TIMESTAMP"
             description="Timestamp resolved by the parser from the birth droid identifiers"
           />
           <field
             input="birth_droid_file_mac"
             parser="String"
+            qualifier="MAC_ADDRESS"
             description="MAC address resolved by the parser from the birth droid identifiers"
           />
           <field
@@ -803,6 +813,7 @@ Each row describes a Windows Shell Link or Jump List shortcut, preserving target
             <field
               input="primary_name"
               parser="String"
+              qualifier="FILE_NAME"
               description="For items type 'FileEntry', name of a file or directory in the target path."
             />
 
@@ -872,8 +883,8 @@ Each row describes a Windows Shell Link or Jump List shortcut, preserving target
           <!-- rg: hex code translated into network_provider_type ; to be hidden? -->
           <field input="network_provider_type" parser="String" description="Network provider type of the link target" />
 
-          <field input="net_name" parser="String" description="UNC network path of the link target" />
-          <field input="net_name_unicode" parser="String" description="UNC network path of the link target (Unicode)" />
+          <field input="net_name" parser="String" qualifier="FILE_PATH" description="UNC network path of the link target" />
+          <field input="net_name_unicode" parser="String" qualifier="FILE_PATH" description="UNC network path of the link target (Unicode)" />
           <field input="device_name" parser="String" description="Device/computer name of the link target on the network" />
           <field input="device_name_unicode" parser="String" description="Device/computer name of the link target (Unicode)" />
 

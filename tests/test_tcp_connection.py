@@ -56,7 +56,7 @@ class TcpConnectionTest(TestCase):
                 if i == 0:
                     self.assertEqual(jsoned["protocol"], "TCP")
                     self.assertEqual(jsoned["process_name"], "svchost.exe")
-                    self.assertEqual(jsoned["pid"], "960")
+                    self.assertEqual(jsoned["pid"], 960)
                     self.assertEqual(jsoned["state"], "LISTENING")
                     self.assertEqual(jsoned["local_adress"], "0.0.0.0")
                     self.assertEqual(jsoned["remote_adress"], "0.0.0.0")
@@ -65,7 +65,7 @@ class TcpConnectionTest(TestCase):
                 if i == 13:
                     self.assertEqual(jsoned["protocol"], "UDP")
                     self.assertEqual(jsoned["process_name"], "svchost.exe")
-                    self.assertEqual(jsoned["pid"], "2024")
+                    self.assertEqual(jsoned["pid"], 2024)
                     self.assertEqual(jsoned["state"], "*")
                     self.assertEqual(jsoned["local_adress"], "0.0.0.0")
                     self.assertEqual(jsoned["remote_adress"], "*")
@@ -74,7 +74,7 @@ class TcpConnectionTest(TestCase):
                 if i == 20:
                     self.assertEqual(jsoned["protocol"], "TCPV6")
                     self.assertEqual(jsoned["process_name"], "svchost.exe")
-                    self.assertEqual(jsoned["pid"], "960")
+                    self.assertEqual(jsoned["pid"], 960)
                     self.assertEqual(jsoned["state"], "LISTENING")
                     # IPv6 addresses appear without surrounding brackets
                     self.assertEqual(jsoned["local_adress"], "0:0:0:0:0:0:0:0")
@@ -84,7 +84,7 @@ class TcpConnectionTest(TestCase):
                 if i == 34:
                     self.assertEqual(jsoned["protocol"], "UDPV6")
                     self.assertEqual(jsoned["process_name"], "svchost.exe")
-                    self.assertEqual(jsoned["pid"], "1472")
+                    self.assertEqual(jsoned["pid"], 1472)
                     self.assertEqual(jsoned["state"], "*")
                     self.assertEqual(jsoned["local_adress"], "0:0:0:0:0:0:0:0")
                     self.assertEqual(jsoned["remote_adress"], "*")

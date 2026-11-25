@@ -31,6 +31,7 @@ Each row is an application launch recorded by the Windows Program Compatibility 
       <field
         input="timestamp"
         parser="DateTime"
+        qualifier="DATE_LAST_RUN"
         description="timestamp of the application launch"
       />
       <field

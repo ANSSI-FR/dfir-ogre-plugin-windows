@@ -38,14 +38,17 @@ Each row is a path configured for exclusion from Volume Shadow Copy or backup pr
       <field
         input="name"
         parser="String"
+        qualifier="VALUE_NAME"
         description="display name of the excluded item"
       />
 
-      <field
-        input="file_path"
-        parser="String"
-        description="full filesystem path of the excluded file or folder"
-      />
+      <array>
+        <field
+          input="file_path"
+          parser="String"
+          description="full filesystem path of the excluded file or folder"
+        />
+      </array>
 
       <!-- Registry Key data-->
       <field

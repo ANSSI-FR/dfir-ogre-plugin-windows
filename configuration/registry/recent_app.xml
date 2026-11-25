@@ -45,7 +45,7 @@ Each row describes an application or recent item from the short-lived Windows 10
       <field
         input="app_path"
         parser="String"
-        qualifier="PATH"
+        qualifier="FILE_PATH"
         description="Path of the application executable"
       />
 
@@ -78,12 +78,14 @@ Each row describes an application or recent item from the short-lived Windows 10
       <field
         input="path"
         parser="String"
+        qualifier="FILE_PATH"
         description="Path of the recently accessed item"
       />
 
       <field
         input="arguments"
         parser="String"
+        qualifier="COMMAND_LINE"
         description="Optional arguments associated with the recently accessed item"
       />
 

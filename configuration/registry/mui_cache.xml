@@ -31,6 +31,7 @@ Each row is a per-user MUI cache association between an executable path and its 
       <field
         input="executable"
         parser="String"
+        qualifier="FILE_PATH"
         description="executable name (including extension) as stored in the per‑user MUI cache"
       />
 

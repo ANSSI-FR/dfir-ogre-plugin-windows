@@ -207,3 +207,25 @@ class NtfsInfoTest(TestCase):
             for _ in csv_file:
                 i += 1
             self.assertEqual(i, 6)
+
+
+class NtfsInfoVolumeTest(TestCase):
+    #  python -m unittest tests.test_ntfs_info.NtfsInfoVolumeTest.test_volume_id -v
+    def test_volume_id(self):
+        plugin_file = os.path.join(CONF_FOLDER, "ntfs_info.xml")
+        input_file = os.path.join(DATA_FOLDER, "csv", "NTFSInfo.csv")
+        base_output_name = "ntfsinfo_volume"
+        output_file = os.path.join(TEMP_FOLDER, base_output_name + ".ntfsinfo.jsonl")
+        if os.path.exists(output_file):
+            os.remove(output_file)
+
+        run_config = RunConfiguration([OutputConfiguration(base_output_name, TEMP_FOLDER)])
+        report = NTFSInfo().parse(input_file, plugin_file, run_config, Metadata("test"))
+        self.assertEqual(None, report.last_error)
+
+        with open(output_file) as fp:
+            rows = [json.loads(line) for line in fp]
+        self.assertTrue(rows)
+        for row in rows:
+            self.assertNotIn("computer_name", row)
+            self.assertEqual(row["volume_id"], "0xC2E23C53E23C4E43")

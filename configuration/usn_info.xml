@@ -32,6 +32,7 @@ Each row is an NTFS USN Change Journal record, with file and parent identifiers,
         input="ComputerName"
         output="computer_name"
         parser="String"
+        qualifier="COMPUTER_NAME"
         description="name of the host that generated the USN record"
       />
 
@@ -48,11 +49,13 @@ Each row is an NTFS USN Change Journal record, with file and parent identifiers,
         <field
           output="sequence_number"
           parser="Int"
+          qualifier="MFT_SEQUENCE"
           description="sequence part of the FRN"
         />
         <field
           output="record_number"
           parser="Int"
+          qualifier="FS_INODE"
           description="record part of the FRN"
         />
       </field>
@@ -74,6 +77,7 @@ Each row is an NTFS USN Change Journal record, with file and parent identifiers,
         input="TimeStamp"
         output="timestamp"
         parser="DateTime"
+        qualifier="TIMESTAMP"
         pattern="default"
         description="timestamp of the change recorded in the USN journal"
       />
@@ -241,6 +245,7 @@ Each row is an NTFS USN Change Journal record, with file and parent identifiers,
         input="VolumeID"
         output="volume_id"
         parser="String"
+        qualifier="VOLUME_ID"
         description="identifier of the volume on which the change occurred"
       />
 

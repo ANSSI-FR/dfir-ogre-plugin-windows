@@ -32,6 +32,7 @@ Each row provides host and operating-system context reconstructed from SYSTEM an
         <field
         input="computer_name"
         parser="String"
+        qualifier="COMPUTER_NAME"
         description="Name of the computer"
       />
         <field
@@ -42,6 +43,7 @@ Each row provides host and operating-system context reconstructed from SYSTEM an
         <field
         input="os_version"
         parser="String"
+        qualifier="OS_VERSION"
         description="Windows version number (major.minor"
       />
         <field
@@ -52,28 +54,33 @@ Each row provides host and operating-system context reconstructed from SYSTEM an
         <field
         input="install_date"
         parser="DateTime"
+        qualifier="DATE_INSTALLATION"
         display_name="Installation Date"
         description="UTC timestamp when Windows was installed"
       />
         <field
         input="shutdown_date"
         parser="DateTime"
+        qualifier="TIMESTAMP"
         display_name="Shutdown Date"
         description="Last recorded shutdown time in UTC"
       />
         <field
         input="domain"
         parser="String"
+        qualifier="DOMAIN_NAME"
         description="Domain the computer is joined to (if any)"
       />
         <field
         input="system_root"
         parser="String"
+        qualifier="FILE_PATH"
         description="Windows system directory path (typically C:\Windows)"
       />
         <field
         input="architecture"
         parser="String"
+        qualifier="OS_ARCH"
         description="Processor architecture (e.g., AMD64, x86)"
       />
         <field
@@ -104,28 +111,33 @@ Each row provides host and operating-system context reconstructed from SYSTEM an
         <field
         input="timezone_windows"
         parser="String"
+        qualifier="TIMEZONE"
         description="Windows timezone key name from registry"
       />
         <field
         input="timezone_iana"
         parser="String"
+        qualifier="TIMEZONE"
         description="IANA timezone identifier converted from Windows timezone"
       />
         <field
         input="wu_last_check"
         parser="DateTime"
+        qualifier="TIMESTAMP"
         display_name="Windows Update last check"
         description="Last successful Windows Update detection scan time"
       />
         <field
         input="wu_last_download"
         parser="DateTime"
+        qualifier="TIMESTAMP"
         display_name="Windows Update last download"
         description="Last successful Windows Update download time"
       />
         <field
         input="wu_last_install"
         parser="DateTime"
+        qualifier="TIMESTAMP"
         display_name="Windows Update last install"
         description="Last successful Windows Update installation time"
       />
@@ -159,41 +171,48 @@ Each row provides host and operating-system context reconstructed from SYSTEM an
                 <field
             input="mac"
             parser="String"
+            qualifier="MAC_ADDRESS"
             description="Physical MAC address of the interface"
           />
                 <field
             input="ipv4"
             parser="String"
+            qualifier="IP_ADDRESS"
             description="IPv4 addresses assigned to the interface"
           />
                 <field
             input="dhcp_enabled"
-            parser="String"
+            parser="Int"
             description="Whether DHCP is enabled for this interfac"
           />
                 <field
             input="dhcp_ipv4"
             parser="String"
+            qualifier="IP_ADDRESS"
             description="Current IPv4 address obtained via DHCP"
           />
                 <field
             input="dhcp_ipv4_server"
             parser="String"
+            qualifier="IP_ADDRESS"
             description="DHCP server that provided the IPv4 address"
           />
                 <field
             input="ipv6"
             parser="String"
+            qualifier="IP_ADDRESS"
             description="IPv6 addresses assigned to the interface"
           />
                 <field
             input="dhcp_ipv6"
             parser="String"
+            qualifier="IP_ADDRESS"
             description="Current IPv6 address obtained via DHCP"
           />
                 <field
             input="dhcp_ipv6_server"
             parser="String"
+            qualifier="IP_ADDRESS"
             description="DHCP server that provided the IPv6 address"
           />
             </object>

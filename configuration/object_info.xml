@@ -29,6 +29,7 @@ Each row represents a Windows object-manager namespace entry captured by GetObjI
         input="ComputerName"
         output="computer_name"
         parser="String"
+        qualifier="COMPUTER_NAME"
         description="Host name that produced the GetObjInfo report"
       />
 
@@ -36,6 +37,7 @@ Each row represents a Windows object-manager namespace entry captured by GetObjI
         input="OperatingSystem"
         output="operating_system"
         parser="String"
+        qualifier="OS_VERSION"
         description="Operating system version string (e.g., 'Windows Server 2016 Standard Edition')"
       />
 
@@ -50,6 +52,7 @@ Each row represents a Windows object-manager namespace entry captured by GetObjI
         input="ObjectName"
         output="object_name"
         parser="String"
+        qualifier="WINDOWS_OBJECT"
         description="Name of the Windows object in the namespace"
       />
 
@@ -71,6 +74,7 @@ Each row represents a Windows object-manager namespace entry captured by GetObjI
         input="LinkCreationTime"
         output="link_creation_time"
         parser="DateTime"
+        qualifier="DATE_CREATION"
         description="Timestamp when the link was created"
       />
 

@@ -89,7 +89,7 @@ class RegShimDb(OgrePlugin):
                 description = key.value("DatabaseDescription")
 
                 tuple = Record()
-                tuple.add("key_path", Value.String(key.name))
+                tuple.add("key_path", Value.String(key.path))
                 tuple.add(
                     "key_security", Value.Object(key.security_descriptor.to_record())
                 )
@@ -98,8 +98,7 @@ class RegShimDb(OgrePlugin):
 
                 if date:
                     tuple.add("install_time", Value.Date(date))
-                else:
-                    tuple.add("key_modif_time", Value.Date(key.mtime))
+                tuple.add("key_modif_time", Value.Date(key.mtime))
 
                 if path:
                     tuple.add("file_path", Value.String(str(path.data())))

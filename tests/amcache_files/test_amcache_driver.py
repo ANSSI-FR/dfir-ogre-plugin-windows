@@ -57,6 +57,7 @@ class AmcacheDriverTest(TestCase):
             jsoned = json.loads(first_line)
 
             self.assertIn("sha1", jsoned)
+            self.assertRegex(jsoned["sha1"], "^[0-9a-f]{40}$")
             self.assertIn("name", jsoned)
             self.assertIn("type", jsoned)
             self.assertIn("version", jsoned)

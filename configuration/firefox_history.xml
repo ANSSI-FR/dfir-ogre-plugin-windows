@@ -48,6 +48,7 @@ Each row represents a Firefox page visit, with URL, title, visit time, visit cou
       <field
         input="url"
         parser="String"
+        qualifier="URL"
         description="URL of the visited page"
       />
 
@@ -60,6 +61,7 @@ Each row represents a Firefox page visit, with URL, title, visit time, visit cou
       <field
         input="visit_date_ms"
         parser="DateTime"
+        qualifier="TIMESTAMP"
         output="visit_date"
         description="Timestamp when the page was visited"
       />
@@ -73,6 +75,7 @@ Each row represents a Firefox page visit, with URL, title, visit time, visit cou
       <field
         input="referer"
         parser="String"
+        qualifier="URL"
         description="URL of the referring page, if any"
       />
 

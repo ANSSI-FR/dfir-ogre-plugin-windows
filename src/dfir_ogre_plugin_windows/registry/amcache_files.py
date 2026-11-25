@@ -168,8 +168,10 @@ class RegAmCacheFile(OgrePlugin):
                         "modification_date", value(filetime_to_utc(modification_date))
                     )
 
-                original_filename = key.value_data("c")
-                tuple.add("original_filename", value(original_filename))
+                # Legacy value "c" holds the FileDescription of the PE version
+                # resource, not its OriginalFilename.
+                file_description = key.value_data("c")
+                tuple.add("file_description", value(file_description))
 
                 link_date = key.value_data("f")
                 tuple.add("link_date", value(parse_date(link_date)))

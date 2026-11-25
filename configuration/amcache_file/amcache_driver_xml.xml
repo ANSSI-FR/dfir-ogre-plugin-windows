@@ -20,14 +20,15 @@
     </timeline>
     <xpath_tuple value="//Driver" />
     <fields>
-        <field input="@DriverId" description="SHA-1 hash of the driver binary" output="sha1" parser="String" />
-        <field input="@Name" description="Driver name" output="name" parser="String" />
+        <field input="@DriverId" description="SHA-1 hash of the driver binary" output="sha1" parser="Python" qualifier="FILE_SHA1" />
+        <field input="@Name" description="Driver name" output="name" parser="String" qualifier="FILE_NAME" />
         <field input="@Type" description="Driver type (e.g. Kernel, File System)" output="type" parser="String" />
-        <field input="@Version" description="Driver version" output="version" parser="String" />
+        <field input="@Version" description="Driver version" output="version" parser="String" qualifier="PE_VERSION" />
         <field
         input="@TimeStamp" description="Driver compilation/link timestamp"
         output="compilation_date"
         parser="DateTime"
+        qualifier="DATE_COMPILATION"
         date_codec="timestamp_hex"
       />
         <field input="@CheckSum" description="Driver image checksum" output="checksum" parser="String" />
@@ -37,12 +38,13 @@
         parser="IntRadix"
         radix="16"
       />
-        <field input="@Company" description="Driver vendor/company name" output="company" parser="String" />
-        <field input="@Product" description="Driver product name" output="product" parser="String" />
+        <field input="@Company" description="Driver vendor/company name" output="company" parser="String" qualifier="COMPANY" />
+        <field input="@Product" description="Driver product name" output="product" parser="String" qualifier="PRODUCT" />
         <field
         input="@ProductVersion" description="Driver product version"
         output="product_version"
         parser="String"
+        qualifier="PE_VERSION"
       />
         <field input="@WdfVersion" description="Windows Driver Framework version" output="wdf_version" parser="String" />
     </fields>

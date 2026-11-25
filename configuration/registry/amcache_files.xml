@@ -106,13 +106,6 @@ Each row is a file inventory record from the Amcache hive, with path, normalized
             />
 
       <field
-                input="original_filename"
-                parser="String"
-                qualifier="FILE_NAME"
-                description="Original FileName field of the PE header"
-            />
-
-      <field
                 input="file_version"
                 parser="String"
                 qualifier="PE_VERSION"
@@ -128,13 +121,12 @@ Each row is a file inventory record from the Amcache hive, with path, normalized
       <field
                 input="file_description"
                 parser="String"
-                description="File description"
+                description="File description from the PE version resource (legacy Root\File entries only)"
             />
 
       <field
                 input="linker_version"
                 parser="String"
-                qualifier="PE_VERSION"
                 description="combination of the 'MajorLinkerVersion' and 'MinorLinkerVersion' fields of the PE header"
             />
 
@@ -182,9 +174,9 @@ Each row is a file inventory record from the Amcache hive, with path, normalized
                 description="identifier of the volume where the file is located"
             />
 
-      <field input="is_pe_file" description="Whether the file is a PE executable" parser="Bool" />
+      <field input="is_pe_file" description="Whether the file is a PE executable" parser="Int" />
 
-      <field input="is_os_component" description="Whether the file is a Windows OS component" parser="Bool" />
+      <field input="is_os_component" description="Whether the file is a Windows OS component" parser="Int" />
 
       <!-- Registry Key data-->
       <field
@@ -316,6 +308,12 @@ Each row is a file inventory record from the Amcache hive, with path, normalized
           </object>
         </array>
       </object>
+
+      <field
+                input="version"
+                parser="String"
+                description="Version value of InventoryApplicationFile entries"
+            />
     </fields>
   </mapping>
 

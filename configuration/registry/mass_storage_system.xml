@@ -62,6 +62,7 @@ Each row consolidates registry evidence for a mass-storage device, with device a
       <field
         input="volume_guid"
         parser="String"
+        qualifier="VOLUME_GUID"
         description="GUID of the volume associated with the device"
       />
 
@@ -163,11 +164,13 @@ Each row consolidates registry evidence for a mass-storage device, with device a
         description="reason string associated with device install or removal events"
       />
 
-      <field
-        input="registry_path"
-        parser="String"
-        description="registry key paths that contributed to this device record"
-      />
+      <array>
+        <field
+          input="registry_path"
+          parser="String"
+          description="registry key paths that contributed to this device record"
+        />
+      </array>
 
       <field
         input="setupapi_sample_path"
@@ -175,11 +178,13 @@ Each row consolidates registry evidence for a mass-storage device, with device a
         description="path to the SetupAPI sample file used for this record"
       />
 
-      <field
-        input="users"
-        parser="String"
-        description="owner SID(s) of the registry entries"
-      />
+      <array>
+        <field
+          input="users"
+          parser="String"
+          description="owner SID(s) of the registry entries"
+        />
+      </array>
 
       <field
         input="setupapi_first_seen"
@@ -192,7 +197,7 @@ Each row consolidates registry evidence for a mass-storage device, with device a
       <field
         input="setupapi_last_seen"
         parser="DateTime"
-        qualifier="DATE_UNINSTALL"
+        qualifier="TIMESTAMP"
         display_name="Usb setup last seen"
         description="last timestamp the device appeared in SetupAPI (removal)"
       />
@@ -232,7 +237,7 @@ Each row consolidates registry evidence for a mass-storage device, with device a
       <field
         input="usbstor_first_install"
         parser="DateTime"
-        qualifier="DATE_CREATION"
+        qualifier="DATE_INSTALLATION"
         display_name="Usb first install"
         description="first install timestamp from USBSTOR properties"
       />
@@ -240,7 +245,7 @@ Each row consolidates registry evidence for a mass-storage device, with device a
       <field
         input="usbstor_install"
         parser="DateTime"
-        qualifier="DATE_CREATION"
+        qualifier="DATE_INSTALLATION"
         display_name="Usb install"
         description="install timestamp of the USBSTOR device"
       />
@@ -248,7 +253,7 @@ Each row consolidates registry evidence for a mass-storage device, with device a
       <field
         input="usbstor_last_arrival"
         parser="DateTime"
-        qualifier="DATE_CREATION"
+        qualifier="DATE_CONNECTION"
         display_name="Usb last arrival"
         description="timestamp of the most recent device arrival"
       />
@@ -256,7 +261,7 @@ Each row consolidates registry evidence for a mass-storage device, with device a
       <field
         input="usbstor_last_removal"
         parser="DateTime"
-        qualifier="DATE_UNINSTALL"
+        qualifier="DATE_DISCONNECTION"
         display_name="Usb last removal"
         description="timestamp of the most recent device removal"
       />

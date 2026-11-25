@@ -69,22 +69,23 @@
           output="indicators"
         >
                 <field input="@Name" description="File name" output="name" parser="String" />
-                <field input="@File" description="File path from the static property" output="file" parser="String" />
-                <field input="@RegistryRun" description="Registry key/value that launched the program" output="run" parser="String" />
+                <field input="@File" description="File path from the static property" output="file" parser="String" qualifier="FILE_NAME" />
+                <field input="@RegistryRun" description="Registry key/value that launched the program" output="run" parser="String" qualifier="KEY_NAME" />
             </object>
         </array>
         <array>
             <object input="StaticProperties/Files/File" output="files">
-                <field input="@Name" description="File name" output="name" parser="String" />
-                <field input="@Id" description="SHA-1 hash of the file" output="sha1" parser="String" />
+                <field input="@Name" description="File name" output="name" parser="String" qualifier="FILE_NAME" />
+                <field input="@Id" description="SHA-1 hash of the file" output="sha1" parser="Python" qualifier="FILE_SHA1" />
                 <field
             input="@Size" description="File size in bytes"
             output="size"
             parser="IntRadix"
+            qualifier="FILE_SIZE"
             radix="16"
           />
-                <field input="@ProductName" description="Product name" output="product" parser="String" />
-                <field input="@CompanyName" description="Company (vendor) name" output="company" parser="String" />
+                <field input="@ProductName" description="Product name" output="product" parser="String" qualifier="PRODUCT" />
+                <field input="@CompanyName" description="Company (vendor) name" output="company" parser="String" qualifier="COMPANY" />
                 <field
             input="@ProductVersion" description="Product version"
             output="product_version"
@@ -99,6 +100,7 @@
             input="@FileVersion" description="File version number"
             output="file_version"
             parser="String"
+            qualifier="PE_VERSION"
           />
                 <field
             input="@SizeOfImage" description="Size of the executable image in bytes"
@@ -116,14 +118,14 @@
             output="linker_version"
             parser="String"
           />
-                <field input="@LinkDate" description="PE link (compilation) date" output="link_date" parser="DateTime" />
+                <field input="@LinkDate" description="PE link (compilation) date" output="link_date" parser="DateTime" qualifier="DATE_COMPILATION" />
                 <field
             input="@BinaryType" description="PE binary type (exe, dll, driver)"
             output="binary_type"
             parser="String"
           />
-                <field input="@Created" description="File creation timestamp" output="created" parser="DateTime" />
-                <field input="@Modified" description="File modification timestamp" output="modified" parser="DateTime" />
+                <field input="@Created" description="File creation timestamp" output="created" parser="DateTime" qualifier="DATE_CREATION" />
+                <field input="@Modified" description="File modification timestamp" output="modified" parser="DateTime" qualifier="DATE_MODIFICATION" />
                 <field
             input="@LongPathHash" description="Hash of the long path storing the file"
             output="long_path_hash"

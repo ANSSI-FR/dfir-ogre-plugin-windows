@@ -64,13 +64,13 @@ Each row describes a Windows user profile, with account name, SID, profile path,
 
       <field
         input="ref_count"
-        parser="String"
+        parser="Int"
         description="reference count value for the profile entry"
       />
 
       <field
         input="state"
-        parser="String"
+        parser="Int"
         description="raw State field value from the registry (used to infer admin status)"
       />
 

@@ -30,6 +30,7 @@ Each row is an Internet Explorer or legacy WebCache container record, with URL, 
       <field
                 input="file_size"
                 parser="Int"
+                qualifier="FILE_SIZE"
                 description="Size of the cached file in bytes"
             />
 
@@ -63,11 +64,12 @@ Each row is an Internet Explorer or legacy WebCache container record, with URL, 
                 description="Time offset exemption delta in seconds"
             />
 
-      <field input="url" parser="String" description="Visited URL" />
+      <field input="url" parser="String" qualifier="URL" description="Visited URL" />
 
       <field
                 input="filename"
                 parser="String"
+                qualifier="FILE_NAME"
                 description="Cached file name (if applicable)"
             />
 
@@ -80,6 +82,7 @@ Each row is an Internet Explorer or legacy WebCache container record, with URL, 
       <field
                 input="redirect_url"
                 parser="String"
+                qualifier="URL"
                 description="Redirect target URL (if any)"
             />
 
@@ -150,6 +153,7 @@ Each row is an Internet Explorer or legacy WebCache container record, with URL, 
       <field
                 input="sync_date"
                 parser="DateTime"
+                qualifier="TIMESTAMP"
                 display_name="Sync Date"
                 description="Last synchronization time in UTC"
             />

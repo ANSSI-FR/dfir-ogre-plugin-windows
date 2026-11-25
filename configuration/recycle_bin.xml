@@ -37,14 +37,14 @@
 
       <field
         input="header"
-        parser="String"
+        parser="Int"
         description="INFO2 file version identifier (1 = Vista/7, 2 = Windows 10+)"
       />
 
       <field
         input="uninstall_date"
         parser="DateTime"
-        qualifier="DATE_UNINSTALL"
+        qualifier="DATE_DELETION"
         display_name="Uninstall date"
         description="timestamp when the file was removed (deleted) and placed in the Recycle Bin"
       />

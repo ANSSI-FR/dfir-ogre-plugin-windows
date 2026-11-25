@@ -30,6 +30,7 @@
       <field
         input="VolumeID"
         parser="String"
+        qualifier="VOLUME_ID"
         output="volume_id"
         description="identifier of the volume that contains the file"
       />
@@ -59,11 +60,13 @@
         <field
           output="sequence_number"
           parser="Int"
+          qualifier="MFT_SEQUENCE"
           description="sequence part of the FRN"
         />
         <field
           output="record_number"
           parser="Int"
+          qualifier="FS_INODE"
           description="record part of the FRN"
         />
       </field>
@@ -71,6 +74,7 @@
       <field
         input="FullName"
         parser="String"
+        qualifier="FILE_PATH"
         output="full_name"
         description="full absolute path of the collected file"
       />
@@ -108,7 +112,6 @@
         input="SampleCollectionDate"
         parser="DateTime"
         output="sample_collection_date"
-        qualifier="DATE_MODIFICATION"
         display_name="Collection Date"
         description="timestamp when the sample was collected"
       />
@@ -173,7 +176,7 @@
         input="LastAttrChangeDate"
         parser="DateTime"
         output="si_lastchange_date"
-        qualifier="DATE_MODIFICATION"
+        qualifier="DATE_CHANGE"
         description="last attribute‑change timestamp of the file"
       />
 
@@ -232,6 +235,7 @@
       <field
         input="SSDeep"
         parser="String"
+        qualifier="FILE_SSDEEP"
         output="ss_deep"
         description="ssdeep fuzzy hash of the file"
       />
@@ -239,6 +243,7 @@
       <field
         input="TLSH"
         parser="String"
+        qualifier="FILE_TLSH"
         output="tlsh"
         description="TLSH hash of the file"
       />
@@ -253,6 +258,7 @@
       <field
         input="RecordInUse"
         parser="String"
+        qualifier="IN_USE"
         output="record_in_use"
         description="flag indicating whether the MFT record is currently in use"
       />

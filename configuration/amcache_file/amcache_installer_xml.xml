@@ -20,12 +20,13 @@
     </timeline>
     <xpath_tuple value="//Installer" />
     <fields>
-        <field input="InstallInfo/@Name" description="Name of the installed executable" output="name" parser="String" />
+        <field input="InstallInfo/@Name" description="Name of the installed executable" output="name" parser="String" qualifier="FILE_NAME" />
         <field input="@CompletionState" description="Completion state of the installer session" output="complete" parser="String" />
         <field
         input="ProgramIds/ProgramId/@Id" description="Program ID associated with the install"
         output="program_id"
         parser="String"
+        qualifier="APP_ID"
       />
         <field
         input="@CreatedArpEntries" description="Number of Add/Remove Programs entries created"
@@ -33,8 +34,8 @@
         parser="String"
       />
 
-        <field input="@StartTime" description="Installer session start time" output="start_time" parser="DateTime" />
-        <field input="@StopTime" description="Installer session end time" output="stop_time" parser="DateTime" />
+        <field input="@StartTime" description="Installer session start time" output="start_time" parser="DateTime" qualifier="DATE_INSTALLATION" />
+        <field input="@StopTime" description="Installer session end time" output="stop_time" parser="DateTime" qualifier="TIMESTAMP" />
 
         <field
         input="InstallInfo/@ShortName" description="Short (8.3) name of the installed executable"
@@ -50,6 +51,7 @@
         input="InstallInfo/@Size" description="Size of the installed executable in bytes"
         output="size"
         parser="IntRadix"
+        qualifier="FILE_SIZE"
         radix="16"
       />
         <field
@@ -71,7 +73,8 @@
         <field
         input="InstallInfo/@LinkDate" description="PE link (compilation) date"
         output="link_date"
-        parser="String"
+        parser="DateTime"
+        qualifier="DATE_COMPILATION"
       />
         <field
         input="InstallInfo/@LinkerVersion" description="PE linker version"
@@ -97,32 +100,37 @@
         input="InstallInfo/@Created" description="Installed executable creation timestamp"
         output="created"
         parser="DateTime"
+        qualifier="DATE_CREATION"
       />
         <field
         input="InstallInfo/@Modified" description="Installed executable modification timestamp"
         output="modified"
         parser="DateTime"
+        qualifier="DATE_MODIFICATION"
       />
         <field
         input="InstallInfo/@VerLanguage" description="Language code of the installed executable"
         output="version_language"
         parser="String"
       />
-        <field input="InstallInfo/@Id" description="SHA-1 hash of the installed executable" output="sha1" parser="String" />
+        <field input="InstallInfo/@Id" description="SHA-1 hash of the installed executable" output="sha1" parser="Python" qualifier="FILE_SHA1" />
         <field
         input="InstallInfo/@SigPublisherName" description="Publisher name from the signature"
         output="sig_publisher_name"
         parser="String"
+        qualifier="PUBLISHER"
       />
         <field
         input="InstallInfo/@FileVersion" description="Installed executable file version"
         output="file_version"
         parser="String"
+        qualifier="PE_VERSION"
       />
         <field
         input="InstallInfo/@CompanyName" description="Company (vendor) name"
         output="company"
         parser="String"
+        qualifier="COMPANY"
       />
         <field
         input="InstallInfo/@FileDescription" description="File description string"
@@ -133,6 +141,7 @@
         input="InstallInfo/@ProductName" description="Product name"
         output="product"
         parser="String"
+        qualifier="PRODUCT"
       />
         <field
         input="InstallInfo/@LongPathHash" description="Hash of the long path storing the executable"

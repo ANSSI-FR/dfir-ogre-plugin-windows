@@ -93,7 +93,7 @@
             input="UserID"
             parser="String"
             output="user_id"
-            qualifier="USER_ID"
+            qualifier="USER_SID"
             description="SID of the account that generated the event"
           />
         </object>
@@ -112,6 +112,7 @@
           <field
             input="Name"
             parser="String"
+            qualifier="EVT_PROVIDER"
             output="provider_name"
             description="name of the event provider"
           />
@@ -126,13 +127,14 @@
         <object input="Execution_attributes" output="execution">
           <field
             input="ProcessID"
-            parser="String"
+            parser="Int"
+            qualifier="PROCESS_ID"
             output="process_id"
             description="process identifier that generated the event"
           />
           <field
             input="ThreadID"
-            parser="String"
+            parser="Int"
             output="thread_id"
             description="thread identifier that generated the event"
           />
@@ -140,7 +142,8 @@
 
         <field
           input="EventRecordID"
-          parser="String"
+          parser="Int"
+          qualifier="EVT_RECORD_ID"
           output="event_record_id"
           description="unique record identifier for the event"
         />
@@ -148,15 +151,60 @@
         <field
           input="Computer"
           parser="String"
+          qualifier="COMPUTER_NAME"
           output="computer"
           description="name of the computer that logged the event"
         />
 
         <field
           input="EventID"
-          parser="String"
+          parser="Int"
+          qualifier="EVT_ID"
           output="event_id"
           description="numeric identifier of the event type"
+        />
+
+        <field
+          input="Channel"
+          parser="String"
+          qualifier="EVT_CHANNEL"
+          output="channel"
+          description="event log channel the event was written to"
+        />
+
+        <field
+          input="Level"
+          parser="Int"
+          output="level"
+          description="severity level of the event (1 critical, 2 error, 3 warning, 4 information, 5 verbose)"
+        />
+
+        <field
+          input="Version"
+          parser="Int"
+          output="version"
+          description="version of the event definition"
+        />
+
+        <field
+          input="Task"
+          parser="Int"
+          output="task"
+          description="task category of the event"
+        />
+
+        <field
+          input="Opcode"
+          parser="Int"
+          output="opcode"
+          description="operation code of the event"
+        />
+
+        <field
+          input="Keywords"
+          parser="String"
+          output="keywords"
+          description="keyword bitmask of the event, in hexadecimal"
         />
       </object>
       <!-- Event Data Section -->

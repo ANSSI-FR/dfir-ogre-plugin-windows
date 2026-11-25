@@ -27,8 +27,8 @@ Each row is a TCP or UDP endpoint from a Sysinternals Tcpvcon snapshot, with own
     </timeline>
 
     <fields>
-      <field input="process_name" parser="String" description="Process name" />
-      <field input="pid" parser="String" description="Process identifier (PID)" />
+      <field input="process_name" parser="String" qualifier="FILE_NAME" description="Process name" />
+      <field input="pid" parser="Int" qualifier="PROCESS_ID" description="Process identifier (PID)" />
       <field
         input="protocol"
         parser="String"
@@ -39,10 +39,11 @@ Each row is a TCP or UDP endpoint from a Sysinternals Tcpvcon snapshot, with own
         parser="String"
         description="LISTENING, ESTABLISHED, … (can be empty for UDP)"
       />
-      <field input="local_adress" parser="String" description="Local IP address" />
+      <field input="local_adress" parser="String" qualifier="IP_ADDRESS" description="Local IP address" />
       <field
         input="remote_adress"
         parser="String"
+        qualifier="IP_ADDRESS"
         description="Remote IP address"
       />
     </fields>

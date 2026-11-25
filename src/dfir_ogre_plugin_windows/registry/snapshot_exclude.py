@@ -14,7 +14,7 @@ from dfir_ogre_common import (
     Value,
 )
 
-from dfir_ogre_plugin_windows.common import value
+from dfir_ogre_plugin_windows.common import add_list, value
 
 logger = logging.getLogger(__name__)
 
@@ -73,7 +73,7 @@ class RegSnapExclude(OgrePlugin):
                 name = key_val.name()
                 tuple.add("type", value(key.name))
                 tuple.add("name", value(name))
-                tuple.add("file_path", value(key_val.data()))
+                add_list(tuple, "file_path", key_val.data())
                 tuple.add("key_path", value(key.path))
                 tuple.add("key_modif_time", value(key.mtime))
                 tuple.add(

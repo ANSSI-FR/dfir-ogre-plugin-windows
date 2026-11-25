@@ -55,12 +55,14 @@ Each row represents Firefox download metadata recovered from the Places database
       <field
         input="target_path"
         parser="String"
+        qualifier="FILE_PATH"
         description="local file system path where the downloaded file was saved"
       />
 
       <field
         input="url"
         parser="String"
+        qualifier="URL"
         description="source URL from which the file was downloaded"
       />
 
@@ -73,6 +75,7 @@ Each row represents Firefox download metadata recovered from the Places database
       <field
         input="start_time_ms"
         parser="DateTime"
+        qualifier="DATE_START"
         output="start_time"
         description="timestamp when the download started"
       />
@@ -80,6 +83,7 @@ Each row represents Firefox download metadata recovered from the Places database
       <field
         input="end_time_ms"
         parser="DateTime"
+        qualifier="TIMESTAMP"
         output="end_time"
         description="timestamp when the download finished"
       />

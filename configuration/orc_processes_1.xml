@@ -30,6 +30,7 @@ Each row describes a process observed in an ORC process CSV, with name, executab
       <field
         input="ProcessName"
         parser="String"
+        qualifier="FILE_NAME"
         output="name"
         description="name of the process executable"
       />
@@ -44,6 +45,7 @@ Each row describes a process observed in an ORC process CSV, with name, executab
       <field
         input="Path"
         parser="String"
+        qualifier="FILE_PATH"
         output="executable_path"
         description="full file‑system path to the process executable"
       />
@@ -109,6 +111,7 @@ Each row describes a process observed in an ORC process CSV, with name, executab
       <field
         input="ProcessId"
         parser="Int"
+        qualifier="PROCESS_ID"
         output="process_id"
         description="identifier (PID) of the process"
       />

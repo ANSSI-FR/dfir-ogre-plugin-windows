@@ -96,6 +96,7 @@ Each row is an auto-start entry from a Sysinternals Autoruns CSV snapshot, with 
         input="Signer"
         output="signer"
         parser="String"
+        qualifier="PUBLISHER"
         description="signer of the digital signature of the executable"
       />
 
@@ -127,6 +128,7 @@ Each row is an auto-start entry from a Sysinternals Autoruns CSV snapshot, with 
         input="Launch String"
         output="launch_string"
         parser="String"
+        qualifier="COMMAND_LINE"
         description="command line or arguments used to launch the executable"
       />
 

@@ -57,7 +57,7 @@ class TCPConn(OgrePlugin):
                         record = Record()
                         record.add("protocol", value(line_match.group("proto")))
                         record.add("process_name", value(line_match.group("proc")))
-                        record.add("pid", value(line_match.group("pid")))
+                        record.add("pid", value(int(line_match.group("pid"))))
                         record.add("state", value(line_match.group("state")))
                         local = _strip_brackets(line_match.group("local"))
                         record.add("local_adress", value(local))

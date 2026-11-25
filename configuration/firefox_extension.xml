@@ -33,6 +33,7 @@ Each row describes a Firefox add-on, including identity, version, install path, 
       <field
                 input="name"
                 parser="String"
+                qualifier="APP_NAME"
                 description="display name of the Firefox add‑on"
             />
 
@@ -57,6 +58,7 @@ Each row describes a Firefox add-on, including identity, version, install path, 
       <field
                 input="id"
                 parser="String"
+                qualifier="APP_ID"
                 description="unique identifier of the add‑on"
             />
 
@@ -69,18 +71,21 @@ Each row describes a Firefox add-on, including identity, version, install path, 
       <field
                 input="path"
                 parser="String"
+                qualifier="FILE_PATH"
                 description="filesystem path where the add‑on is installed"
             />
 
       <field
                 input="update_url"
                 parser="String"
+                qualifier="URL"
                 description="URL used by the add‑on to check for updates"
             />
 
       <field
                 input="source_uri"
                 parser="String"
+                qualifier="URL"
                 description="original source URI from which the add‑on was obtained"
             />
 

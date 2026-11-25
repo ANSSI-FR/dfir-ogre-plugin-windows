@@ -70,6 +70,7 @@ Each row is a per-user X.509 certificate decoded from an NTUSER hive, with subje
       <field
         input="fingerprint_sha256"
         parser="String"
+        qualifier="CERT_SHA256"
         description="SHA‑256 fingerprint of the certificate (hex string)"
       />
 
@@ -99,7 +100,7 @@ Each row is a per-user X.509 certificate decoded from an NTUSER hive, with subje
           />
           <field
             input="critical"
-            parser="String"
+            parser="Bool"
             description="whether the extension is marked critical (true/false)"
           />
           <field

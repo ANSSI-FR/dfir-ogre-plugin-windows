@@ -77,12 +77,15 @@ class AmcacheInstallerTest(TestCase):
             self.assertIn("modified", jsoned)
             self.assertIn("version_language", jsoned)
             self.assertIn("sha1", jsoned)
+            self.assertRegex(jsoned["sha1"], "^[0-9a-f]{40}$")
+            self.assertEqual(jsoned["sha1"], "c99715acaf3a3945075c165e6e2a2f54fdcf8c21")
             self.assertIn("sig_publisher_name", jsoned)
             self.assertIn("file_version", jsoned)
             self.assertIn("company", jsoned)
             self.assertIn("file_description", jsoned)
             self.assertIn("product", jsoned)
             self.assertIn("long_path_hash", jsoned)
+            self.assertEqual(jsoned["link_date"], "2016-04-02T03:21:43.000000+00:00")
 
             self.assertEqual(
                 jsoned["name"],

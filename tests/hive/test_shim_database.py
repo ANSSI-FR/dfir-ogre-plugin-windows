@@ -58,6 +58,15 @@ class test_shim_database(TestCase):
                         "file_path: C:\\Windows\\AppPatch\\Custom\\Custom64\\{08274920-8908-45c2-9258-8ad67ff77b09}.sdb",
                     )
                     self.assertEqual(jsoned["related_user"], "S-1-5-18")
+                    self.assertEqual(
+                        jsoned["data"]["key_modif_time"],
+                        "2016-01-22T10:42:10.436312+00:00",
+                    )
+                    self.assertTrue(
+                        jsoned["data"]["key_path"].endswith(
+                            "\\AppCompatFlags\\InstalledSDB\\{08274920-8908-45c2-9258-8ad67ff77b09}"
+                        )
+                    )
                 if i == 1:
                     self.assertEqual(jsoned["description"], "target: [iisexpress.exe]")
 

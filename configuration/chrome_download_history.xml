@@ -47,12 +47,14 @@ Each row represents a Chrome download record, linking the source URL to the save
       <field
         input="target_path"
         parser="String"
+        qualifier="FILE_PATH"
         description="local filesystem path where Chrome saved the downloaded file"
       />
 
       <field
         input="url"
         parser="String"
+        qualifier="URL"
         description="original URL of the downloaded resource"
       />
 
@@ -71,6 +73,7 @@ Each row represents a Chrome download record, linking the source URL to the save
       <field
         input="start_time_ms"
         parser="DateTime"
+        qualifier="DATE_START"
         output="start_time"
         description="timestamp when the download started"
       />
@@ -78,6 +81,7 @@ Each row represents a Chrome download record, linking the source URL to the save
       <field
         input="end_time_ms"
         parser="DateTime"
+        qualifier="TIMESTAMP"
         output="end_time"
         description="timestamp when the download finished or was interrupted"
       />

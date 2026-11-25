@@ -39,6 +39,7 @@ Each row summarizes a host from Windows systeminfo output, including hostname, O
       <field
         input="host_name"
         parser="String"
+        qualifier="COMPUTER_NAME"
         description="Hostname of the machine"
       />
       <field
@@ -49,6 +50,7 @@ Each row summarizes a host from Windows systeminfo output, including hostname, O
       <field
         input="os_version"
         parser="String"
+        qualifier="OS_VERSION"
         description="Operating system version"
       />
       <field
@@ -111,11 +113,13 @@ Each row summarizes a host from Windows systeminfo output, including hostname, O
       <field
         input="windows_directory"
         parser="String"
+        qualifier="FILE_PATH"
         description="Path to the Windows directory"
       />
       <field
         input="system_directory"
         parser="String"
+        qualifier="FILE_PATH"
         description="Path to the System directory"
       />
       <field
@@ -136,6 +140,7 @@ Each row summarizes a host from Windows systeminfo output, including hostname, O
       <field
         input="time_zone"
         parser="String"
+        qualifier="TIMEZONE"
         description="Time zone description"
       />
       <field
@@ -168,8 +173,8 @@ Each row summarizes a host from Windows systeminfo output, including hostname, O
         parser="String"
         description="Location(s) of page file(s)"
       />
-      <field input="domain" parser="String" description="Domain name" />
-      <field input="logon_server" parser="String" description="Logon server" />
+      <field input="domain" parser="String" qualifier="DOMAIN_NAME" description="Domain name" />
+      <field input="logon_server" parser="String" qualifier="COMPUTER_NAME" description="Logon server" />
       <field input="hotfix" parser="String" description="Installed hotfixes" />
       <field
         input="network_cards"

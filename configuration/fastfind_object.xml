@@ -22,7 +22,7 @@
       <array>
         <object input="object" output="object">
           <field input="@type" description="Object type (e.g., file, folder)" output="type" parser="String" />
-          <field input="@name" description="Object name" output="name" parser="String" />
+          <field input="@name" description="Object name" output="name" parser="String" qualifier="WINDOWS_OBJECT" />
           <field input="@path" description="Path to the object" output="path" parser="String" />
         </object>
       </array>

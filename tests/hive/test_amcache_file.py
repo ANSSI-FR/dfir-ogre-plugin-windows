@@ -202,3 +202,32 @@ class AmCacheFile(TestCase):
 
                 i += 1
             self.assertEqual(i, expected_lines)
+
+    # python -m unittest tests.hive.test_amcache_file.AmCacheFile.test_legacy_file_description -v
+    def test_legacy_file_description(self):
+        """Legacy Root\\File value "c" is the PE file description, not the original file name."""
+        plugin_file = os.path.join(CONF_FOLDER, "amcache_files.xml")
+        input_file = os.path.join(DATA_FOLDER, "hive", "amcache_v1607.hve")
+        base_output_name = "am_cache_file_description"
+        output_file = os.path.join(
+            TEMP_FOLDER, base_output_name + ".amcache_file.jsonl"
+        )
+        if os.path.exists(output_file):
+            os.remove(output_file)
+
+        output_config = OutputConfiguration(base_output_name, TEMP_FOLDER)
+        run_config = RunConfiguration([output_config])
+        report = RegAmCacheFile().parse(
+            input_file, plugin_file, run_config, Metadata("test")
+        )
+        self.assertEqual(None, report.last_error)
+
+        descriptions = {}
+        with open(output_file) as fp:
+            for line in fp:
+                js = json.loads(line)
+                self.assertNotIn("original_filename", js)
+                if js.get("file_description"):
+                    descriptions[js["name"].lower()] = js["file_description"]
+
+        self.assertEqual(descriptions.get("procmon.exe"), "Process Monitor")

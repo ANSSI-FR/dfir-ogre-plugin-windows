@@ -18,7 +18,7 @@
 
     <xpath_tuple value="/fast_find/registry/hive/regfind_match" />
     <fields>
-      <field input="../@volume_id" description="Volume identifier of the hive source" output="volume_id" parser="String" />
+      <field input="../@volume_id" description="Volume identifier of the hive source" output="volume_id" parser="String" qualifier="VOLUME_ID" />
       <field input="../@snapshot_id" description="Snapshot identifier the hive was read from" output="snapshot_id" parser="String" />
       <field
         input="../@hive_path" description="Path to the registry hive"

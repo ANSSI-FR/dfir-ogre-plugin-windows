@@ -42,6 +42,7 @@
         input="EventTime"
         output="event_time"
         parser="DateTime"
+        qualifier="TIMESTAMP"
         description="Timestamp when the event occurred"
       />
 
@@ -63,6 +64,7 @@
         input="UploadTime"
         output="upload_time"
         parser="DateTime"
+        qualifier="TIMESTAMP"
         description="Timestamp when the report was uploaded to Microsoft"
       />
 
@@ -147,6 +149,7 @@
         input="OriginalFilename"
         output="original_filename"
         parser="String"
+        qualifier="PE_ORIGINAL_FILENAME"
         description="Original file name of the crashed executable"
       />
 
@@ -175,6 +178,7 @@
         input="AppPath"
         output="app_path"
         parser="String"
+        qualifier="FILE_PATH"
         description="Full file‑system path to the application executable"
       />
 
@@ -182,6 +186,7 @@
         input="AppName"
         output="app_name"
         parser="String"
+        qualifier="APP_NAME"
         description="Human‑readable name of the application"
       />
 
@@ -259,6 +264,7 @@
         <field
           input="loaded_module"
           parser="String"
+          qualifier="FILE_PATH"
           description="Name of a module that was loaded in the process at crash time"
         />
       </array>
@@ -275,6 +281,7 @@
           <field
             input="Path"
             parser="String"
+            qualifier="FILE_NAME"
             description="File system path of the reported file"
           />
 
@@ -293,6 +300,7 @@
           <field
             input="Original"
             parser="String"
+            qualifier="FILE_PATH"
             description="Original filename before it was packaged"
           />
         </object>
@@ -302,6 +310,7 @@
         <field
           input="os_version"
           parser="String"
+          qualifier="OS_VERSION"
           description="Operating‑system version recorded in the static signature"
         />
 

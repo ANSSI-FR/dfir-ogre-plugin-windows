@@ -89,8 +89,51 @@ def value(
     elif isinstance(val, bytearray):
         return Value.String(f"0x{val.hex()}")
     elif isinstance(val, list):
-        return Value.String("".join(str(val)))
+        return Value.Array([value(item) for item in val])
     return Value.Null()
+
+
+def add_list(record: Record, name: str, val: object) -> None:
+    """
+    Add a multi-string registry value to a record as an array.
+
+    REG_MULTI_SZ data arrives as a list, but the same value is sometimes stored
+    as a single string: both are emitted as an array so the field keeps one type.
+    A missing value adds nothing.
+    """
+    if val is None:
+        return
+    if not isinstance(val, list):
+        val = [val]
+    record.add(name, Value.Array([value(item) for item in val]))
+
+
+class AmcacheSha1Parser(AbstractParser):
+    """Normalize Amcache file identifiers ("0000" + SHA-1) used by configuration-driven parsers."""
+
+    def __init__(self):
+        super().__init__()
+        self.output_field: FieldName | None = None
+
+    @classmethod
+    def build(cls, output_name: str) -> "AmcacheSha1Parser":
+        parser = cls()
+        parser.output_field = FieldName(output_name)
+        return parser
+
+    def parse(self, input: str, output_name: str) -> Record:
+        record = Record()
+        if not input:
+            return record
+
+        # an identifier that is not a SHA-1 is kept as it is rather than dropped
+        record.add(output_name, Value.String(normalize_amcache_sha1(input) or input))
+        return record
+
+    def output_fields_names(self) -> List[FieldName]:
+        if self.output_field:
+            return [self.output_field]
+        return []
 
 
 def filetime_to_utc(filetime: int) -> datetime:

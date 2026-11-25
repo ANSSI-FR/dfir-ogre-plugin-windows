@@ -16,7 +16,7 @@ from dfir_ogre_common import (
     Value,
 )
 
-from dfir_ogre_plugin_windows.common import value
+from dfir_ogre_plugin_windows.common import add_list, value
 
 logger = logging.getLogger(__name__)
 
@@ -107,10 +107,10 @@ class RegServicesControlSet(OgrePlugin):
             service.add("tag", value(tag))
 
             depend_on_group = key.value_data("DependOnGroup")
-            service.add("depend_on_group", value(depend_on_group))
+            add_list(service, "depend_on_group", depend_on_group)
 
             depend_on_service = key.value_data("DependOnService")
-            service.add("depend_on_service", value(depend_on_service))
+            add_list(service, "depend_on_service", depend_on_service)
 
             delete_flag = key.value_data("DeleteFlag")
             service.add("delete_flag", value(delete_flag))
@@ -143,7 +143,7 @@ class RegServicesControlSet(OgrePlugin):
 
             required_privileges = key.value_data("RequiredPrivileges")
 
-            service.add("required_privileges", value(required_privileges))
+            add_list(service, "required_privileges", required_privileges)
 
             launch_protected_data = key.value_data("LaunchProtected")
             if launch_protected_data:

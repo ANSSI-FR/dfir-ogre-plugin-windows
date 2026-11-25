@@ -27,11 +27,13 @@
         <field
         input="provider_name"
         parser="String"
+        qualifier="EVT_PROVIDER"
         description="Name of the source that generated the event."
       />
         <field
         input="event_id"
         parser="Int"
+        qualifier="EVT_ID"
         description="Identifier of the event (lower 16 bits of the record identifier)."
       />
 
@@ -44,6 +46,7 @@
         <field
         input="record_number"
         parser="Int"
+        qualifier="EVT_RECORD_ID"
         description="Sequential number of the event record in the EVT file."
       />
 
@@ -86,13 +89,14 @@
         <field
         input="computer_name"
         parser="String"
+        qualifier="COMPUTER_NAME"
         description="Computer name stored in the event record."
       />
 
         <field
         input="user_sid"
         parser="String"
-        qualifier="USER_ID"
+        qualifier="USER_SID"
         description="User security identifier (SID) associated with the event."
       />
         <array>
@@ -113,6 +117,7 @@
         <field
         input="written_time"
         parser="DateTime"
+        qualifier="TIMESTAMP"
         description="Timestamp when the event record was written to the log."
       />
 

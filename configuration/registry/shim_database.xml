@@ -39,6 +39,7 @@ Each row identifies an installed Windows application-compatibility shim database
         <field
           input="target"
           parser="String"
+          qualifier="FILE_NAME"
           description="application compatibility target path associated with the shim database"
         />
       </array>
@@ -181,6 +182,18 @@ Each row identifies an installed Windows application-compatibility shim database
           </object>
         </array>
       </object>
+
+      <field
+        input="guid"
+        parser="String"
+        description="GUID of the installed shim database (name of its InstalledSDB key)"
+      />
+
+      <field
+        input="description"
+        parser="String"
+        description="DatabaseDescription value of the shim database"
+      />
     </fields>
 
   </mapping>

@@ -47,6 +47,7 @@ Each row represents a Chrome visit, with URL, page title, visit time, visit coun
       <field
         input="url"
         parser="String"
+        qualifier="URL"
         description="web address that was visited"
       />
 
@@ -59,6 +60,7 @@ Each row represents a Chrome visit, with URL, page title, visit time, visit coun
       <field
         input="visit_date_ms"
         parser="DateTime"
+        qualifier="TIMESTAMP"
         output="visit_date"
         description="timestamp of the visit"
       />
@@ -72,6 +74,7 @@ Each row represents a Chrome visit, with URL, page title, visit time, visit coun
       <field
         input="referer"
         parser="String"
+        qualifier="URL"
         description="URL of the page that referred to this visit, if available"
       />
 

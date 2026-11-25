@@ -53,24 +53,28 @@ Each row describes a Windows network-interface configuration from the SYSTEM hiv
       <field
         input="dhcp_server"
         parser="String"
+        qualifier="IP_ADDRESS"
         description="Address of the DHCP server that provided the configuration"
       />
 
       <field
         input="dns_suffix"
         parser="String"
+        qualifier="DOMAIN_NAME"
         description="DNS suffix (domain) applied to the interface"
       />
 
       <field
         input="name_servers"
         parser="String"
+        qualifier="IP_ADDRESS"
         description="Comma‑separated list of DNS name‑server addresses"
       />
 
       <field
         input="gateway"
         parser="String"
+        qualifier="IP_ADDRESS"
         description="Default gateway IP address for the interface"
       />
 

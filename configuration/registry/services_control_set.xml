@@ -118,22 +118,26 @@ Each row is a Windows service or driver definition from a SYSTEM-hive control se
 
       <field
         input="tag"
-        parser="String"
+        parser="Int"
         description="numeric tag used for service ordering"
       />
 
-      <field
-        input="depend_on_group"
-        parser="String"
-        description="service groups this service depends on"
-      />
+      <array>
+        <field
+          input="depend_on_group"
+          parser="String"
+          description="service groups this service depends on"
+        />
+      </array>
 
-      <field
-        input="depend_on_service"
-        parser="String"
-        qualifier="SERVICE_NAME"
-        description="other services this service depends on"
-      />
+      <array>
+        <field
+          input="depend_on_service"
+          parser="String"
+          qualifier="SERVICE_NAME"
+          description="other services this service depends on"
+        />
+      </array>
 
       <field
         input="delete_flag"
@@ -157,7 +161,7 @@ Each row is a Windows service or driver definition from a SYSTEM-hive control se
 
       <field
         input="wow64"
-        parser="String"
+        parser="Int"
         description="WOW64 flag indicating a 32‑bit service on a 64‑bit OS"
       />
 
@@ -170,13 +174,13 @@ Each row is a Windows service or driver definition from a SYSTEM-hive control se
 
       <field
         input="delayed_auto_start"
-        parser="String"
+        parser="Int"
         description="whether the service uses delayed automatic start"
       />
 
       <field
         input="preshutdown_timeout"
-        parser="String"
+        parser="Int"
         description="pre‑shutdown timeout value (milliseconds)"
       />
 
@@ -186,12 +190,14 @@ Each row is a Windows service or driver definition from a SYSTEM-hive control se
         description="SID type assigned to the service (None, Unrestricted, Restricted)"
       />
 
-      <field
-        input="required_privileges"
-        parser="String"
-        qualifier="WINDOWS_PRIVILEGES"
-        description="list of privileges the service requires"
-      />
+      <array>
+        <field
+          input="required_privileges"
+          parser="String"
+          qualifier="WINDOWS_PRIVILEGES"
+          description="list of privileges the service requires"
+        />
+      </array>
 
       <field
         input="launch_protected"
@@ -201,13 +207,13 @@ Each row is a Windows service or driver definition from a SYSTEM-hive control se
 
       <field
         input="user_service_flags"
-        parser="String"
+        parser="Int"
         description="flags controlling user‑service permissions (e.g., DSMA allow)"
       />
 
       <field
         input="svchost_split_disable"
-        parser="String"
+        parser="Bool"
         description="whether svchost split is disabled for this service"
       />
 
@@ -220,6 +226,7 @@ Each row is a Windows service or driver definition from a SYSTEM-hive control se
       <field
         input="app_usermodel_id"
         parser="String"
+        qualifier="APP_ID"
         description="AppUserModel ID associated with the service"
       />
 
