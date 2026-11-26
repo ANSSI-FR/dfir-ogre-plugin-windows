@@ -2,14 +2,15 @@
 <plugin parser="MFT">
   <mapping data_type="mft">
     <name>MFT</name>
-    <description>    <![CDATA[Extracts MFT file records from a standalone raw $MFT. Output fields and
-      qualifiers follow NTFSInfo naming scheme. 
+    <description>    <![CDATA[
+
+Extracts MFT file records from a standalone raw $MFT. Output fields and qualifiers follow NTFSInfo naming scheme. 
       
-      It includes deleted records, sequence-aware reconstructed paths,
-      $SI/$FN timestamps, file attributes, logical stream sizes, ADS metadata and USN. Unknown
-      parent chains use *\$OrphanFiles*.
+It includes deleted records, sequence-aware reconstructed paths, $SI/$FN timestamps, file attributes, logical stream sizes, ADS metadata and USN. 
+
+Unknown parent chains use *\$OrphanFiles*.
       
-      Hashes, PE, metadata, stream contents and volume identifiers are unavailable.]]></description>
+]]></description>
     <short_description>Shows raw MFT names, paths, NTFS identifiers, timestamps, attributes, sizes
       and alternate data streams.</short_description>
     <category>File System</category>
