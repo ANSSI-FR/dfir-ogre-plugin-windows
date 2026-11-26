@@ -3,6 +3,7 @@
 import csv
 import gzip
 import json
+import struct
 import subprocess
 import sys
 from pathlib import Path
@@ -19,6 +20,52 @@ CONFIG = ROOT / "configuration" / "mft.xml"
 FIXTURE = ROOT / "tests" / "data" / "mft" / "tiny.mft.gz"
 
 
+def fixture_with_ads(streams):
+    """Append named DATA attributes to the public fixture's file8 record."""
+    raw = bytearray(gzip.decompress(FIXTURE.read_bytes()))
+    record = bytearray(raw[32 * 1024 : 33 * 1024])
+    usa, count = struct.unpack_from("<HH", record, 4)
+    for sector in range(1, count):
+        record[sector * 512 - 2 : sector * 512] = record[
+            usa + sector * 2 : usa + sector * 2 + 2
+        ]
+    offset = struct.unpack_from("<H", record, 20)[0]
+    while struct.unpack_from("<I", record, offset)[0] != 0xFFFFFFFF:
+        offset += struct.unpack_from("<I", record, offset + 4)[0]
+    for attribute_id, (name, size) in enumerate(streams, start=10):
+        name = name.encode("utf-16le")
+        resident = size is not None and size <= 1024
+        header_size = 24 if resident else 64
+        content_offset = (header_size + len(name) + 7) & ~7
+        length = (content_offset + (size if resident else 1) + 7) & ~7
+        attribute = bytearray(length)
+        struct.pack_into("<II", attribute, 0, 0x80, length)
+        attribute[8] = not resident
+        attribute[9] = len(name) // 2
+        struct.pack_into("<H", attribute, 10, header_size)
+        struct.pack_into("<H", attribute, 14, attribute_id)
+        if resident:
+            struct.pack_into("<IH", attribute, 16, size, content_offset)
+        else:
+            vcn = 1 if size is None else 0
+            struct.pack_into("<QQ", attribute, 16, vcn, vcn)
+            struct.pack_into("<H", attribute, 32, content_offset)
+            struct.pack_into("<Q", attribute, 48, size or 0)
+        attribute[header_size : header_size + len(name)] = name
+        assert offset + length + 4 <= 1024
+        record[offset : offset + length] = attribute
+        offset += length
+    struct.pack_into("<I", record, offset, 0xFFFFFFFF)
+    struct.pack_into("<I", record, 24, offset + 4)
+    for sector in range(1, count):
+        record[usa + sector * 2 : usa + sector * 2 + 2] = record[
+            sector * 512 - 2 : sector * 512
+        ]
+        record[sector * 512 - 2 : sector * 512] = record[usa : usa + 2]
+    raw[32 * 1024 : 33 * 1024] = record
+    return raw
+
+
 def output_fields(path):
     fields = {}
     for field in ET.parse(path).findall(".//fields//field"):
@@ -33,7 +80,14 @@ def output_fields(path):
 
 class MftTest(TestCase):
     def parse_fixture(
-        self, folder, *, format="jsonl", timeline=False, raw=None, config=CONFIG
+        self,
+        folder,
+        *,
+        format="jsonl",
+        timeline=False,
+        raw=None,
+        config=CONFIG,
+        include_empty=False,
     ):
         folder = Path(folder)
         source = folder / "$MFT"
@@ -45,7 +99,7 @@ class MftTest(TestCase):
             str(folder),
             format=format,
             with_timeline=timeline,
-            include_empty=False,
+            include_empty=include_empty,
         )
         report = MFT().parse(
             str(source), str(config), RunConfiguration([output]), Metadata("test")
@@ -146,6 +200,91 @@ class MftTest(TestCase):
                             for row in rows
                         )
                     )
+
+    def test_ads_objects_survive_json_and_csv_exports(self):
+        raw = fixture_with_ads(
+            [("Zone.Identifier", 5), ('custom;"stream', 0), ("large", 2**64 - 1)]
+        )
+        expected = [
+            {"name": "Zone.Identifier", "size": 5},
+            {"name": 'custom;"stream', "size": 0},
+            {"name": "large", "size": 18446744073709551615},
+        ]
+        for format in (
+            "jsonl", "csv", "normalized_jsonl", "normalized_csv", "analytics_jsonl"
+        ):
+            with self.subTest(format=format), TemporaryDirectory() as folder:
+                report = self.parse_fixture(folder, format=format, raw=raw)
+                self.assertIsNone(report.last_error)
+                path = Path(report.output_reports[0].file_reports[0].file_name)
+                if format.endswith("csv"):
+                    with path.open(newline="") as stream:
+                        row = next(
+                            row for row in csv.DictReader(stream, delimiter=";")
+                            if row["record_number"] == "32"
+                        )
+                    actual = json.loads(row["ads"])
+                else:
+                    rows = (json.loads(line) for line in path.read_text().splitlines())
+                    rows = (row.get("data", row) for row in rows)
+                    actual = next(
+                        row for row in rows if row.get("record_number") == 32
+                    )["ads"]
+                self.assertEqual(actual, expected)
+                for stream in actual:
+                    self.assertIs(type(stream["size"]), int)
+
+    def test_ads_without_named_streams_is_an_empty_array(self):
+        for format in ("jsonl", "csv"):
+            with self.subTest(format=format), TemporaryDirectory() as folder:
+                report = self.parse_fixture(folder, format=format)
+                self.assertIsNone(report.last_error)
+                path = Path(report.output_reports[0].file_reports[0].file_name)
+                if format == "csv":
+                    with path.open(newline="") as stream:
+                        row = next(
+                            row for row in csv.DictReader(stream, delimiter=";")
+                            if row["record_number"] == "32"
+                        )
+                    actual = json.loads(row["ads"])
+                else:
+                    rows = (json.loads(line) for line in path.read_text().splitlines())
+                    actual = next(
+                        row for row in rows if row.get("record_number") == 32
+                    )["ads"]
+                self.assertEqual(actual, [])
+
+    def test_ads_unknown_size_respects_empty_field_output_setting(self):
+        raw = fixture_with_ads([("partial", None)])
+        for format, include_empty in (
+            ("jsonl", True), ("jsonl", False), ("csv", True), ("csv", False)
+        ):
+            with (
+                self.subTest(format=format, include_empty=include_empty),
+                TemporaryDirectory() as folder,
+            ):
+                report = self.parse_fixture(
+                    folder, format=format, raw=raw, include_empty=include_empty
+                )
+                self.assertEqual(report.num_errors, 1)
+                self.assertIn("missing VCN-0", report.last_error)
+                path = Path(report.output_reports[0].file_reports[0].file_name)
+                if format == "csv":
+                    with path.open(newline="") as stream:
+                        row = next(
+                            row for row in csv.DictReader(stream, delimiter=";")
+                            if row["record_number"] == "32"
+                        )
+                    actual = json.loads(row["ads"])
+                else:
+                    rows = (json.loads(line) for line in path.read_text().splitlines())
+                    row = next(row for row in rows if row.get("record_number") == 32)
+                    actual = row["ads"]
+                expected = (
+                    {"name": "partial", "size": None}
+                    if include_empty or format == "csv" else {"name": "partial"}
+                )
+                self.assertEqual(actual, [expected])
 
     def test_corruption_is_reported_once_and_later_records_survive(self):
         data = bytearray(gzip.decompress(FIXTURE.read_bytes()))

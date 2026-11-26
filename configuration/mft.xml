@@ -29,7 +29,12 @@
       <field input="parent_record_number" parser="Int" description="record number of the parent directory" />
       <field input="hard_link_count" parser="Int" description="hard link count stored in the MFT record header" />
       <field input="short_name" parser="String" description="DOS 8.3 alias when it can be associated unambiguously with this link" />
-      <field input="ads" parser="String" description="alternate data streams as name:size, separated by semicolons" />
+      <array>
+        <object input="ads" description="alternate data streams as name/size objects; an empty array when none are found; CSV stores the array as JSON in one cell">
+          <field input="name" parser="String" description="alternate data stream name" />
+          <field input="size" parser="UInt" description="logical stream size in bytes; null when VCN-0 metadata is unavailable (omitted from JSONL when empty fields are disabled)" />
+        </object>
+      </array>
       <field input="file_attribute_raw" parser="String" description="raw FILE_ATTRIBUTE bitmask in hexadecimal, including unknown bits" />
       <field input="file_attributes_archive" parser="Bool" description="archive attribute flag" />
       <field input="file_attributes_no_scrub_data" parser="Bool" description="no-scrub-data attribute flag" />
