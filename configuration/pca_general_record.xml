@@ -9,13 +9,13 @@ Each row is a Program Compatibility Assistant general record, with run time, exe
     </description>
     <short_description>Shows Program Compatibility Assistant execution records with paths, times, status, vendor, version, and exit code.</short_description>
     <category>Logs</category>
-    <default_date_pattern value='%Y-%m-%d %H:%M:%S.%f' />
+    <default_date_pattern value='%Y-%m-%d %H:%M:%S%.f' />
     <!-- regexp specific parameters -->
     <skip_lines value="0" />
     <regexp_fail_policy value="Fail" />
     <regex>
       <![CDATA[
-        (?P<run_time>[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3})\|(?P<run_status>[0-9])\|(?P<executable_path>[\S\s]+|\\[\S\s]+)\|(?P<file_description>[\w ]+)\|(?P<software_vendor>[\w\W]+)\|(?P<file_version>[\w\W]+)\|(?P<program_id>[a-z0-9]{44})\|(?P<exitcode_value>[\w\W]+)
+        ^(?P<run_time>[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3})\|(?P<run_status>[0-9])\|(?P<executable_path>[^|\r\n]+)\|(?P<file_description>[^|\r\n]*)\|(?P<software_vendor>[^|\r\n]*)\|(?P<file_version>[^|\r\n]*)\|(?P<program_id>[a-z0-9]*)\|(?P<exitcode_value>[^\r\n]*)\r?\n?$
       ]]>
     </regex>
 

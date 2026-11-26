@@ -64,6 +64,7 @@ from .registry.explorer_search_history import (
 from .tcp_connection import TCPConn as TCPConn
 from .sqlite import SQLite as SQLite
 from .srum import Srum as Srum
+from .system_info import SystemInfo as SystemInfo
 from .usn_info import USNInfo as USNInfo
 from .wer import Wer as Wer
 from .xml import XML as XML

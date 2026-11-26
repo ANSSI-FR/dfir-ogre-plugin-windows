@@ -6,7 +6,7 @@
     <short_description>Shows FastFind filesystem matches with paths, NTFS identifiers, timestamps, attributes, hashes, and match context.</short_description>
     <category>Fast Find</category>
     <default_parser value="Ignore" />
-    <default_date_pattern value='%Y-%m-%d %H:%M:%S.%f' />
+    <default_date_pattern value='%Y-%m-%d %H:%M:%S%.f' />
 
     <!-- Timeline definition -->
     <timeline>

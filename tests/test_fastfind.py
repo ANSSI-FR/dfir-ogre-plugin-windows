@@ -1,5 +1,7 @@
 import json
 import os
+import tempfile
+from pathlib import Path
 from unittest import TestCase
 
 from dfir_ogre_common import Metadata, OutputConfiguration, RunConfiguration
@@ -15,6 +17,62 @@ os.makedirs(TEMP_FOLDER, exist_ok=True)
 
 
 class TestFastfind(TestCase):
+    def _parse_xml(self, text, configuration, parser):
+        with tempfile.TemporaryDirectory(prefix="ogre-fastfind-test-") as temporary:
+            root = Path(temporary)
+            source = root / "FastFind.xml"
+            source.write_text(text, encoding="utf-8")
+            output = OutputConfiguration("record", str(root), with_timeline=False)
+            report = parser.parse(
+                str(source),
+                os.path.join(CONF_FOLDER, configuration),
+                RunConfiguration([output]),
+                Metadata("test"),
+            )
+            records = [
+                json.loads(row)
+                for group in report.output_reports
+                for file in group.file_reports
+                for row in Path(file.file_name).read_text().splitlines()
+            ]
+            return report, records
+
+    def test_fastfind_filesystem_preserves_fractional_precision(self):
+        report, records = self._parse_xml(
+            """<fast_find><filesystem><filefind_match><record>
+              <standardinformation creation="2026-07-20 12:00:00.548" />
+              <filename creation="2026-07-20 12:00:00.123456" />
+              <i30 creation="2026-07-20 12:00:00.987654" />
+            </record></filefind_match></filesystem></fast_find>""",
+            "fastfind_file.xml",
+            FastFind(),
+        )
+
+        self.assertIsNone(report.last_error)
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0]["si_creation_date"], "2026-07-20T12:00:00.548000+00:00")
+        self.assertEqual(records[0]["fn_creation_date"], "2026-07-20T12:00:00.123456+00:00")
+        self.assertEqual(records[0]["i30_creation"], "2026-07-20T12:00:00.987654+00:00")
+
+    def test_fastfind_registry_preserves_fractional_precision(self):
+        report, records = self._parse_xml(
+            """<fast_find><registry><hive><regfind_match>
+              <key lastmodified_key="2026-07-20 12:00:00.548" />
+              <value lastmodified_key="2026-07-20 12:00:00.123456" />
+            </regfind_match></hive></registry></fast_find>""",
+            "fastfind_registry.xml",
+            XML(),
+        )
+
+        self.assertIsNone(report.last_error)
+        self.assertEqual(len(records), 1)
+        self.assertEqual(
+            records[0]["key"][0]["lastmodified_key"], "2026-07-20T12:00:00.548000+00:00"
+        )
+        self.assertEqual(
+            records[0]["value"][0]["lastmodified_key"], "2026-07-20T12:00:00.123456+00:00"
+        )
+
     # python -m unittest tests.test_fastfind.TestFastfind.test_fastfind_object -v
     def test_fastfind_object(self):
         plugin_file = os.path.join(CONF_FOLDER, "fastfind_object.xml")

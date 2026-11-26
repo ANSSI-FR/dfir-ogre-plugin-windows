@@ -9,13 +9,13 @@ Each row is an application launch recorded by the Windows Program Compatibility 
     </description>
     <short_description>Shows Program Compatibility Assistant application launches with executable paths and precise timestamps.</short_description>
     <category>Logs</category>
-    <default_date_pattern value='%Y-%m-%d %H:%M:%S.%f' />
+    <default_date_pattern value='%Y-%m-%d %H:%M:%S%.f' />
     <!-- regexp specific parameters -->
     <skip_lines value="0" />
     <regexp_fail_policy value="Skip" />
     <regex>
       <![CDATA[
-        (?P<executable_path>[A-Z]:[\S\s]+|\\[\S\s]+)\|(?P<timestamp>[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3})
+        ^(?P<executable_path>[^|\r\n]+)\|(?P<timestamp>[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3})\r?\n?$
       ]]>
     </regex>
 

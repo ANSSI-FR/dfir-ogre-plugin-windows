@@ -1,5 +1,7 @@
 import json
 import os
+import tempfile
+from pathlib import Path
 from unittest import TestCase
 
 from dfir_ogre_common import Metadata, OutputConfiguration, RunConfiguration
@@ -14,6 +16,145 @@ os.makedirs(TEMP_FOLDER, exist_ok=True)
 
 
 class TestPca(TestCase):
+    def _parse_app_launch_lines(self, lines):
+        with tempfile.TemporaryDirectory(prefix="ogre-pca-test-") as temporary:
+            root = Path(temporary)
+            source = root / "PcaAppLaunchDic.txt"
+            source.write_text(lines, encoding="utf-8")
+            output = OutputConfiguration("record", str(root), with_timeline=False)
+            report = RegExp().parse(
+                str(source),
+                os.path.join(CONF_FOLDER, "pca_app_launch.xml"),
+                RunConfiguration([output]),
+                Metadata("test"),
+            )
+            records = [
+                json.loads(row)
+                for group in report.output_reports
+                for file in group.file_reports
+                for row in Path(file.file_name).read_text().splitlines()
+            ]
+            return report, records
+
+    def _parse_general_line(self, line):
+        with tempfile.TemporaryDirectory(prefix="ogre-pca-test-") as temporary:
+            root = Path(temporary)
+            source = root / "PcaGeneralDb.txt"
+            source.write_text(line, encoding="utf-16-le")
+            output = OutputConfiguration("record", str(root), with_timeline=False)
+            report = RegExp().parse(
+                str(source),
+                os.path.join(CONF_FOLDER, "pca_general_record.xml"),
+                RunConfiguration([output]),
+                Metadata("test"),
+            )
+            records = [
+                json.loads(row)
+                for group in report.output_reports
+                for file in group.file_reports
+                for row in Path(file.file_name).read_text().splitlines()
+            ]
+            return report, records
+
+    def test_app_launch_preserves_full_paths(self):
+        for path in (
+            r"c:\Tools\app.exe",
+            r"C:\Program Files\Tool\app.exe",
+            r"\\server\share\app.exe",
+            r"%programfiles%\Tool\app.exe",
+        ):
+            for ending in ("\n", "\r\n", ""):
+                with self.subTest(path=path, ending=ending):
+                    report, records = self._parse_app_launch_lines(
+                        path + "|2026-07-20 12:00:00.548" + ending
+                    )
+
+                    self.assertIsNone(report.last_error)
+                    self.assertEqual(len(records), 1)
+                    self.assertEqual(records[0]["executable_path"], path)
+
+    def test_app_launch_preserves_millisecond_precision(self):
+        report, records = self._parse_app_launch_lines(
+            "C:\\Tools\\app.exe|2026-07-20 12:00:00.548\n"
+        )
+
+        self.assertIsNone(report.last_error)
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0]["timestamp"], "2026-07-20T12:00:00.548000+00:00")
+
+    def test_app_launch_skips_malformed_rows(self):
+        valid = "C:\\Tools\\valid.exe|2026-07-20 12:00:00.548"
+        for malformed in (
+            "|2026-07-20 12:00:00.548",
+            "C:\\Tools\\app.exe",
+            "C:\\Tools\\app.exe|2026-07-20 12:00:00x548",
+            "C:\\Tools\\app.exe|2026-07-20 12:00:00.548|extra",
+            "prefix|C:\\Tools\\app.exe|2026-07-20 12:00:00.548",
+        ):
+            with self.subTest(malformed=malformed):
+                report, records = self._parse_app_launch_lines(
+                    malformed + "\r\n" + valid + "\n"
+                )
+
+                self.assertIsNone(report.last_error)
+                self.assertEqual(len(records), 1)
+                self.assertEqual(records[0]["executable_path"], r"C:\Tools\valid.exe")
+
+    def test_general_records_preserve_millisecond_precision(self):
+        report, records = self._parse_general_line(
+            "2026-07-20 12:00:00.548|2|C:\\Tools\\app.exe|||||\n"
+        )
+
+        self.assertIsNone(report.last_error)
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0]["run_time"], "2026-07-20T12:00:00.548000+00:00")
+
+    def test_general_records_allow_empty_optional_fields(self):
+        fields = [
+            "2026-07-20 12:00:00.123", "2", r"C:\Tools\app.exe",
+            "Tool", "Vendor", "1.0", "a" * 44, "Process exited with code 0x0",
+        ]
+        names = ["file_description", "software_vendor", "file_version", "program_id", "exitcode_value"]
+        for empty_fields in [(index,) for index in range(3, 8)] + [tuple(range(3, 8))]:
+            for ending in ("\n", "\r\n", ""):
+                with self.subTest(empty_fields=empty_fields, ending=ending):
+                    expected = fields.copy()
+                    for index in empty_fields:
+                        expected[index] = ""
+                    report, records = self._parse_general_line("|".join(expected) + ending)
+
+                    self.assertIsNone(report.last_error)
+                    self.assertEqual(len(records), 1)
+                    record = records[0]
+                    self.assertEqual(record["executable_path"], r"C:\Tools\app.exe")
+                    self.assertEqual(record["run_status"], 2)
+                    self.assertTrue(record["run_time"].startswith("2026-07-20T12:00:00"))
+                    for name, expected_value in zip(names, expected[3:]):
+                        self.assertEqual(record[name], expected_value)
+
+    def test_general_records_allow_description_punctuation(self):
+        report, records = self._parse_general_line(
+            "2026-07-20 12:00:00.123|2|C:\\Tools\\app.exe|Tool - x64 (v1.0)|Vendor|1.0|"
+            + "a" * 44 + "|Process exited with code 0x0\r\n"
+        )
+
+        self.assertIsNone(report.last_error)
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0]["file_description"], "Tool - x64 (v1.0)")
+        self.assertEqual(records[0]["exitcode_value"], "Process exited with code 0x0")
+
+    def test_general_records_reject_malformed_structure(self):
+        for line in (
+            "2026-07-20 12:00:00.123|2|C:\\Tools\\app.exe",
+            "2026-07-20 12:00:00.123|2||||||",
+            "2026-07-20 12:00:00.123|bad|C:\\Tools\\app.exe|||||",
+        ):
+            with self.subTest(line=line):
+                report, records = self._parse_general_line(line + "\n")
+
+                self.assertIsNotNone(report.last_error)
+                self.assertEqual(records, [])
+
     # python -m unittest tests.test_pca.TestPca.test_general_db0 -v
     def test_general_db0(self):
         plugin_file = os.path.join(CONF_FOLDER, "pca_general_record.xml")

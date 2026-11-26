@@ -1,28 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<plugin parser="Regexp" file_encoding="IBM866">
+<plugin parser="SystemInfo" file_encoding="IBM866">
   <mapping data_type="systeminfo">
     <name>Systeminfo</name>
     <description
     ><![CDATA[
-Each row summarizes a host from Windows systeminfo output, including hostname, OS edition and build, installation and boot times, hardware, memory, domain, hotfixes, network adapters, and virtualization support. Use it to scope the system and interpret version-dependent artifacts. Values reflect collection-time or OS-reported state rather than historical activity.
+Each row summarizes a host from Windows systeminfo output, including hostname, OS edition and build, installation date, boot time or uptime, hardware, memory, domain, hotfixes, network adapters, and virtualization support. Use it to scope the system and interpret version-dependent artifacts. Values remain raw strings and reflect collection-time or OS-reported state rather than historical activity.
 ]]></description>
     <short_description>Shows Windows host, OS, installation, boot, hardware, BIOS, processor, network, and update information.</short_description>
     <category>System Information</category>
-
-    <!-- The CSV header is on line 1 → skip it -->
-    <skip_lines value="1" />
-
-    <!-- Fail the whole file if a line cannot be parsed -->
-    <regexp_fail_policy value="Fail" />
-
-    <!-- Default date pattern for the two date fields -->
-    <default_date_pattern value="%d/%m/%Y, %H:%M:%S" />
-
-    <!-- Regular expression that captures every column -->
-    <regex>
-    <![CDATA[^(?:"(?P<host_name>[^"]*)"\s*,\s*)"(?P<os_name>[^"]*)"\s*,\s*"(?P<os_version>[^"]*)"\s*,\s*"(?P<os_manufacturer>[^"]*)"\s*,\s*"(?P<os_configuration>[^"]*)"\s*,\s*"(?P<os_build_type>[^"]*)"\s*,\s*"(?P<registered_owner>[^"]*)"\s*,\s*"(?P<registered_organization>[^"]*)"\s*,\s*"(?P<product_id>[^"]*)"\s*,\s*"(?P<original_install_date>[^"]*)"\s*,\s*"(?P<system_boot_time>[^"]*)"\s*,\s*"(?P<system_manufacturer>[^"]*)"\s*,\s*"(?P<system_model>[^"]*)"\s*,\s*"(?P<system_type>[^"]*)"\s*,\s*"(?P<processors>[^"]*)"\s*,\s*"(?P<bios_version>[^"]*)"\s*,\s*"(?P<windows_directory>[^"]*)"\s*,\s*"(?P<system_directory>[^"]*)"\s*,\s*"(?P<boot_device>[^"]*)"\s*,\s*"(?P<system_locale>[^"]*)"\s*,\s*"(?P<input_locale>[^"]*)"\s*,\s*"(?P<time_zone>[^"]*)"\s*,\s*"(?P<total_physical_memory>[^"]*)"\s*,\s*"(?P<available_physical_memory>[^"]*)"\s*,\s*"(?P<virtual_memory_max_size>[^"]*)"\s*,\s*"(?P<virtual_memory_available>[^"]*)"\s*,\s*"(?P<virtual_memory_in_use>[^"]*)"\s*,\s*"(?P<page_file_location>[^"]*)"\s*,\s*"(?P<domain>[^"]*)"\s*,\s*"(?P<logon_server>[^"]*)"\s*,\s*"(?P<hotfix>[^"]*)"\s*,\s*"(?P<network_cards>[^"]*)"\s*,\s*"(?P<hyper_v_requirements>[^"]*)"
-]]>
-    </regex>
 
     <timeline>
       <timeline_type value="Standard" />
@@ -88,6 +73,11 @@ Each row summarizes a host from Windows systeminfo output, including hostname, O
         input="system_boot_time"
         parser="String"
         description="System boot time"
+      />
+      <field
+        input="system_up_time"
+        parser="String"
+        description="System uptime duration reported by older Windows versions"
       />
       <field
         input="system_manufacturer"
